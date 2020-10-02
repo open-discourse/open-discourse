@@ -1,0 +1,7 @@
+node_modules
+
+# generated types
+schema.graphql
+
+yarn-debug.log*
+yarn-error.log*

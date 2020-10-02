@@ -1,0 +1,40 @@
+version: "2.1"
+
+services:
+  database:
+    container_name: open-discourse-database
+    image: postgres:11.6
+    volumes:
+      - ./database/data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  graphql:
+    command: yarn dev
+    build: graphql
+    volumes:
+      - ./graphql/package.json:/srv/package.json
+      - ./graphql/yarn.lock:/srv/yarn.lock
+      - ./graphql/src/:/srv/src/
+    environment:
+      - POSTGRES_DB_NAME=next
+      - POSTGRES_DB_USER=postgres
+      - POSTGRES_DB_PASSWORD=postgres
+      - POSTGRES_DB_HOST=open-discourse-database
+      - POSTGRES_DB_PORT=5432
+      - ENABLE_GRAPHIQL=true
+      - CORS_ORIGIN=http://localhost:5000
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
