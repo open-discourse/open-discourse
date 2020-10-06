@@ -14,7 +14,7 @@ parties = {
     "GB/BHE": r"(?:GB[/-]\s*)?BHE(?:-DG)?",
     "DP": "DP",
     "KPD": "KPD",
-    "Z": "Z\s|Zentrum",
+    "Z": r"Z\s|Zentrum",
     "BP": "BP|Bayernpartei",
     "FU": "FU",
     "WAV": "WAV",
@@ -38,14 +38,11 @@ text_Pattern = (
 )
 
 # Bracket Patterns (can also be extended modularly):
-start_contributions_opening_bracket_Pattern = {
-    0: r"(?:(?<=\()|(?<=[-––]\s)|(?<=[––])|(?<=[-––]\.\s)|(?<=\s[-––]){})"
-}
-start_contributions_closing_bracket_Pattern = {
-    0: r"(?=\)|–[^\)\(]+\)|{{|—[^\)\(]+\)|\)|-[^\)\(]+\){})"
-}
-opening_bracket_Pattern = {0: r"[({\[]"}
-closing_bracket_Pattern = {0: r"[)}\]]"}
+start_contributions_opening_bracket_Pattern = r"(?:(?<=\()|(?<=[-––]\s)|(?<=[––])|(?<=[-––]\.\s)|(?<=\s[-––]){})"
+start_contributions_closing_bracket_Pattern = r"(?=\)|–[^\)\(]+\)|{{|—[^\)\(]+\)|\)|-[^\)\(]+\){})"
+
+opening_bracket_Pattern = r"[({\[]"
+closing_bracket_Pattern = r"[)}\]]"
 
 # Base Patterns:
 base_applause_Pattern = (
@@ -206,30 +203,18 @@ def extract_initiators(initiators, wp, sitting, identity, text_position, frame, 
         )
         initiators = initiators.replace(other_contributions.group(), "")
 
-    # Check if wp is under wp 8
-    if wp < 8:
-        # Check if sitting is under 7115
-        if sitting < 7115:
-            # Set name pattern to the second name pattern (second row in name_Pattern)
-            name_Pattern_id = 1
-            bracket_Pattern_id = 0
-        else:
-            # Set name pattern to the first name pattern (first row in name_Pattern)
-            name_Pattern_id = 0
-            bracket_Pattern_id = 0
-    elif wp >= 8 and wp < 20:
+    if sitting < 7115:
+        # Set name pattern to the second name pattern (second row in name_Pattern)
+        name_Pattern_id = 1
+    else:
         # Set name pattern to the first name pattern (first row in name_Pattern)
         name_Pattern_id = 0
-        bracket_Pattern_id = 0
-    else:
-        # Not a valid wp
-        raise AttributeError()
 
     # Create the first_person_search_Pattern (looking for key Abg.)
     first_person_search_Pattern = r"Abg\s?\.\s?{}(?:(?<=!:)|(?!:))".format(
         name_Pattern[name_Pattern_id].format(
-            opening_bracket_Pattern[bracket_Pattern_id],
-            closing_bracket_Pattern[bracket_Pattern_id],
+            opening_bracket_Pattern,
+            closing_bracket_Pattern,
         )
     )
     # Find match
@@ -244,12 +229,12 @@ def extract_initiators(initiators, wp, sitting, identity, text_position, frame, 
             # Try to get the persons party
             try:
                 party = first_person_match.group("party")
-            except:
+            except IndexError:
                 party = ""
             # Try to get the persons location information
             try:
                 location_information = first_person_match.group("location_information")
-            except:
+            except IndexError:
                 location_information = ""
             # Add an entry to the frame
             frame = add_entry(
@@ -266,31 +251,29 @@ def extract_initiators(initiators, wp, sitting, identity, text_position, frame, 
     # Create the first_person_search_Pattern (looking for key und)
     second_person_search_Pattern = r"(?:\sund|sowie\sdes)\s+(?:des|der)?{}(?:(?<=!:)|(?!:))".format(
         name_Pattern[name_Pattern_id].format(
-            opening_bracket_Pattern[bracket_Pattern_id],
-            closing_bracket_Pattern[bracket_Pattern_id],
+            opening_bracket_Pattern,
+            closing_bracket_Pattern,
         )
     )
 
     # Find match
     second_person_match = regex.search(second_person_search_Pattern, initiators,)
     if second_person_match:
-        first_flag = True
         # Remove the person name from the search text
         initiators = initiators.replace(second_person_match.group(), "")
         # Check if the person was just asking a "Zwischenfrage"
         if not regex.search("[Zz]wischenfrage", initiators):
-            second_flag = True
             # Get the persons name
             name = second_person_match.group("name")
             # Try to get the persons party
             try:
                 party = second_person_match.group("party")
-            except:
+            except IndexError:
                 party = ""
             # Try to get the persons location information
             try:
                 location_information = second_person_match.group("location_information")
-            except:
+            except IndexError:
                 location_information = ""
             # Add an entry to the frame
             frame = add_entry(
@@ -358,32 +341,14 @@ def extract_initiators(initiators, wp, sitting, identity, text_position, frame, 
 
 def extract_applause(text, wp, sitting, identity, text_position, frame):
     """Extracts applause from the given text"""
-    # Check if wp is under wp 8
-    if wp < 8:
-        # Check if sitting is under 7115
-        if sitting < 7115:
-            # Set name pattern to the second name pattern (second row in name_Pattern)
-            name_Pattern_id = 1
-            start_bracket_Pattern_id = 0
-        else:
-            # Set name pattern to the first name pattern (first row in name_Pattern)
-            name_Pattern_id = 0
-            start_bracket_Pattern_id = 0
-    elif wp >= 8 and wp < 20:
-        # Set name pattern to the first name pattern (first row in name_Pattern)
-        name_Pattern_id = 0
-        start_bracket_Pattern_id = 0
-    else:
-        # Not a valid wp
-        raise AttributeError()
 
     # creates the Pattern modularly
     applause_Pattern = (
-        start_contributions_opening_bracket_Pattern[start_bracket_Pattern_id].format(
+        start_contributions_opening_bracket_Pattern.format(
             ""  # Nothing to extend, so .format("")
         )
         + base_applause_Pattern
-        + start_contributions_closing_bracket_Pattern[start_bracket_Pattern_id].format(
+        + start_contributions_closing_bracket_Pattern.format(
             ""  # Nothing to extend, so .format("")
         )
     )
@@ -410,42 +375,28 @@ def extract_applause(text, wp, sitting, identity, text_position, frame):
 
 def extract_person_interjection(text, wp, sitting, identity, text_position, frame):
     """Extracts person interjections from the given text"""
-    # Check if wp is under wp 8
-    if wp < 8:
-        # Check if sitting is under 7115
-        if sitting < 7115:
-            # Set name pattern to the second name pattern (second row in name_Pattern)
-            name_Pattern_id = 1
-            start_bracket_Pattern_id = 0
-            bracket_Pattern_id = 0
-            extra_Pattern = r"(?:Abg\s?\.\s?)"
-        else:
-            # Set name pattern to the first name pattern (first row in name_Pattern)
-            name_Pattern_id = 0
-            start_bracket_Pattern_id = 0
-            bracket_Pattern_id = 0
-            extra_Pattern = ""
-    elif wp >= 8 and wp < 20:
+
+    # Check if sitting is under 7115
+    if sitting < 7115:
+        # Set name pattern to the second name pattern (second row in name_Pattern)
+        name_Pattern_id = 1
+        extra_Pattern = r"(?:Abg\s?\.\s?)"
+    else:
         # Set name pattern to the first name pattern (first row in name_Pattern)
         name_Pattern_id = 0
-        start_bracket_Pattern_id = 0
-        bracket_Pattern_id = 0
         extra_Pattern = ""
-    else:
-        # Not a valid wp
-        raise AttributeError()
 
     # creates the Pattern "very" modularly
     person_interjection_Pattern = (
-        start_contributions_opening_bracket_Pattern[start_bracket_Pattern_id].format("")
+        start_contributions_opening_bracket_Pattern.format("")
         + base_person_interjection_Pattern.format(
             extra_Pattern
             + name_Pattern[name_Pattern_id].format(
-                opening_bracket_Pattern[bracket_Pattern_id],
-                closing_bracket_Pattern[bracket_Pattern_id],
+                opening_bracket_Pattern,
+                closing_bracket_Pattern,
             )
         )
-        + start_contributions_closing_bracket_Pattern[start_bracket_Pattern_id].format(
+        + start_contributions_closing_bracket_Pattern.format(
             ""
         )
     )
@@ -464,12 +415,12 @@ def extract_person_interjection(text, wp, sitting, identity, text_position, fram
         # Try to get the party
         try:
             party = match.group("party")
-        except:
+        except IndexError:
             party = ""
         # Try to get the location_information
         try:
             location_information = match.group("location_information")
-        except:
+        except IndexError:
             location_information = ""
 
         # Add entry to the frame
@@ -489,43 +440,30 @@ def extract_person_interjection(text, wp, sitting, identity, text_position, fram
 
 def extract_shout(text, wp, sitting, identity, text_position, frame):
     """Extracts shouts from the given text"""
-    # Check if wp is under wp 8
-    if wp < 8:
-        # Check if sitting is under 7115
-        if sitting < 7115:
-            # Set name pattern to the second name pattern (second row in name_Pattern)
-            name_Pattern_id = 1
-            start_bracket_Pattern_id = 0
-            bracket_Pattern_id = 0
-        else:
-            # Set name pattern to the first name pattern (first row in name_Pattern)
-            name_Pattern_id = 0
-            start_bracket_Pattern_id = 0
-            bracket_Pattern_id = 0
-    elif wp >= 8 and wp < 20:
+
+    # Check if sitting is under 7115
+    if sitting < 7115:
+        # Set name pattern to the second name pattern (second row in name_Pattern)
+        name_Pattern_id = 1
+    else:
         # Set name pattern to the first name pattern (first row in name_Pattern)
         name_Pattern_id = 0
-        start_bracket_Pattern_id = 0
-        bracket_Pattern_id = 0
-    else:
-        # Not a valid wp
-        raise AttributeError()
 
     # creates the Pattern modularly
     shout_Pattern = (
-        start_contributions_opening_bracket_Pattern[start_bracket_Pattern_id].format(
+        start_contributions_opening_bracket_Pattern.format(
             r"|(?<=[Hh]eiterkeit\s)|(?<=[Ll]achen\s)|(?<=[Ww]eiterer\s)|(?<=[Ww]eitere\s)|(?<=[Ee]rneuter\s)|(?<=[Ee]rneute\s)|(?<=[Ff]ortgesetzte\s)|(?<=[Ll]ebhafte\s)|(?<=[Ww]eitere\s[Ll]ebhafte\s|(?<=Andauernde\s)|(?<=Fortdauernde\s))"  # Extending the opening_bracket_Pattern
         )
         + base_shout_Pattern.format(
-            "\s*Abg\s?\.\s?{}".format(
+            r"\s*Abg\s?\.\s?{}".format(
                 name_Pattern[name_Pattern_id].format(
-                    opening_bracket_Pattern[bracket_Pattern_id],
-                    closing_bracket_Pattern[bracket_Pattern_id],
+                    opening_bracket_Pattern,
+                    closing_bracket_Pattern,
                 )
             ),
             text_Pattern.format("").replace("{}", "{{}}"),
         )
-        + start_contributions_closing_bracket_Pattern[start_bracket_Pattern_id].format(
+        + start_contributions_closing_bracket_Pattern.format(
             ""  # Nothing to extend, so .format("")
         )
     )
@@ -551,19 +489,19 @@ def extract_shout(text, wp, sitting, identity, text_position, frame):
             # Get the name
             try:
                 name = match.group("name")
-            except:
+            except IndexError:
                 name = ""
             # Get the content
             content = match.group("content")
             # Try to get the party
             try:
                 party = match.group("party")
-            except:
+            except IndexError:
                 party = ""
             # Try to get the location_information
             try:
                 location_information = match.group("location_information")
-            except:
+            except IndexError:
                 location_information = ""
             # Add an entry to the frame
             frame = add_entry(
@@ -580,7 +518,7 @@ def extract_shout(text, wp, sitting, identity, text_position, frame):
     # Extract party shouts
     # creates the Pattern modularly
     party_shout_Pattern = (
-        start_contributions_opening_bracket_Pattern[start_bracket_Pattern_id].format(
+        start_contributions_opening_bracket_Pattern.format(
             r"|(?<=[Hh]eiterkeit\s)|(?<=[Ll]achen\s)|(?<=[Ww]eiterer\s)|(?<=[Ww]eitere\s)|(?<=[Ee]rneuter\s)|(?<=[Ee]rneute\s)|(?<=[Ff]ortgesetzte\s)|(?<=[Ll]ebhafte\s)|(?<=[Ww]eitere\s[Ll]ebhafte\s|(?<=Andauernde\s)|(?<=Fortdauernde\s))"  # Extending the opening_bracket_Pattern
         )
         + r"(?P<delete>(?P<initiator>"
@@ -588,7 +526,7 @@ def extract_shout(text, wp, sitting, identity, text_position, frame):
         + r"+):\s*(?P<content>"
         + text_Pattern
         + r"+))"
-        + start_contributions_closing_bracket_Pattern[start_bracket_Pattern_id].format(
+        + start_contributions_closing_bracket_Pattern.format(
             ""  # Nothing to extend, so .format("")
         )
     )
@@ -621,32 +559,14 @@ def extract_shout(text, wp, sitting, identity, text_position, frame):
 
 def extract_cheerfulness(text, wp, sitting, identity, text_position, frame):
     """Extracts cheerfulness from the given text"""
-    # Check if wp is under wp 8
-    if wp < 8:
-        # Check if sitting is under 7115
-        if sitting < 7115:
-            # Set name pattern to the second name pattern (second row in name_Pattern)
-            name_Pattern_id = 1
-            start_bracket_Pattern_id = 0
-        else:
-            # Set name pattern to the first name pattern (first row in name_Pattern)
-            name_Pattern_id = 0
-            start_bracket_Pattern_id = 0
-    elif wp >= 8 and wp < 20:
-        # Set name pattern to the first name pattern (first row in name_Pattern)
-        name_Pattern_id = 0
-        start_bracket_Pattern_id = 0
-    else:
-        # Not a valid wp
-        raise AttributeError()
 
     # creates the Pattern modularly
     cheerfulness_Pattern = (
-        start_contributions_opening_bracket_Pattern[start_bracket_Pattern_id].format(
+        start_contributions_opening_bracket_Pattern.format(
             ""  # Nothing to extend, so .format("")
         )
         + base_cheerfulness_Pattern
-        + start_contributions_closing_bracket_Pattern[start_bracket_Pattern_id].format(
+        + start_contributions_closing_bracket_Pattern.format(
             ""  # Nothing to extend, so .format("")
         )
     )
@@ -672,32 +592,14 @@ def extract_cheerfulness(text, wp, sitting, identity, text_position, frame):
 
 def extract_objection(text, wp, sitting, identity, text_position, frame):
     """Extracts objection from the given text"""
-    # Check if wp is under wp 8
-    if wp < 8:
-        # Check if sitting is under 7115
-        if sitting < 7115:
-            # Set name pattern to the second name pattern (second row in name_Pattern)
-            name_Pattern_id = 1
-            start_bracket_Pattern_id = 0
-        else:
-            # Set name pattern to the first name pattern (first row in name_Pattern)
-            name_Pattern_id = 0
-            start_bracket_Pattern_id = 0
-    elif wp >= 8 and wp < 20:
-        # Set name pattern to the first name pattern (first row in name_Pattern)
-        name_Pattern_id = 0
-        start_bracket_Pattern_id = 0
-    else:
-        # Not a valid wp
-        raise AttributeError()
 
     # creates the Pattern modularly
     objection_Pattern = (
-        start_contributions_opening_bracket_Pattern[start_bracket_Pattern_id].format(
+        start_contributions_opening_bracket_Pattern.format(
             ""  # Nothing to extend, so .format("")
         )
         + base_objection_Pattern
-        + start_contributions_closing_bracket_Pattern[start_bracket_Pattern_id].format(
+        + start_contributions_closing_bracket_Pattern.format(
             ""  # Nothing to extend, so .format("")
         )
     )
@@ -723,32 +625,14 @@ def extract_objection(text, wp, sitting, identity, text_position, frame):
 
 def extract_laughter(text, wp, sitting, identity, text_position, frame):
     """Extracts laughter from the given text"""
-    # Check if wp is under wp 8
-    if wp < 8:
-        # Check if sitting is under 7115
-        if sitting < 7115:
-            # Set name pattern to the second name pattern (second row in name_Pattern)
-            name_Pattern_id = 1
-            start_bracket_Pattern_id = 0
-        else:
-            # Set name pattern to the first name pattern (first row in name_Pattern)
-            name_Pattern_id = 0
-            start_bracket_Pattern_id = 0
-    elif wp >= 8 and wp < 20:
-        # Set name pattern to the first name pattern (first row in name_Pattern)
-        name_Pattern_id = 0
-        start_bracket_Pattern_id = 0
-    else:
-        # Not a valid wp
-        raise AttributeError()
 
     # creates the Pattern modularly
     laughter_Pattern = (
-        start_contributions_opening_bracket_Pattern[start_bracket_Pattern_id].format(
+        start_contributions_opening_bracket_Pattern.format(
             ""  # Nothing to extend, so .format("")
         )
         + base_laughter_Pattern
-        + start_contributions_closing_bracket_Pattern[start_bracket_Pattern_id].format(
+        + start_contributions_closing_bracket_Pattern.format(
             r"|\sund\sZurufe\)"  # Extending the closing_bracket_Pattern
         )
     )
@@ -774,35 +658,14 @@ def extract_laughter(text, wp, sitting, identity, text_position, frame):
 
 def extract_approval(text, wp, sitting, identity, text_position, frame):
     """Extracts approval from the given text"""
-    # Check if wp is under wp 8
-    if wp < 8:
-        # Check if sitting is under 7115
-        if sitting < 7115:
-            # Set name pattern to the second name pattern (second row in name_Pattern)
-            name_Pattern_id = 1
-            start_bracket_Pattern_id = 0
-            bracket_Pattern_id = 0
-        else:
-            # Set name pattern to the first name pattern (first row in name_Pattern)
-            name_Pattern_id = 0
-            start_bracket_Pattern_id = 0
-            bracket_Pattern_id = 0
-    elif wp >= 8 and wp < 20:
-        # Set name pattern to the first name pattern (first row in name_Pattern)
-        name_Pattern_id = 0
-        start_bracket_Pattern_id = 0
-        bracket_Pattern_id = 0
-    else:
-        # Not a valid wp
-        raise AttributeError()
 
     # creates the Pattern modularly
     approval_Pattern = (
-        start_contributions_opening_bracket_Pattern[start_bracket_Pattern_id].format(
+        start_contributions_opening_bracket_Pattern.format(
             ""  # Nothing to extend, so .format("")
         )
         + base_approval_Pattern
-        + start_contributions_closing_bracket_Pattern[start_bracket_Pattern_id].format(
+        + start_contributions_closing_bracket_Pattern.format(
             ""  # Nothing to extend, so .format("")
         )
     )
@@ -828,26 +691,14 @@ def extract_approval(text, wp, sitting, identity, text_position, frame):
 
 def extract_interruption(text, wp, sitting, identity, text_position, frame):
     """Extracts interruptions from the given text"""
-    # Check if wp is under wp 8
-    if wp < 8:
-        # Check if sitting is under 7115
-        if sitting < 7115:
-            start_bracket_Pattern_id = 0
-        else:
-            start_bracket_Pattern_id = 0
-    elif wp >= 8 and wp < 20:
-        start_bracket_Pattern_id = 0
-    else:
-        # Not a valid wp
-        raise AttributeError()
 
     # Creates the Pattern modularly
     interruption_Pattern = (
-        start_contributions_opening_bracket_Pattern[start_bracket_Pattern_id].format(
+        start_contributions_opening_bracket_Pattern.format(
             ""  # Nothing to extend, so .format("")
         )
         + base_interruption_Pattern
-        + start_contributions_closing_bracket_Pattern[start_bracket_Pattern_id].format(
+        + start_contributions_closing_bracket_Pattern.format(
             ""  # Nothing to extend, so .format("")
         )
     )
@@ -876,32 +727,14 @@ def extract_interruption(text, wp, sitting, identity, text_position, frame):
 
 def extract_disturbance(text, wp, sitting, identity, text_position, frame):
     """Extracts disturbance from the given text"""
-    # Check if wp is under wp 8
-    if wp < 8:
-        # Check if sitting is under 7115
-        if sitting < 7115:
-            # Set name pattern to the second name pattern (second row in name_Pattern)
-            name_Pattern_id = 1
-            start_bracket_Pattern_id = 0
-        else:
-            # Set name pattern to the first name pattern (first row in name_Pattern)
-            name_Pattern_id = 0
-            start_bracket_Pattern_id = 0
-    elif wp >= 8 and wp < 20:
-        # Set name pattern to the first name pattern (first row in name_Pattern)
-        name_Pattern_id = 0
-        start_bracket_Pattern_id = 0
-    else:
-        # Not a valid wp
-        raise AttributeError()
 
     # creates the Pattern modularly
     disturbance_Pattern = (
-        start_contributions_opening_bracket_Pattern[start_bracket_Pattern_id].format(
+        start_contributions_opening_bracket_Pattern.format(
             ""  # Nothing to extend, so .format("")
         )
         + base_disturbance_Pattern
-        + start_contributions_closing_bracket_Pattern[start_bracket_Pattern_id].format(
+        + start_contributions_closing_bracket_Pattern.format(
             ""  # Nothing to extend, so .format("")
         )
     )
@@ -928,32 +761,14 @@ def extract_disturbance(text, wp, sitting, identity, text_position, frame):
 
 def extract_miscellaneous(text, wp, sitting, identity, text_position, frame):
     """Extracts miscellaneous from the given text"""
-    # Check if wp is under wp 8
-    if wp < 8:
-        # Check if sitting is under 7115
-        if sitting < 7115:
-            # Set name pattern to the second name pattern (second row in name_Pattern)
-            name_Pattern_id = 1
-            start_bracket_Pattern_id = 0
-        else:
-            # Set name pattern to the first name pattern (first row in name_Pattern)
-            name_Pattern_id = 0
-            start_bracket_Pattern_id = 0
-    elif wp >= 8 and wp < 20:
-        # Set name pattern to the first name pattern (first row in name_Pattern)
-        name_Pattern_id = 0
-        start_bracket_Pattern_id = 0
-    else:
-        # Not a valid wp
-        raise AttributeError()
 
     # creates the Pattern modularly
     miscellaneous_Pattern = (
-        start_contributions_opening_bracket_Pattern[start_bracket_Pattern_id].format(
+        start_contributions_opening_bracket_Pattern.format(
             ""  # Nothing to extend, so .format("")
         )
         + base_miscellaneous_Pattern
-        + start_contributions_closing_bracket_Pattern[start_bracket_Pattern_id].format(
+        + start_contributions_closing_bracket_Pattern.format(
             ""  # Extending the closing_bracket_Pattern
         )
     )
@@ -1033,7 +848,7 @@ def extract(speech_text, sitting, identity, text_position=0):
             + "{"
             + str(reversed_text_position)
             + "}"
-            + speech_text[deletion_span[1] :]
+            + speech_text[deletion_span[1]:]
         )
 
         contribution_methods = [

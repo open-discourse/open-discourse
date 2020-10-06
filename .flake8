@@ -1,0 +1,3 @@
+[flake8]
+per-file-ignores =
+    src/helper_functions/extract_contributions.py: E501,
