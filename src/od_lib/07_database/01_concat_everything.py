@@ -1,3 +1,4 @@
+import od_lib.definitions.path_definitions as path_definitions
 import xml.etree.ElementTree as et
 import pandas as pd
 import os
@@ -5,9 +6,6 @@ import regex
 import time
 import datetime
 import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-import path_definitions
 
 # input directory ______________________________________________________________
 RAW_XML = path_definitions.RAW_XML
@@ -248,8 +246,7 @@ concat_miscellaneous_df = concat_miscellaneous_df.rename(columns={"id": "speech_
 concat_miscellaneous_df.insert(0, "id", list(range(len(concat_miscellaneous_df))))
 
 concat_miscellaneous_df = concat_miscellaneous_df.astype(
-    {"id": "int64", "speech_id": "int32", "text_position": "int32", "content": "object",}
+    {"id": "int64", "speech_id": "int32", "text_position": "int32", "content": "object"}
 )
 
 concat_miscellaneous_df.to_pickle(os.path.join(MISCELLANEOUS_OUTPUT, "miscellaneous.pkl"))
-

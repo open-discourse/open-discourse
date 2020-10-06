@@ -1,10 +1,8 @@
+import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import os
 import regex
 import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-import path_definitions
 
 # input directory ______________________________________________________________
 SPOKEN_CONTENT_INPUT = path_definitions.SPOKEN_CONTENT_STAGE_01
@@ -21,9 +19,9 @@ if not os.path.exists(SPOKEN_CONTENT_OUTPUT):
 # within a line.
 president_pattern_str = r"(?P<position>Präsident(?:in)?|Vizepräsident(?:in)?|Alterspräsident(?:in)?|Bundespräsident(?:in)?|Bundeskanzler(?:in)?)\s+(?P<name>[A-ZÄÖÜß](?:[^:([}{\]\)\s]+\s?){1,5})\s?:\s?"
 
-faction_speaker_pattern_str = "{3}(?P<name>[A-ZÄÖÜß][^:([{{}}\]\)\n]+?)(\s*{0}(?P<location_information>[^:(){{}}[\]\n]+){1})*\s*{0}(?P<position>{2}){1}(\s*{0}(?P<location_information>[^:(){{}}[\]\n]+){1})*\s?:\s?"
+faction_speaker_pattern_str = r"{3}(?P<name>[A-ZÄÖÜß][^:([{{}}\]\)\n]+?)(\s*{0}(?P<location_information>[^:(){{}}[\]\n]+){1})*\s*{0}(?P<position>{2}){1}(\s*{0}(?P<location_information>[^:(){{}}[\]\n]+){1})*\s?:\s?"
 
-minister_pattern_str = "{0}(?P<name>[A-ZÄÖÜß](?:[^:([{{}}\]\)\s]+\s?){{1,5}}?),\s?(?P<position>(?P<short_position>Bundesminister(?:in)?|Staatsminister(?:in)?|(?:Parl\s?\.\s)?Staatssekretär(?:in)?|Präsident(?:in)?|Bundeskanzler(?:in)?|Schriftführer(?:in)?|Senator(?:in)?\s?(?:{1}(?P<location_information>[^:([{{}}\]\)\s]+){2})?|Berichterstatter(?:in)?)\s?([^:([\]{{}}\)\n]{{0,76}}?\n?){{1,2}})\s?:\s?"
+minister_pattern_str = r"{0}(?P<name>[A-ZÄÖÜß](?:[^:([{{}}\]\)\s]+\s?){{1,5}}?),\s?(?P<position>(?P<short_position>Bundesminister(?:in)?|Staatsminister(?:in)?|(?:Parl\s?\.\s)?Staatssekretär(?:in)?|Präsident(?:in)?|Bundeskanzler(?:in)?|Schriftführer(?:in)?|Senator(?:in)?\s?(?:{1}(?P<location_information>[^:([{{}}\]\)\s]+){2})?|Berichterstatter(?:in)?)\s?([^:([\]{{}}\)\n]{{0,76}}?\n?){{1,2}})\s?:\s?"
 
 parties = [
     r"(?:Gast|-)?(?:\s*C\s*[DSMU]\s*S?[DU]\s*(?:\s*[/,':!.-]?)*\s*(?:\s*C+\s*[DSs]?\s*[UÙ]?\s*)?)(?:-?Hosp\.|-Gast|1)?",
@@ -190,7 +188,7 @@ for wp_folder in sorted(os.listdir(SPOKEN_CONTENT_INPUT)):
                         speaker_location_information.append(
                             match.group("location_information")
                         )
-                    except:
+                    except IndexError:
                         speaker_location_information.append(None)
 
                     spans = match.span()

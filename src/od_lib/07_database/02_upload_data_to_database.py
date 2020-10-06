@@ -1,12 +1,9 @@
 from sqlalchemy import create_engine
+import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import os
 import datetime
 import sys
-import regex
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-import path_definitions
 
 
 engine = create_engine("postgresql://postgres:postgres@localhost:5432/next")
@@ -107,12 +104,12 @@ people = people.append(pd.Series(series), ignore_index=True)
 
 
 def convert_date(date):
-    try:
-        date = datetime.datetime.strptime(date, "%d.%m.%Y")
-        date = date.strftime("%Y-%m-%d %H:%M:%S")
-        return date
-    except:
-        return None
+    # try:
+    date = datetime.datetime.strptime(date, "%d.%m.%Y")
+    date = date.strftime("%Y-%m-%d %H:%M:%S")
+    return date
+    # except:
+    #     return None
 
 
 def check_people(row):

@@ -3,8 +3,6 @@ import pandas as pd
 import regex
 import os
 
-print("Start merging people...")
-
 # input ________________________________________________________________________
 GOV_MEMBERS = path_definitions.POLITICIANS_STAGE_01
 MDBS = path_definitions.POLITICIANS_STAGE_02
@@ -74,7 +72,7 @@ parties_patterns = {
     "DIE LINKE.": r"DIE LINKE",
     "DPB": r"(?:^DPB)",
     "DRP": r"DRP(\-Hosp\.)?|SRP",
-    "FDP": "\s*F\.?\s*[PDO][.']?[DP]\.?",
+    "FDP": r"\s*F\.?\s*[PDO][.']?[DP]\.?",
     "Fraktionslos": r"(?:fraktionslos|Parteilos|parteilos)",
     "FU": r"^FU",
     "FVP": r"^FVP",
@@ -82,7 +80,7 @@ parties_patterns = {
     "GB/BHE": r"(?:GB[/-]\s*)?BHE(?:-DG)?",
     "KPD": r"^KPD",
     "PDS": r"(?:Gruppe\s*der\s*)?PDS(?:/(?:LL|Linke Liste))?",
-    "SPD": "\s*'?S(?:PD|DP)(?:\.|-Gast)?",
+    "SPD": r"\s*'?S(?:PD|DP)(?:\.|-Gast)?",
     "SSW": r"^SSW",
     "SRP": r"^SRP",
     "WAV": r"^WAV",
@@ -190,14 +188,11 @@ for (
 
     wp_to_be_changed = -1
     wps = get_wp(from_year=int(position_from), to_year=int(position_until))
-    try:
-        possible_matches = people.loc[
-            (people.last_name == last_name)
-            & (people.first_name.str.contains(first_name[0]))
-            & (people.birth_year.str.contains(str(birth_year)))
-        ]
-    except:
-        pass
+    possible_matches = people.loc[
+        (people.last_name == last_name)
+        & (people.first_name.str.contains(first_name[0]))
+        & (people.birth_year.str.contains(str(birth_year)))
+    ]
 
     possible_matches = possible_matches.drop_duplicates(subset="ui", keep="first")
 

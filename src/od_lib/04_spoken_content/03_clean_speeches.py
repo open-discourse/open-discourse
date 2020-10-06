@@ -1,11 +1,9 @@
+from od_lib.helper_functions.clean_text import clean_name_headers
+import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import sys
 import os
 import regex
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-import path_definitions
-from src.helper_functions.clean_text import clean_name_headers
 
 # Disabling pandas warnings.
 pd.options.mode.chained_assignment = None
@@ -20,15 +18,15 @@ SPOKEN_CONTENT_OUTPUT = path_definitions.SPOKEN_CONTENT_STAGE_03
 factions = pd.read_pickle(os.path.join(FACTIONS, "factions.pkl"))
 
 parties_patterns = {
-    "Bündnis 90/Die Grünen": r"(?:BÜNDNIS\s*(?:90)?/?(?:\s*D[1I]E)?|Bündnis\s*90/(?:\s*D[1I]E)?)?\s*[GC]R[UÜ].?\s*[ÑN]EN?(?:/Bündnis 90)?|Bündnis 90/Die Grünen",
-    "CDU/CSU": r"(?:Gast|-)?(?:\s*C\s*[DSMU]\s*S?[DU]\s*(?:\s*[/,':!.-]?)*\s*(?:\s*C+\s*[DSs]?\s*[UÙ]?\s*)?)(?:-?Hosp\.|-Gast|1)?",
+    "Bündnis 90/Die Grünen": r"(?:BÜNDNIS\s*(?:90)?/?(?:\s*D[1I]E)?|Bündnis\s*90/(?:\s*D[1I]E)?)?\s*[GC]R[UÜ].?\s*[ÑN]EN?(?:/Bündnis 90)?|Bündnis 90/Die Grünen",  # noqa: E501
+    "CDU/CSU": r"(?:Gast|-)?(?:\s*C\s*[DSMU]\s*S?[DU]\s*(?:\s*[/,':!.-]?)*\s*(?:\s*C+\s*[DSs]?\s*[UÙ]?\s*)?)(?:-?Hosp\.|-Gast|1)?",  # noqa: E501
     "BP": r"^BP",
     "DA": r"^DA",
     "DP": r"^DP",
     "DIE LINKE.": r"DIE LINKE",
     "DPB": r"(?:^DPB)",
     "DRP": r"DRP(\-Hosp\.)?|SRP",
-    "FDP": "\s*F\.?\s*[PDO][.']?[DP]\.?",
+    "FDP": r"\s*F\.?\s*[PDO][.']?[DP]\.?",
     "Fraktionslos": r"(?:fraktionslos|Parteilos|parteilos)",
     "FU": r"^FU",
     "FVP": r"^FVP",
@@ -36,7 +34,7 @@ parties_patterns = {
     "GB/BHE": r"(?:GB[/-]\s*)?BHE(?:-DG)?",
     "KPD": r"^KPD",
     "PDS": r"(?:Gruppe\s*der\s*)?PDS(?:/(?:LL|Linke Liste))?",
-    "SPD": "\s*'?S(?:PD|DP)(?:\.|-Gast)?",
+    "SPD": r"\s*'?S(?:PD|DP)(?:\.|-Gast)?",
     "SSW": r"^SSW",
     "SRP": r"^SRP",
     "WAV": r"^WAV",
@@ -157,7 +155,7 @@ for wp_folder in sorted(os.listdir(SPOKEN_CONTENT_INPUT)):
         # Question: Is any other character deleted, which could be in a name?
         # Answer: I don't think so.
         spoken_content.name = spoken_content.name.str.replace(
-            "[^a-zA-ZÖÄÜäöüß\-]", " ", regex=True
+            r"[^a-zA-ZÖÄÜäöüß\-]", " ", regex=True
         )
 
         # Replace more than two whitespaces with one.
@@ -226,13 +224,10 @@ for wp_folder in sorted(os.listdir(SPOKEN_CONTENT_INPUT)):
             )
             if faction_abbrev:
                 try:
-                    # .iloc[0] is important right now, as some faction entries
-                    # in factions df share same faction_id, so always the first
-                    # one is chosen right now.
                     spoken_content.faction_id.at[index] = int(
                         factions.id.loc[factions.abbreviation == faction_abbrev].iloc[0]
                     )
-                except:
+                except IndexError:
                     spoken_content.faction_id.at[index] = -1
 
         spoken_content.to_pickle(os.path.join(save_path, spoken_content_file))

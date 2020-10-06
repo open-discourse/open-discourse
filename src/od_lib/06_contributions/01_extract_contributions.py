@@ -1,12 +1,9 @@
+from od_lib.helper_functions.extract_contributions import extract
+import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
-import numpy as np
 import sys
 import os
 import regex
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-from src.helper_functions.extract_contributions import extract
-import path_definitions
 
 # input directory ______________________________________________________________
 SPOKEN_CONTENT_INPUT = path_definitions.SPOKEN_CONTENT_STAGE_04

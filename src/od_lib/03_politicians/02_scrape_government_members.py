@@ -69,11 +69,7 @@ for div in main_section.find_all("div", recursive=False):
                 party = "parteilos"
                 additional_party = ""
 
-            try:
-                birth_death = li.a.next_sibling.strip()
-            except:
-                print("At this point the scraping should have been finished.")
-                break
+            birth_death = li.a.next_sibling.strip()
 
             match_years = regex.findall(r"(\d{4})", birth_death)
             if len(match_years) == 1:

@@ -15,7 +15,7 @@ def clean(filetext, remove_pdf_header=True):
     # Remove pdf artifact
     if remove_pdf_header:
         filetext = regex.sub(
-            r"(?:Deutscher\s?Bundestag\s?-(?:\s?\d{1,2}\s?[,.]\s?Wahlperiode\s?-)?)?\s?\d{1,3}\s?[,.]\s?Sitzung\s?[,.]\s?(?:(?:Bonn|Berlin)[,.])?\s?[^,.]+,\s?den\s?\d{1,2}\s?[,.]\s?[^\d]+\d{4}.*",
+            r"(?:Deutscher\s?Bundestag\s?-(?:\s?\d{1,2}\s?[,.]\s?Wahlperiode\s?-)?)?\s?\d{1,3}\s?[,.]\s?Sitzung\s?[,.]\s?(?:(?:Bonn|Berlin)[,.])?\s?[^,.]+,\s?den\s?\d{1,2}\s?[,.]\s?[^\d]+\d{4}.*",  # noqa: E501
             r"\n",
             filetext,
         )
@@ -65,7 +65,7 @@ def clean_name_headers(filetext, names, contributions_filter=False):
     names_to_clean = regex.sub(r"\*", "\\*", names_to_clean)
     names_to_clean = regex.sub(r"\?", "\\?", names_to_clean)
     pattern = (
-        r"\n((?:Parl\s?\.\s)?Staatssekretär(?:in)?|Bundeskanzler(?:in)?|Bundesminister(?:in)?|Staatsminister(:?in)?)?\s?"
+        r"\n((?:Parl\s?\.\s)?Staatssekretär(?:in)?|Bundeskanzler(?:in)?|Bundesminister(?:in)?|Staatsminister(:?in)?)?\s?"  # noqa: E501
         + names_to_clean
         + r" *\n"
     )

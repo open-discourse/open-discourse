@@ -1,14 +1,11 @@
+from od_lib.helper_functions.extract_contributions import extract
+import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import numpy as np
 import xml.etree.ElementTree as et
 import regex
 import os
-import sys
 import datetime
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-from src.helper_functions.extract_contributions import extract
-import path_definitions
 
 
 # input directory ______________________________________________________________
@@ -43,8 +40,8 @@ text_position_x_text = pd.DataFrame(
 )
 
 parties_patterns = {
-    "Bündnis 90/Die Grünen": r"(?:BÜNDNIS\s*(?:90)?/?(?:\s*D[1I]E)?|Bündnis\s*90/(?:\s*D[1I]E)?)?\s*[GC]R[UÜ].?\s*[ÑN]EN?(?:/Bündnis 90)?",
-    "CDU/CSU": r"(?:Gast|-)?(?:\s*C\s*[DSMU]\s*S?[DU]\s*(?:\s*[/,':!.-]?)*\s*(?:\s*C+\s*[DSs]?\s*[UÙ]?\s*)?)(?:-?Hosp\.|-Gast|1)?",
+    "Bündnis 90/Die Grünen": r"(?:BÜNDNIS\s*(?:90)?/?(?:\s*D[1I]E)?|Bündnis\s*90/(?:\s*D[1I]E)?)?\s*[GC]R[UÜ].?\s*[ÑN]EN?(?:/Bündnis 90)?",  # noqa: E501
+    "CDU/CSU": r"(?:Gast|-)?(?:\s*C\s*[DSMU]\s*S?[DU]\s*(?:\s*[/,':!.-]?)*\s*(?:\s*C+\s*[DSs]?\s*[UÙ]?\s*)?)(?:-?Hosp\.|-Gast|1)?",  # noqa: E501
     "BP": r"^BP",
     "DA": r"^DA",
     "DP": r"^DP",
@@ -58,16 +55,15 @@ parties_patterns = {
     "Gast": r"Gast",
     "GB/BHE": r"(?:GB[/-]\s*)?BHE(?:-DG)?",
     "KPD": r"^KPD",
-    "NR": r"^NR",
+    "NR": r"^NR$",
     "PDS": r"(?:Gruppe\s*der\s*)?PDS(?:/(?:LL|Linke Liste))?",
-    "SPD": "\s*'?S(?:PD|DP)(?:\.|-Gast)?",
+    "SPD": r"\s*'?S(?:PD|DP)(?:\.|-Gast)?",
     "SSW": r"^SSW",
     "SRP": r"^SRP",
     "WAV": r"^WAV",
     "Z": r"^Z$",
     "AfD": r"^AfD$",
     "DBP": r"^DBP$",
-    "NR": r"^NR$",
 }
 
 

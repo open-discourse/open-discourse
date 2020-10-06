@@ -1,10 +1,8 @@
+import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import os
 import regex
 import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-import path_definitions
 
 # input directory ______________________________________________________________
 RAW_TXT = path_definitions.RAW_TXT
@@ -26,7 +24,7 @@ for wp_folder in sorted(os.listdir(RAW_TXT)):
         if str(int(regex.sub("wp_", "", wp_folder))) not in sys.argv:
             continue
 
-    top_pattern = r"(?<=\n).*?(rufe|komme).{,50}?\s(?P<top>(?:Zusatz)?\w{,20}punkt.{,5}?(\d{1,2}|I{1,3}|V|X))(?P<additional_tops>.*?):"
+    top_pattern = r"(?<=\n).*?(rufe|komme).{,50}?\s(?P<top>(?:Zusatz)?\w{,20}punkt.{,5}?(\d{1,2}|I{1,3}|V|X))(?P<additional_tops>.*?):"  # noqa: E501
     top_pattern = regex.compile(top_pattern)
 
     # Walk over every sitting in the wp.
