@@ -1,12 +1,10 @@
 from bs4 import BeautifulSoup
+import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import regex
 import requests
 import os
-import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-import path_definitions
 
 # Output directory _____________________________________________________________
 POLITICIANS_STAGE_01 = path_definitions.POLITICIANS_STAGE_01

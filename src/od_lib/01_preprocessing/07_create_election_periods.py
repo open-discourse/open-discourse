@@ -1,10 +1,7 @@
+import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import datetime
 import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-import path_definitions
 
 # output directory ____________________________________________________________
 ELECTION_PERIOD = path_definitions.ELECTION_PERIOD

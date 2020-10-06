@@ -1,6 +1,5 @@
 import numpy as np
 import regex
-import regex
 
 
 def clean(filetext, remove_pdf_header=True):
@@ -68,11 +67,11 @@ def clean_name_headers(filetext, names, contributions_filter=False):
     pattern = (
         r"\n((?:Parl\s?\.\s)?Staatssekretär(?:in)?|Bundeskanzler(?:in)?|Bundesminister(?:in)?|Staatsminister(:?in)?)?\s?"
         + names_to_clean
-        + " *\n"
+        + r" *\n"
     )
     filetext = regex.sub(pattern, "\n", filetext)
 
-    pattern = "\n\d+ *\n"
+    pattern = r"\n\d+ *\n"
 
     filetext = regex.sub(pattern, "\n", filetext)
 

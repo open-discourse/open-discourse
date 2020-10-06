@@ -1,12 +1,9 @@
+from od_lib.helper_functions.clean_text import clean
+import od_lib.definitions.path_definitions as path_definitions
 import xml.etree.ElementTree as et
 import os
 import regex
 import dicttoxml
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-from src.helper_functions.clean_text import clean
-import path_definitions
 
 # input directory ______________________________________________________________
 RAW_XML = path_definitions.RAW_XML
@@ -36,9 +33,9 @@ for wp_folder in sorted(os.listdir(RAW_XML)):
         continue
 
     begin_pattern = regex.compile(
-        "Die.*?Sitzung.*?wird.*?\d{1,2}.*?Uhr.*?(durch.*?den.*?)?eröffnet"
+        r"Die.*?Sitzung.*?wird.*?\d{1,2}.*?Uhr.*?(durch.*?den.*?)?eröffnet"
     )
-    appendix_pattern = regex.compile("\(Schluß.*?Sitzung.*?Uhr.*?\)")
+    appendix_pattern = regex.compile(r"\(Schluß.*?Sitzung.*?Uhr.*?\)")
 
     print(wp_folder)
     for xml_plenar_file in sorted(os.listdir(wp_folder_path)):
@@ -85,11 +82,11 @@ for wp_folder in sorted(os.listdir(RAW_XML)):
                 continue
             elif len(find_beginnings) > len(find_endings) and len(find_endings) == 1:
                 spoken_content = text_corpus[
-                    find_beginnings[0].span()[1] : find_endings[0].span()[0]
+                    find_beginnings[0].span()[1]: find_endings[0].span()[0]
                 ]
             elif len(find_beginnings) == len(find_endings):
                 for begin, end in zip(find_beginnings, find_endings):
-                    spoken_content += text_corpus[begin.span()[1] : end.span()[0]]
+                    spoken_content += text_corpus[begin.span()[1]: end.span()[0]]
             else:
                 print(
                     "What can be else?, e.g. len(beginnings) > len(endings) && len(endings) != 1"

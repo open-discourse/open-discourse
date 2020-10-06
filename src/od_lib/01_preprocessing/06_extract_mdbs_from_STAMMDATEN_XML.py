@@ -1,11 +1,8 @@
+import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import xml.etree.ElementTree as et
 import os
-import sys
 import regex
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-import path_definitions
 
 # input directory ______________________________________________________________
 STAMMDATEN_XML = path_definitions.STAMMDATEN_XML

@@ -1,10 +1,7 @@
+import od_lib.definitions.path_definitions as path_definitions
 import requests
 import os
 import regex
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-import path_definitions
 
 # output directory _____________________________________________________________
 WP_19_OUTPUT = path_definitions.WP_19_STAGE_01
@@ -189,7 +186,7 @@ links_wp_19_files = [
 
 for url in links_wp_19_files:
     page = requests.get(url)
-    sitting = regex.search("\d{5}(?=-data\.xml)", url).group(0)
+    sitting = regex.search(r"\d{5}(?=-data\.xml)", url).group(0)
 
     print(sitting)
     with open(os.path.join(WP_19_OUTPUT, sitting + ".xml"), "wb") as file:

@@ -1,10 +1,7 @@
+import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import numpy as np
 import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-import path_definitions
 
 # input directory ______________________________________________________________
 POLITICIANS_STAGE_01 = path_definitions.POLITICIANS_STAGE_01
@@ -28,13 +25,6 @@ unique_factions = np.append(
     unique_factions,
     ["Südschleswigscher Wählerverband", "Gast", "Gruppe Nationale Rechte"],
 )
-# ,
-#                          "Präsidium"
-#                          "Bundeskanzler",
-#                          "Bundespräsident",
-#                          "Bundesminister",
-#                          "Staatssekretär",
-#                          "Staatsminister"])
 
 unique_factions = pd.DataFrame(unique_factions, columns=["faction_name"])
 

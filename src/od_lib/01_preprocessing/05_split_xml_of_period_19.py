@@ -1,10 +1,7 @@
+import od_lib.definitions.path_definitions as path_definitions
 import xml.etree.ElementTree as et
 import os
-import sys
 import regex
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-import path_definitions
 
 # input directory ______________________________________________________________
 WP_19_INPUT = path_definitions.WP_19_STAGE_01

@@ -1,3 +1,4 @@
 [flake8]
 per-file-ignores =
-    src/helper_functions/extract_contributions.py: E501,
+    src/od_lib/helper_functions/extract_contributions.py: E501,
+    src/od_lib/helper_functions/match_names.py: E501,

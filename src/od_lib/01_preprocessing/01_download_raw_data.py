@@ -1,12 +1,9 @@
+import od_lib.definitions.path_definitions as path_definitions
 import requests
 import io
 import zipfile
 import os
-import sys
 import regex
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-import path_definitions
 
 # output directory _____________________________________________________________
 RAW_XML = path_definitions.RAW_XML
@@ -38,7 +35,7 @@ for link in zip_links:
     z = zipfile.ZipFile(io.BytesIO(r.content))
 
     # Extract election period from URL
-    wp_str = "wp_" + regex.search("(?<=pp)\d+(?=-data\.zip)", link).group(0)
+    wp_str = "wp_" + regex.search(r"(?<=pp)\d+(?=-data\.zip)", link).group(0)
 
     print("Unzipping: ", wp_str)
 
@@ -50,7 +47,7 @@ for link in zip_links:
 
 
 # Download MDB Stammdaten. _____________________________________________________
-mdb_link = "https://www.bundestag.de/resource/blob/472878/7d4d417dbb7f7bd44508b3dc5de08ae2/MdB-Stammdaten-data.zip"
+mdb_link = "https://www.bundestag.de/resource/blob/472878/7d4d417dbb7f7bd44508b3dc5de08ae2/MdB-Stammdaten-data.zip"  # noqa: E501
 
 r = requests.get(mdb_link)
 z = zipfile.ZipFile(io.BytesIO(r.content))

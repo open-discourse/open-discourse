@@ -1,7 +1,7 @@
 import os
 
 # project root folder __________________________________________________________
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = "./"
 
 # data folder __________________________________________________________________
 DATA = os.path.join(ROOT_DIR, "data")
@@ -72,10 +72,10 @@ FACTIONS_FINAL = os.path.join(FACTIONS, "final")
 # ______________________________________________________________________________
 TEXT_POSITION_X_TEXT = os.path.join(FINAL)
 
-# _____________________________________________________________________________
+# ______________________________________________________________________________
 ELECTION_PERIOD = os.path.join(FINAL)
 
-########################### WP_19 Seperate directory ###########################
+# _________________________ WP_19 Seperate directory ___________________________
 
 # WP_19 data directories________________________________________________________
 WP_19 = os.path.join(DATA_CACHE, "wp_19")

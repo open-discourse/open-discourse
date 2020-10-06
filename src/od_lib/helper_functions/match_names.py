@@ -412,9 +412,7 @@ def insert_people_id_into_contributions(df, people_wp, gov_wp):
 
     for index, row in df.iterrows():
 
-        ####################################################################
-        ######### Start Matching ###########################################
-        ####################################################################
+        # Start Matching
 
         # E.g. Präsident, Bundeskanzler, Staatssekretär etc.
         if not row.last_name:

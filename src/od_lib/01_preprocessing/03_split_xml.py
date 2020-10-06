@@ -1,12 +1,10 @@
+from od_lib.helper_functions.clean_text import clean
+import od_lib.definitions.path_definitions as path_definitions
 import xml.etree.ElementTree as et
 import os
 import regex
-import dicttoxml
 import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-from src.helper_functions.clean_text import clean
-import path_definitions
+import dicttoxml
 
 # input directory ______________________________________________________________
 RAW_XML = path_definitions.RAW_XML
@@ -57,7 +55,7 @@ for wp_folder in sorted(os.listdir(RAW_XML)):
         )
 
         appendix_pattern_wp = regex.compile(
-            r"\(Schlu(ß|ss)\s?:?(.*?)\d{1,2}\D+(\d{1,2})?(.*?)\)?|\(Ende der Sitzung: \d{1,2}\D+(\d{1,2}) Uhr\.?\)"
+            r"\(Schlu(ß|ss)\s?:?(.*?)\d{1,2}\D+(\d{1,2})?(.*?)\)?|\(Ende der Sitzung: \d{1,2}\D+(\d{1,2}) Uhr\.?\)"  # noqa: E501
         )
 
     else:
@@ -148,20 +146,13 @@ for wp_folder in sorted(os.listdir(RAW_XML)):
                 )
                 begin_pattern = "Beginn: 9.00 Uhr"
                 appendix_pattern = (
-                    "Schluß: 12.06 Uhr\)\n\nDruck: Bonner Universitäts-Buchdruckerei, 53113 Bonn\n "
-                    "53003 Bonn, Telefon: 02 28/3 82 08 40, Telefax: 02 28/3 82 08 44\n\n20\n\nBun"
-                    "despräsident Dr. Roman Herzog\n\nDeutscher"
+                    r"Schluß: 12.06 Uhr\)\n\nDruck: Bonner Universitäts-Buchdruckerei, 53113 Bonn\n "  # noqa: E501
+                    r"53003 Bonn, Telefon: 02 28/3 82 08 40, Telefax: 02 28/3 82 08 44\n\n20\n\nBun"
+                    r"despräsident Dr. Roman Herzog\n\nDeutscher"
                 )
             elif meta_data["document_number"] == "14/21":
                 begin_pattern = begin_pattern_wp
-                appendix_pattern = "\(Schluß: 22.18 Uhr\)\n\nAdelheid Tröscher\n\n1594"
-            # find_dupl_text = list(regex.finditer("den DM\. Jetzt wollen Sie nur noch 2\,289 Milliarden DM\nansetzen\. Das ist nicht zu akzeptieren\.\n"))
-            # delete_begin = find_dupl_text[0].span()[0]
-            # delete_end = find_dupl_text[1].span()[0]
-            # text_corpus = text_corpus[:delete_begin] + text_corpus[delete_end:]
-            # elif meta_data["document_number"] == "14/169":
-            #     other_cases.append((meta_data["document_number"], "file 14/169 is broken"))
-            #     continue
+                appendix_pattern = r"\(Schluß: 22.18 Uhr\)\n\nAdelheid Tröscher\n\n1594"
             elif meta_data["document_number"] == "14/192":
                 begin_pattern = begin_pattern_wp
                 appendix_pattern = regex.compile(
@@ -172,7 +163,7 @@ for wp_folder in sorted(os.listdir(RAW_XML)):
                 appendix_pattern = regex.compile(r"\(Schluss: 18\.54 Uhr\)")
             elif meta_data["document_number"] == "17/250":
                 begin_pattern = regex.compile(r"Beginn: 9.02 Uhr(?=\nPräsident)")
-                appendix_pattern = "\(Schluss: 0.52 Uhr\)\n\nIch"
+                appendix_pattern = r"\(Schluss: 0.52 Uhr\)\n\nIch"
             elif meta_data["document_number"] == "18/142":
                 begin_pattern = begin_pattern_wp
                 appendix_pattern = regex.compile(r"\(Schluss: 16 \.36 Uhr\)")
@@ -210,7 +201,7 @@ for wp_folder in sorted(os.listdir(RAW_XML)):
                     + r"\. Sitzung(?=\nBonn)",
                     text_corpus,
                 )
-                text_corpus = text_corpus[find_second.span()[0] :]
+                text_corpus = text_corpus[find_second.span()[0]:]
             else:
                 begin_pattern = begin_pattern_wp
                 appendix_pattern = appendix_pattern_wp

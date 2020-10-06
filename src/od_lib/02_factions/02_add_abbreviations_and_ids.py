@@ -1,10 +1,7 @@
+import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import numpy as np
-import sys
 import os
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-import path_definitions
 
 # input directory ______________________________________________________________
 FACTIONS_STAGE_01 = path_definitions.FACTIONS_STAGE_01
