@@ -1,11 +1,8 @@
+from od_lib.helper_functions.match_names import insert_people_id_into_spoken_content
+import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import regex
 import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
-import path_definitions
-from src.helper_functions.match_names import insert_people_id_into_spoken_content
 
 # input directory ______________________________________________________________
 SPOKEN_CONTENT_INPUT = path_definitions.SPOKEN_CONTENT_STAGE_03

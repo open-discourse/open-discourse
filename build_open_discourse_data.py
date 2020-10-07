@@ -1,8 +1,6 @@
 import os
 
-print(os.getcwd())
-
-src_path = os.path.join("src")
+src_path = os.path.join("src/od_lib")
 
 preprocessing_path = os.path.join(src_path, "01_preprocessing")
 factions_path = os.path.join(src_path, "02_factions")

@@ -8,7 +8,7 @@ chardet==3.0.4
 click==7.1.2
 DateTime==4.3
 dicttoxml==1.7.4
-flake8==3.8.3
+flake8==3.8.4
 fuzzywuzzy==0.18.0
 idna==2.10
 importlib-metadata==1.7.0
@@ -16,6 +16,7 @@ mccabe==0.6.1
 numpy==1.17.3
 pandas==0.25.3
 pathspec==0.8.0
+psycopg2==2.8.6
 pycodestyle==2.6.0
 pyflakes==2.2.0
 python-dateutil==2.8.1

@@ -104,12 +104,12 @@ people = people.append(pd.Series(series), ignore_index=True)
 
 
 def convert_date(date):
-    # try:
-    date = datetime.datetime.strptime(date, "%d.%m.%Y")
-    date = date.strftime("%Y-%m-%d %H:%M:%S")
-    return date
-    # except:
-    #     return None
+    try:
+        date = datetime.datetime.strptime(date, "%d.%m.%Y")
+        date = date.strftime("%Y-%m-%d %H:%M:%S")
+        return date
+    except (ValueError, TypeError):
+        return None
 
 
 def check_people(row):
