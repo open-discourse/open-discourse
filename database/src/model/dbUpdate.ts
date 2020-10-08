@@ -22,13 +22,13 @@ const pool = new Pool({
 const FILES = [
   ["__init.sql"],
   ["app_public", "__init.sql"],
-  ["app_public", "election_periods.sql"],
+  ["app_public", "electoral_terms.sql"],
   ["app_public", "factions.sql"],
-  ["app_public", "people.sql"],
+  ["app_public", "politicians.sql"],
   ["app_public", "speeches.sql"],
   ["app_public", "contributions.sql"],
   ["app_public", "miscellaneous.sql"],
-  ["app_public", "text_position__text.sql"],
+  ["app_public", "contributions_lookup.sql"],
   ["app_public", "__permission.sql"],
 ];
 

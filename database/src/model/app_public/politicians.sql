@@ -1,0 +1,33 @@
+CREATE TABLE app_public.politicians (
+	id int8 NOT NULL,
+	first_name varchar NOT NULL,
+	last_name varchar NOT NULL,
+	birth_place varchar NULL,
+	birth_country varchar NULL,
+	birth_year date NULL,
+	death_year date NULL,
+	gender varchar NULL,
+	profession varchar NULL,
+	constituency varchar NULL,
+	aristocracy varchar NULL,
+	prefix varchar NULL,
+	academic_title varchar NULL,
+	salutation varchar NULL,
+	vita_short varchar NULL,
+	disclosure_requirement varchar NULL,
+	constituency_number int8 NULL,
+	constituency_name varchar NULL,
+	constituency_region varchar NULL,
+	electoral_list varchar NULL,
+	type_of_mandate varchar NULL,
+	mp_from date NULL,
+	mp_until date NULL,
+	history_from date NULL,
+	history_until date NULL,
+	function_long varchar NULL,
+	function_from date NULL,
+	function_until date NULL,
+	CONSTRAINT mdbs_pk PRIMARY KEY (id)
+);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE app_public.politicians TO visitor;
