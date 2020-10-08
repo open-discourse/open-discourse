@@ -81,7 +81,7 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
         frame = {
             "id": [],
             "type": [],
-            "name": [],
+            "name_raw": [],
             "faction": [],
             "constituency": [],
             "content": [],
@@ -91,7 +91,7 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
         miscellaneous_frame = {
             "id": [],
             "type": [],
-            "name": [],
+            "name_raw": [],
             "faction": [],
             "constituency": [],
             "content": [],

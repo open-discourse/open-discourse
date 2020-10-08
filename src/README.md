@@ -265,13 +265,13 @@ The Input and Output paths start at the project root
       | 0 | 18245.pkl | intro | | 4 | 1109312 | Peter Schmidt | Schmidt | ['Peter'] | [] | | Member of Parliament | Sehr geehrter ({0})... | 0.0 | 255.0 |
       | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
     - contributions:
-      | id |  type | name | faction | constituency | content | text_position |
+      | id |  type | name_raw | faction | constituency | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- |
       | 0 | Beifall | | SPD | | | 0 |
       | 1 | Personen-Einruf | Hans Müller | AfD | | Fisch! | 0 |
       | ... | ... | ... | ... | ... | ... | ... |
     - miscellaneous:
-      | id | name | faction | content | position |
+      | id | name_raw | faction | content | position |
       | --- | --- | --- | --- | --- |
       | 0 | | | Links | 0 |
       | ... | ... | ... | ... | ... |
@@ -290,11 +290,11 @@ The Input and Output paths start at the project root
   - Output: `./data/02_cached/contributions/stage_02/*`
   - File Format:
     - contributions:
-      | id | type | name | faction_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
+      | id | type | faction_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-      | 0 | Beifall | | 23 | SPD | | [] | [] | | 0 |
-      | 1 | Personen-Einruf | Hans Müller | 0 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
-      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+      | 0 | Beifall | 23 | SPD | | [] | [] | | 0 |
+      | 1 | Personen-Einruf | 0 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
+      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
 ### 3. [Match Contributions](./od_lib/05_contributions/03_match_contributions.py)
 
@@ -309,11 +309,11 @@ The Input and Output paths start at the project root
   - Output: `./data/02_cached/contributions/stage_02/*`
   - File Format:
     - contributions:
-      | id | type | name | faction_id | politician_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
-      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-      | 0 | Beifall | | 23 | -1 | SPD | | [] | [] | | | 0 |
-      | 1 | Personen-Einruf | Hans Müller | 0 | 1109373 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
-      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+      | id | type | faction_id | politician_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
+      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+      | 0 | Beifall | 23 | -1 | SPD | | [] | [] | | | 0 |
+      | 1 | Personen-Einruf | 0 | 1109373 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
+      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
 ## Database
 

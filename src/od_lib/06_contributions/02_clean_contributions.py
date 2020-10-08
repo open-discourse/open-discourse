@@ -107,7 +107,7 @@ for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
         # "Max Mustermann, Bundeskanzler"
         # THIS PART IS IMPORTANT AND SHOULD WORK PROPERLY, AS REOCCURING NAMES
         # CAN INTRODUCE A LARGE BIAS IN TEXT ANALYSIS
-        names = contributions.name.to_list()
+        names = contributions.name_raw.to_list()
         contributions.content = contributions.content.apply(
             clean_name_headers, args=(names, True,)
         )
@@ -118,13 +118,13 @@ for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
         # names.
         # Question: Is any other character deleted, which could be in a name?
         # Answer: I don't think so.
-        contributions.name = contributions.name.astype(str)
-        contributions.name = contributions.name.str.replace(
+        contributions.name_raw = contributions.name_raw.astype(str)
+        contributions.name_raw = contributions.name_raw.str.replace(
             r"[^a-zA-ZÖÄÜäöüß\-]", " ", regex=True
         )
 
         # Replace more than two whitespaces with one.
-        contributions.name = contributions.name.str.replace(r"  +", " ", regex=True)
+        contributions.name_raw = contributions.name_raw.str.replace(r"  +", " ", regex=True)
 
         # Graf has to be checked again, as this is also a last_name.
         # Titles have to be added: Like e.c. or when mistakes occur like b.c.
@@ -146,8 +146,8 @@ for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
             "c",
         ]
 
-        # Split the name column into it's components at space character.
-        first_last_titles = contributions.name.apply(str.split)
+        # Split the name_raw column into it's components at space character.
+        first_last_titles = contributions.name_raw.apply(str.split)
 
         # Extract acad_title, if it is in the titles list.
         contributions.acad_title = [
@@ -193,4 +193,5 @@ for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
                     except IndexError:
                         contributions.faction_id.at[index] = -1
 
+        contributions.drop(columns=["name_raw"])
         contributions.to_pickle(os.path.join(save_path, contributions_file))

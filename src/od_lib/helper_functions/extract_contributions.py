@@ -87,7 +87,7 @@ base_disturbance_Pattern = (
 
 # Modular Patterns:
 name_Pattern = {
-    0: r"(?P<name>(?:(?!\sund\s)(?!sowie\sdes)"
+    0: r"(?P<name_raw>(?:(?!\sund\s)(?!sowie\sdes)"
     # Formatting has to be done this way because of python formatting errors
     + text_Pattern.format("").replace(
         "{}", "{{}}"
@@ -105,7 +105,7 @@ name_Pattern = {
         "{}", "{{}}"
     )  # Text Pattern can be extended if needed
     + r"+){1})*",
-    1: r"(?P<name>(?:(?!\sund\s)(?!sowie\sdes)"
+    1: r"(?P<name_raw>(?:(?!\sund\s)(?!sowie\sdes)"
     + text_Pattern.format("").replace(
         "{}", "{{}}"
     )  # Text Pattern can be extended if needed
@@ -148,32 +148,32 @@ def convert_to_string(string):
     return "" if string is None else str(string)
 
 
-def clean_person_name(name):
-    """cleans the person name"""
-    # Remove any newlines from the name
-    name = regex.sub(r"\n", " ", convert_to_string(name))
+def clean_person_name(name_raw):
+    """cleans the person name_raw"""
+    # Remove any newlines from the name_raw
+    name_raw = regex.sub(r"\n", " ", convert_to_string(name_raw))
     # Remove any Additional stuff
-    name = regex.sub(
+    name_raw = regex.sub(
         r"(Gegenrufe?\sdes\s|Gegenrufe?\sder\s|Zurufe?\sdes\s|Zurufe?\sder\s)(Abg\s?\.\s)*",
         "",
-        name,
+        name_raw,
     )
-    name = regex.sub(r"(Abg\s?\.\s?|Abgeordneten\s)", "", name)
+    name_raw = regex.sub(r"(Abg\s?\.\s?|Abgeordneten\s)", "", name_raw)
     # Remove any Pronouns
-    name = regex.sub(r"(^\s?der\s?|^\s?die\s?|^\s?das\s?|^\s?von\s?)", "", name)
+    name_raw = regex.sub(r"(^\s?der\s?|^\s?die\s?|^\s?das\s?|^\s?von\s?)", "", name_raw)
     # Remove whitespaces at the beginning and at the end
-    name = name.lstrip(" ").rstrip(" ")
+    name_raw = name_raw.lstrip(" ").rstrip(" ")
 
-    # Return the name
-    return name
+    # Return the name_raw
+    return name_raw
 
 
-def add_entry(frame, id, type, name, faction, constituency, content, text_position):
+def add_entry(frame, id, type, name_raw, faction, constituency, content, text_position):
     """adds an entry for every Contribution into the given frame"""
     # Append the corresponding variables to the dictionary
     frame["id"].append(id)
     frame["type"].append(type)
-    frame["name"].append(clean_person_name(name))
+    frame["name_raw"].append(clean_person_name(name_raw))
     frame["faction"].append(convert_to_string(faction))
     frame["constituency"].append(convert_to_string(constituency))
     frame["content"].append(convert_to_string(content))
@@ -223,12 +223,12 @@ def extract_initiators(
     # Find match
     first_person_match = regex.search(first_person_search_Pattern, initiators,)
     if first_person_match:
-        # Remove the person name from the search text
+        # Remove name_raw from the search text
         initiators = initiators.replace(first_person_match.group(), "")
         # Check if the person was just asking a "Zwischenfrage"
         if not regex.search("[Zz]wischenfrage", initiators):
-            # Get the persons name
-            name = first_person_match.group("name")
+            # Get the persons name_raw
+            name_raw = first_person_match.group("name_raw")
             # Try to get the persons faction
             try:
                 faction = first_person_match.group("faction")
@@ -241,7 +241,7 @@ def extract_initiators(
                 constituency = ""
             # Add an entry to the frame
             frame = add_entry(
-                frame, identity, type, name, faction, constituency, "", text_position,
+                frame, identity, type, name_raw, faction, constituency, "", text_position,
             )
 
     # Create the first_person_search_Pattern (looking for key und)
@@ -254,12 +254,12 @@ def extract_initiators(
     # Find match
     second_person_match = regex.search(second_person_search_Pattern, initiators,)
     if second_person_match:
-        # Remove the person name from the search text
+        # Remove the person name_raw from the search text
         initiators = initiators.replace(second_person_match.group(), "")
         # Check if the person was just asking a "Zwischenfrage"
         if not regex.search("[Zz]wischenfrage", initiators):
-            # Get the persons name
-            name = second_person_match.group("name")
+            # Get the persons name_raw
+            name_raw = second_person_match.group("name_raw")
             # Try to get the persons faction
             try:
                 faction = second_person_match.group("faction")
@@ -272,7 +272,7 @@ def extract_initiators(
                 constituency = ""
             # Add an entry to the frame
             frame = add_entry(
-                frame, identity, type, name, faction, constituency, "", text_position,
+                frame, identity, type, name_raw, faction, constituency, "", text_position,
             )
 
     # Iterate over all parties
@@ -395,7 +395,7 @@ def extract_person_interjection(
     for match in matches:
         # replace everything except the delimeters
         text = text.replace(match.group("delete"), " ")
-        name = match.group("name")
+        name_raw = match.group("name_raw")
         content = match.group("content")
 
         try:
@@ -413,7 +413,7 @@ def extract_person_interjection(
             frame,
             identity,
             "Personen-Einruf",
-            name,
+            name_raw,
             faction,
             constituency,
             content,
@@ -472,9 +472,9 @@ def extract_shout(text, electoral_term, session, identity, text_position, frame)
             text = text.replace(match.group("delete"), " ")
 
             try:
-                name = match.group("name")
+                name_raw = match.group("name_raw")
             except IndexError:
-                name = ""
+                name_raw = ""
             content = match.group("content")
 
             try:
@@ -492,7 +492,7 @@ def extract_shout(text, electoral_term, session, identity, text_position, frame)
                 frame,
                 identity,
                 "Zuruf",
-                name,
+                name_raw,
                 faction,
                 constituency,
                 content,
@@ -792,7 +792,7 @@ def extract(speech_text, session, identity, text_position=0):
     frame = {
         "id": [],
         "type": [],
-        "name": [],
+        "name_raw": [],
         "faction": [],
         "constituency": [],
         "content": [],
@@ -803,7 +803,7 @@ def extract(speech_text, session, identity, text_position=0):
     miscellaneous_frame = {
         "id": [],
         "type": [],
-        "name": [],
+        "name_raw": [],
         "faction": [],
         "constituency": [],
         "content": [],
