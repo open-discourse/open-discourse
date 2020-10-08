@@ -1,7 +1,7 @@
 import os
 
 # project root folder __________________________________________________________
-ROOT_DIR = "./"
+ROOT_DIR = os.path.abspath(os.path.join(__file__, "../../../.."))
 
 # data folder __________________________________________________________________
 DATA = os.path.join(ROOT_DIR, "data")
@@ -11,7 +11,7 @@ DATA_FINAL = os.path.join(DATA, "03_final")
 FINAL = os.path.join(DATA, "03_final")
 
 # ______________________________________________________________________________
-STAMMDATEN_XML = os.path.join(DATA_RAW, "mdb_stammdaten", "MDB_STAMMDATEN.XML")
+MP_MASTER_DATA = os.path.join(DATA_RAW, "mp_master_data", "MDB_STAMMDATEN.XML")
 
 # ______________________________________________________________________________
 RAW_ZIP = os.path.join(DATA_RAW, "zip")
@@ -19,22 +19,13 @@ RAW_XML = os.path.join(DATA_RAW, "xml")
 RAW_TXT = os.path.join(DATA_RAW, "txt")
 
 # ______________________________________________________________________________
-TOPS = os.path.join(DATA_CACHE, "top")
-TOPS_STAGE_01 = os.path.join(TOPS, "stage_01")
-
-# ______________________________________________________________________________
-TOC = os.path.join(DATA_CACHE, "toc")
-TOC_STAGE_01 = os.path.join(TOC, "stage_01")
-TOC_STAGE_02 = os.path.join(TOC, "stage_02")
-
-# ______________________________________________________________________________
-SPOKEN_CONTENT = os.path.join(DATA_CACHE, "spoken_content")
-SPOKEN_CONTENT_STAGE_01 = os.path.join(SPOKEN_CONTENT, "stage_01")
-SPOKEN_CONTENT_STAGE_02 = os.path.join(SPOKEN_CONTENT, "stage_02")
-SPOKEN_CONTENT_STAGE_03 = os.path.join(SPOKEN_CONTENT, "stage_03")
-SPOKEN_CONTENT_STAGE_04 = os.path.join(SPOKEN_CONTENT, "stage_04")
-SPOKEN_CONTENT_STAGE_05 = os.path.join(SPOKEN_CONTENT, "stage_05")
-SPOKEN_CONTENT_FINAL = os.path.join(SPOKEN_CONTENT, "final")
+SPEECH_CONTENT = os.path.join(DATA_CACHE, "speech_content")
+SPEECH_CONTENT_STAGE_01 = os.path.join(SPEECH_CONTENT, "stage_01")
+SPEECH_CONTENT_STAGE_02 = os.path.join(SPEECH_CONTENT, "stage_02")
+SPEECH_CONTENT_STAGE_03 = os.path.join(SPEECH_CONTENT, "stage_03")
+SPEECH_CONTENT_STAGE_04 = os.path.join(SPEECH_CONTENT, "stage_04")
+SPEECH_CONTENT_STAGE_05 = os.path.join(SPEECH_CONTENT, "stage_05")
+SPEECH_CONTENT_FINAL = os.path.join(SPEECH_CONTENT, "final")
 
 # ______________________________________________________________________________
 CONTRIBUTIONS = os.path.join(DATA_CACHE, "contributions")
@@ -42,19 +33,15 @@ CONTRIBUTIONS_STAGE_01 = os.path.join(CONTRIBUTIONS, "stage_01")
 CONTRIBUTIONS_STAGE_02 = os.path.join(CONTRIBUTIONS, "stage_02")
 CONTRIBUTIONS_STAGE_03 = os.path.join(CONTRIBUTIONS, "stage_03")
 CONTRIBUTIONS_STAGE_04 = os.path.join(CONTRIBUTIONS, "stage_04")
-CONTRIBUTIONS_MISCELLANEOUS_STAGE_01 = os.path.join(DATA_CACHE, "miscellaneous", "stage_01")
+CONTRIBUTIONS_MISCELLANEOUS_STAGE_01 = os.path.join(
+    DATA_CACHE, "miscellaneous", "stage_01"
+)
 
 CONTRIBUTIONS_FINAL = os.path.join(CONTRIBUTIONS, "final")
 
 # ______________________________________________________________________________
 MISCELLANEOUS = os.path.join(DATA_CACHE, "miscellaneous")
 MISCELLANEOUS_STAGE_01 = os.path.join(MISCELLANEOUS, "stage_01")
-
-# ______________________________________________________________________________
-PARTIES = os.path.join(DATA_CACHE, "parties")
-
-# ______________________________________________________________________________
-PERIODS = os.path.join(DATA_CACHE, "periods")
 
 # ______________________________________________________________________________
 POLITICIANS = os.path.join(DATA_CACHE, "politicians")
@@ -70,15 +57,15 @@ FACTIONS = os.path.join(FACTIONS, "stage_02")
 FACTIONS_FINAL = os.path.join(FACTIONS, "final")
 
 # ______________________________________________________________________________
-TEXT_POSITION_X_TEXT = os.path.join(FINAL)
+CONTRIBUTIONS_LOOKUP = os.path.join(FINAL)
 
 # ______________________________________________________________________________
-ELECTION_PERIOD = os.path.join(FINAL)
+ELECTORAL_TERMS = os.path.join(FINAL)
 
 # _________________________ WP_19 Seperate directory ___________________________
 
 # WP_19 data directories________________________________________________________
-WP_19 = os.path.join(DATA_CACHE, "wp_19")
+WP_19 = os.path.join(DATA_CACHE, "electoral_term_19")
 WP_19_STAGE_01 = os.path.join(WP_19, "stage_01")
 WP_19_STAGE_02 = os.path.join(WP_19, "stage_02")
 WP_19_STAGE_03 = os.path.join(WP_19, "stage_03")

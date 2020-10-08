@@ -10,7 +10,9 @@ import regex
 
 # ______________________________________________________________________________
 def get_fuzzy_names(df, name_to_check, fuzzy_threshold=70):
-    return df.loc[df.last_name.apply(fuzz.ratio, args=[name_to_check]) >= fuzzy_threshold]
+    return df.loc[
+        df.last_name.apply(fuzz.ratio, args=[name_to_check]) >= fuzzy_threshold
+    ]
 
 
 # ______________________________________________________________________________
@@ -82,9 +84,9 @@ def check_faction_id(df, index, possible_matches, faction_id):
 
 
 # ______________________________________________________________________________
-def check_location_info(df, index, possible_matches, location_information, fuzzy_threshold=70):
+def check_location_info(df, index, possible_matches, constituency, fuzzy_threshold=70):
     possible_matches = possible_matches.loc[
-        possible_matches.location_information.apply(fuzz.ratio, args=[location_information])
+        possible_matches.constituency.apply(fuzz.ratio, args=[constituency])
         > fuzzy_threshold
     ]
 
@@ -97,12 +99,15 @@ def check_location_info(df, index, possible_matches, location_information, fuzzy
 
 # ______________________________________________________________________________
 
-def check_name_and_profession(df, index, last_name, profession_regex, people_df, fuzzy_threshold=75):
-    possible_matches = get_possible_matches(people_df, last_name=last_name)
+
+def check_name_and_profession(
+    df, index, last_name, profession_regex, politicians_df, fuzzy_threshold=75
+):
+    possible_matches = get_possible_matches(politicians_df, last_name=last_name)
 
     if len(possible_matches) == 0:
         possible_matches = get_fuzzy_names(
-            people_df, name_to_check=last_name, fuzzy_threshold=fuzzy_threshold
+            politicians_df, name_to_check=last_name, fuzzy_threshold=fuzzy_threshold
         )
 
     if check_unique(possible_matches):
@@ -121,12 +126,12 @@ def check_name_and_profession(df, index, last_name, profession_regex, people_df,
             return False, possible_matches
 
 
-def check_government(df, index, last_name, gov_wp, fuzzy_threshold=80):
-    possible_matches = get_possible_matches(gov_wp, last_name=last_name)
+def check_government(df, index, last_name, mgs_electoral_term, fuzzy_threshold=80):
+    possible_matches = get_possible_matches(mgs_electoral_term, last_name=last_name)
 
     if len(possible_matches) == 0:
         possible_matches = get_fuzzy_names(
-            gov_wp, name_to_check=last_name, fuzzy_threshold=fuzzy_threshold
+            mgs_electoral_term, name_to_check=last_name, fuzzy_threshold=fuzzy_threshold
         )
 
     if check_unique(possible_matches):
@@ -136,59 +141,72 @@ def check_government(df, index, last_name, gov_wp, fuzzy_threshold=80):
         return False, possible_matches
 
 
-def check_member_of_parliament(df, index, first_name, last_name, people, faction_id,
-                               location_information, title, fuzzy_threshold=80):
+def check_member_of_parliament(
+    df,
+    index,
+    first_name,
+    last_name,
+    politicians,
+    faction_id,
+    constituency,
+    acad_title,
+    fuzzy_threshold=80,
+):
     # Check Last Name.
-    found, possible_matches = check_last_name(df, index, people, last_name)
+    found, possible_matches = check_last_name(df, index, politicians, last_name)
     if found:
         return True, possible_matches
 
     # Fuzzy search, if last_name can't be found.
     if len(possible_matches) == 0:
-        possible_matches = get_fuzzy_names(people, name_to_check=last_name)
+        possible_matches = get_fuzzy_names(politicians, name_to_check=last_name)
 
     if len(possible_matches) == 0:
         return False, possible_matches
 
     # Check Faction ID.
     if faction_id >= 0:
-        found, possible_matches = check_faction_id(df, index, possible_matches, faction_id)
+        found, possible_matches = check_faction_id(
+            df, index, possible_matches, faction_id
+        )
         if found:
             return found, possible_matches
 
     # Check First Name.
     if first_name:
-        found, possible_matches = check_first_name(df, index, possible_matches, first_name)
+        found, possible_matches = check_first_name(
+            df, index, possible_matches, first_name
+        )
         if found:
             return found, possible_matches
 
     # Match with location info.
-    if location_information:
+    if constituency:
         found, possible_matches = check_location_info(
-            df, index, possible_matches, location_information
+            df, index, possible_matches, constituency
         )
         if found:
             return found, possible_matches
-    elif location_information == "":
+    elif constituency == "":
         # Probably someone joined during the period, e.g. there
         # is an entry in STAMMDATEN for the correct person
         # without the location info, as there was only one
         # person with the last name before.
-        possible_matches = get_possible_matches(possible_matches, location_information="")
+        possible_matches = get_possible_matches(possible_matches, constituency="")
         if check_unique(possible_matches, col="ui"):
             set_id(df, index, possible_matches, col_set="politician_id", col_check="ui")
             return True, possible_matches
 
     # Check Gender.
-    found, possible_matches = check_woman(df, index, title, possible_matches)
+    found, possible_matches = check_woman(df, index, acad_title, possible_matches)
     if found:
         return True, possible_matches
     else:
         return False, possible_matches
 
 
-def check_woman(df, index, title, possible_matches):
-    if "Frau" in title:
+def check_woman(df, index, acad_title, possible_matches):
+    if "Frau" in acad_title:
         possible_matches = possible_matches.loc[possible_matches.gender == "weiblich"]
 
         if check_unique(possible_matches):
@@ -202,10 +220,12 @@ def check_woman(df, index, title, possible_matches):
 # ______________________________________________________________________________
 
 
-def insert_people_id_into_spoken_content(df, people_wp, gov_wp, people):
+def insert_politician_id_into_speech_content(
+    df, politicians_electoral_term, mgs_electoral_term, politicians
+):
     "Appends a politician id column with matched IDs"
 
-    df = df.fillna('')
+    df = df.fillna("")
 
     last_name_copy = df.last_name.copy()
     first_name_copy = df.first_name.copy()
@@ -217,8 +237,8 @@ def insert_people_id_into_spoken_content(df, people_wp, gov_wp, people):
         lambda first: [str.lower(string) for string in first]
     )
 
-    df.location_information = df.location_information.fillna("")
-    df.location_information = df.location_information.str.lower()
+    df.constituency = df.constituency.fillna("")
+    df.constituency = df.constituency.str.lower()
     df.last_name = df.last_name.str.lower()
     df.last_name = df.last_name.str.replace("ß", "ss", regex=False)
     df.insert(4, "politician_id", -1)
@@ -232,11 +252,16 @@ def insert_people_id_into_spoken_content(df, people_wp, gov_wp, people):
 
         if row.position_short == "Presidium of Parliament":
 
-            if row.position_long in ["präsident", "präsidentin", "vizepräsident", "vizepräsidentin"]:
+            if row.position_long in [
+                "präsident",
+                "präsidentin",
+                "vizepräsident",
+                "vizepräsidentin",
+            ]:
                 if row.last_name == "jäger":
-                    # The president of the Bundestag is saves as "jaeger" in the "people" data
+                    # The president of the Bundestag is saves as "jaeger" in the "politicians" data
                     # Maybe manually changing last name as below would work. But must be checked
-                    # if this does maybe change also other people which should not be changed.
+                    # if this does maybe change also other politicians which should not be changed.
                     # row.last_name = "jaeger"
                     pass
                 elif row.last_name == "bläss":
@@ -244,15 +269,26 @@ def insert_people_id_into_spoken_content(df, people_wp, gov_wp, people):
 
                 profession_pattern = "präsident dbt|präsidentin dbt|vizepräsident dbt|vizepräsidentin dbt|vizeprä. dbt"
                 found, possible_matches = check_name_and_profession(
-                    df, index, row.last_name, profession_pattern, people_wp
+                    df,
+                    index,
+                    row.last_name,
+                    profession_pattern,
+                    politicians_electoral_term,
                 )
 
                 if found:
                     continue
                 else:
                     found, possible_matches = check_member_of_parliament(
-                        df, index, row.first_name, row.last_name, people_wp,
-                        row.faction_id, row.location_information, row.title, fuzzy_threshold=80
+                        df,
+                        index,
+                        row.first_name,
+                        row.last_name,
+                        politicians_electoral_term,
+                        row.faction_id,
+                        row.constituency,
+                        row.acad_title,
+                        fuzzy_threshold=80,
                     )
 
                     if found:
@@ -263,15 +299,26 @@ def insert_people_id_into_spoken_content(df, people_wp, gov_wp, people):
             elif regex.search("schriftführer", row.position_long):
                 profession_pattern = "schriftführer"
                 found, possible_matches = check_name_and_profession(
-                    df, index, row.last_name, profession_pattern, people_wp
+                    df,
+                    index,
+                    row.last_name,
+                    profession_pattern,
+                    politicians_electoral_term,
                 )
 
                 if found:
                     continue
                 else:
                     found, possible_matches = check_member_of_parliament(
-                        df, index, row.first_name, row.last_name, people_wp,
-                        row.faction_id, row.location_information, row.title, fuzzy_threshold=80
+                        df,
+                        index,
+                        row.first_name,
+                        row.last_name,
+                        politicians_electoral_term,
+                        row.faction_id,
+                        row.constituency,
+                        row.acad_title,
+                        fuzzy_threshold=80,
                     )
 
                     if found:
@@ -281,8 +328,15 @@ def insert_people_id_into_spoken_content(df, people_wp, gov_wp, people):
 
             else:
                 found, possible_matches = check_member_of_parliament(
-                    df, index, row.first_name, row.last_name, people_wp,
-                    row.faction_id, row.location_information, row.title, fuzzy_threshold=80
+                    df,
+                    index,
+                    row.first_name,
+                    row.last_name,
+                    politicians_electoral_term,
+                    row.faction_id,
+                    row.constituency,
+                    row.acad_title,
+                    fuzzy_threshold=80,
                 )
 
                 if found:
@@ -292,15 +346,22 @@ def insert_people_id_into_spoken_content(df, people_wp, gov_wp, people):
 
         elif row.position_short == "Minister":
             found, possible_matches = check_government(
-                df, index, row.last_name, gov_wp, fuzzy_threshold=75
+                df, index, row.last_name, mgs_electoral_term, fuzzy_threshold=75
             )
 
             if found:
                 continue
             else:
                 found, possible_matches = check_member_of_parliament(
-                    df, index, row.first_name, row.last_name, people_wp,
-                    row.faction_id, row.location_information, row.title, fuzzy_threshold=80
+                    df,
+                    index,
+                    row.first_name,
+                    row.last_name,
+                    politicians_electoral_term,
+                    row.faction_id,
+                    row.constituency,
+                    row.acad_title,
+                    fuzzy_threshold=80,
                 )
 
                 if found:
@@ -309,7 +370,9 @@ def insert_people_id_into_spoken_content(df, people_wp, gov_wp, people):
                     problem_df.append(row)
 
         elif row.position_short == "Chancellor":
-            found, possible_matches = check_government(df, index, row.last_name, gov_wp)
+            found, possible_matches = check_government(
+                df, index, row.last_name, mgs_electoral_term
+            )
 
             if found:
                 continue
@@ -321,18 +384,31 @@ def insert_people_id_into_spoken_content(df, people_wp, gov_wp, people):
             # Look for "Parlamentarische Staatsekretäre"
             if regex.search("parl", row.position_long):
 
-                profession_pattern = "Parl. Staatssekretär|Parlamentarischer Staatssekretär"
+                profession_pattern = (
+                    "Parl. Staatssekretär|Parlamentarischer Staatssekretär"
+                )
 
                 found, possible_matches = check_name_and_profession(
-                    df, index, row.last_name, profession_pattern, people_wp
+                    df,
+                    index,
+                    row.last_name,
+                    profession_pattern,
+                    politicians_electoral_term,
                 )
 
                 if found:
                     continue
                 else:
                     found, possible_matches = check_member_of_parliament(
-                        df, index, row.first_name, row.last_name, people_wp,
-                        row.faction_id, row.location_information, row.title, fuzzy_threshold=80
+                        df,
+                        index,
+                        row.first_name,
+                        row.last_name,
+                        politicians_electoral_term,
+                        row.faction_id,
+                        row.constituency,
+                        row.acad_title,
+                        fuzzy_threshold=80,
                     )
 
                     if found:
@@ -340,7 +416,7 @@ def insert_people_id_into_spoken_content(df, people_wp, gov_wp, people):
                     else:
                         problem_df.append(row)
 
-            # "Beamtete Staatsekretäre" are not included in "people" data.
+            # "Beamtete Staatsekretäre" are not included in "politicians" data.
             elif regex.search("staatssekretär", row.position_long):
                 problem_df.append(row)
                 continue
@@ -351,8 +427,15 @@ def insert_people_id_into_spoken_content(df, people_wp, gov_wp, people):
 
         elif row.position_short == "Member of Parliament":
             found, possible_matches = check_member_of_parliament(
-                df, index, row.first_name, row.last_name, people_wp, row.faction_id,
-                row.location_information, row.title, fuzzy_threshold=80
+                df,
+                index,
+                row.first_name,
+                row.last_name,
+                politicians_electoral_term,
+                row.faction_id,
+                row.constituency,
+                row.acad_title,
+                fuzzy_threshold=80,
             )
 
             if found:
@@ -363,7 +446,7 @@ def insert_people_id_into_spoken_content(df, people_wp, gov_wp, people):
         else:
             # Some other notes
             # Example: Meyer in 01033. Have the same last name and
-            # are in the same party at same period. In this
+            # are in the same faction at same period. In this
             # particular case the location information in the toc
             # "Westhagen", does not match with the two possible
             # location informations "Hagen", "Bremen"
@@ -387,10 +470,12 @@ def insert_people_id_into_spoken_content(df, people_wp, gov_wp, people):
 # ______________________________________________________________________________
 
 
-def insert_people_id_into_contributions(df, people_wp, gov_wp):
+def insert_politician_id_into_contributions(
+    df, politicians_electoral_term, mgs_electoral_term
+):
     "Appends a politician id column with matched IDs"
 
-    assert {"last_name", "first_name", "faction_id", "title", "location_information"}.issubset(
+    assert {"last_name", "first_name", "faction_id", "acad_title", "constituency"}.issubset(
         df.columns
     )
 
@@ -403,9 +488,11 @@ def insert_people_id_into_contributions(df, people_wp, gov_wp):
     problem_df = []
 
     # Lower case to ease up matching
-    df.first_name = df.first_name.apply(lambda first: [str.lower(string) for string in first])
-    df.location_information = df.location_information.fillna("")
-    df.location_information = df.location_information.str.lower()
+    df.first_name = df.first_name.apply(
+        lambda first: [str.lower(string) for string in first]
+    )
+    df.constituency = df.constituency.fillna("")
+    df.constituency = df.constituency.str.lower()
     df.last_name = df.last_name.str.lower()
     df.last_name = df.last_name.str.replace("ß", "ss", regex=False)
     df.insert(4, "politician_id", -1)
@@ -419,18 +506,24 @@ def insert_people_id_into_contributions(df, people_wp, gov_wp):
             problem_df.append(row)
             continue
         else:
-            found, possible_matches = check_last_name(df, index, people_wp, row.last_name)
+            found, possible_matches = check_last_name(
+                df, index, politicians_electoral_term, row.last_name
+            )
             if found:
                 if check_unique(possible_matches, col="faction_id"):
                     set_id(
-                        df, index, possible_matches, col_set="faction_id", col_check="faction_id"
+                        df,
+                        index,
+                        possible_matches,
+                        col_set="faction_id",
+                        col_check="faction_id",
                     )
                     continue
                 else:
                     continue
 
         # if row.faction_id >= 0:
-        #     if check_special_positions(df, index, row.position, row.last_name, gov_wp, fuzzy_threshold=0.75):
+        #     if check_special_positions(df, index, row.position, row.last_name, mgs_electoral_term, fuzzy_threshold=0.75):
         #         continue
         #     else:
         #         problem_df.append(row)
@@ -438,7 +531,9 @@ def insert_people_id_into_contributions(df, people_wp, gov_wp):
 
         # Fuzzy search, if last_name can't be found.
         if len(possible_matches) == 0:
-            possible_matches = get_fuzzy_names(people_wp, row.last_name)
+            possible_matches = get_fuzzy_names(
+                politicians_electoral_term, row.last_name
+            )
 
         if len(possible_matches) == 0:
             problem_df.append(row)
@@ -446,7 +541,9 @@ def insert_people_id_into_contributions(df, people_wp, gov_wp):
 
         # Check Faction ID.
         if row.faction_id >= 0:
-            found, possible_matches = check_faction_id(df, index, possible_matches, row.faction_id)
+            found, possible_matches = check_faction_id(
+                df, index, possible_matches, row.faction_id
+            )
             if found:
                 if check_unique(possible_matches, col="faction_id"):
                     df.faction_id.at[index] = int(possible_matches.faction_id.iloc[0])
@@ -456,35 +553,39 @@ def insert_people_id_into_contributions(df, people_wp, gov_wp):
 
         # Check First Name.
         if row.first_name:
-            found, possible_matches = check_first_name(df, index, possible_matches, row.first_name)
+            found, possible_matches = check_first_name(
+                df, index, possible_matches, row.first_name
+            )
             if found:
                 continue
 
         # Match with location info.
-        if row.location_information:
+        if row.constituency:
             found, possible_matches = check_location_info(
-                df, index, possible_matches, row.location_information
+                df, index, possible_matches, row.constituency
             )
             if found:
                 continue
-        elif row.location_information == "":
+        elif row.constituency == "":
             # Probably someone joined during the period, e.g. there
             # is an entry in STAMMDATEN for the correct person
             # without the location info, as there was only one
             # person with the last name before.
-            possible_matches = get_possible_matches(possible_matches, location_information="")
+            possible_matches = get_possible_matches(possible_matches, constituency="")
 
             if check_unique(possible_matches):
-                set_id(df, index, possible_matches, col_set="politician_id", col_check="ui")
+                set_id(
+                    df, index, possible_matches, col_set="politician_id", col_check="ui"
+                )
                 continue
 
         # Check Gender.
-        found, possible_matches = check_woman(df, index, row.title, possible_matches)
+        found, possible_matches = check_woman(df, index, row.acad_title, possible_matches)
         if found:
             continue
 
         # Example: Meyer in 01033. Have the same last name and
-        # are in the same party at same period. In this
+        # are in the same faction at same period. In this
         # particular case the location information in the toc
         # "Westhagen", does not match with the two possible
         # location informations "Hagen", "Bremen"

@@ -5,7 +5,7 @@ import zipfile
 import os
 import regex
 
-# output directory _____________________________________________________________
+# output directory _________________________________________________________________________________
 RAW_XML = path_definitions.RAW_XML
 
 zip_links = [
@@ -35,23 +35,27 @@ for link in zip_links:
     z = zipfile.ZipFile(io.BytesIO(r.content))
 
     # Extract election period from URL
-    wp_str = "wp_" + regex.search(r"(?<=pp)\d+(?=-data\.zip)", link).group(0)
+    electoral_term_str = "electoral_term_" + regex.search(
+        r"(?<=pp)\d+(?=-data\.zip)", link
+    ).group(
+        0
+    )  # noqa: E501
 
-    print("Unzipping: ", wp_str)
+    print("Unzipping: ", electoral_term_str)
 
-    save_path = os.path.join(RAW_XML, wp_str)
+    save_path = os.path.join(RAW_XML, electoral_term_str)
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
     z.extractall(save_path)
 
 
-# Download MDB Stammdaten. _____________________________________________________
-mdb_link = "https://www.bundestag.de/resource/blob/472878/7d4d417dbb7f7bd44508b3dc5de08ae2/MdB-Stammdaten-data.zip"  # noqa: E501
+# Download MDB Stammdaten. _________________________________________________________________________
+mp_master_data_link = "https://www.bundestag.de/resource/blob/472878/7d4d417dbb7f7bd44508b3dc5de08ae2/MdB-Stammdaten-data.zip"  # noqa: E501
 
-r = requests.get(mdb_link)
+r = requests.get(mp_master_data_link)
 z = zipfile.ZipFile(io.BytesIO(r.content))
-mdb_path = os.path.join(path_definitions.DATA_RAW, "mdb_stammdaten")
-if not os.path.exists(mdb_path):
-    os.makedirs(mdb_path)
-z.extractall(mdb_path)
+mp_master_data_path = os.path.join(path_definitions.DATA_RAW, "mp_master_data")
+if not os.path.exists(mp_master_data_path):
+    os.makedirs(mp_master_data_path)
+z.extractall(mp_master_data_path)

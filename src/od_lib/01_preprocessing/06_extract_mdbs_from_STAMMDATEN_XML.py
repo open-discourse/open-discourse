@@ -5,23 +5,23 @@ import os
 import regex
 
 # input directory ______________________________________________________________
-STAMMDATEN_XML = path_definitions.STAMMDATEN_XML
+MP_MASTER_DATA = path_definitions.MP_MASTER_DATA
 
 # output directory _____________________________________________________________
 POLITICIANS_STAGE_01 = path_definitions.POLITICIANS_STAGE_01
-save_path = os.path.join(POLITICIANS_STAGE_01, "mdbs.pkl")
+save_path = os.path.join(POLITICIANS_STAGE_01, "mps.pkl")
 
 if not os.path.exists(POLITICIANS_STAGE_01):
     os.makedirs(POLITICIANS_STAGE_01)
 
 # read data ____________________________________________________________________
-tree = et.parse(STAMMDATEN_XML)
+tree = et.parse(MP_MASTER_DATA)
 root = tree.getroot()
 
 # placeholder for final dataframe ______________________________________________
-politicians = {
+mps = {
     "ui": [],
-    "wp_period": [],
+    "electoral_term": [],
     "first_name": [],
     "last_name": [],
     "birth_place": [],
@@ -30,20 +30,20 @@ politicians = {
     "death_year": [],
     "gender": [],
     "profession": [],
-    "location_information": [],
+    "constituency": [],
     "aristocracy": [],
     "prefix": [],
     "academic_title": [],
     "salutation": [],
     "vita_short": [],
     "disclosure_requirement": [],
-    "electoral_district_number": [],
-    "electoral_district_name": [],
-    "electoral_district_region": [],
+    "constituency_number": [],
+    "constituency_name": [],
+    "constituency_region": [],
     "electoral_list": [],
     "type_of_mandate": [],
-    "mdb_from": [],
-    "mdb_until": [],
+    "mp_from": [],
+    "mp_until": [],
     "history_from": [],
     "history_until": [],
     "institution_type": [],
@@ -81,7 +81,7 @@ for mdb in tree.iter("MDB"):
 
     gender = mdb.findtext("BIOGRAFISCHE_ANGABEN/GESCHLECHT")
     profession = mdb.findtext("BIOGRAFISCHE_ANGABEN/BERUF")
-    # last_party_membership = mdb.findtext("BIOGRAFISCHE_ANGABEN/PARTEI_KURZ")
+    # last_faction_membership = mdb.findtext("BIOGRAFISCHE_ANGABEN/PARTEI_KURZ")
     vita_short = mdb.findtext("BIOGRAFISCHE_ANGABEN/VITA_KURZ")
     disclosure_requirement = mdb.findtext(
         "BIOGRAFISCHE_ANGABEN/VEROEFFENTLICHUNGSPFLICHTIGES"
@@ -94,7 +94,7 @@ for mdb in tree.iter("MDB"):
     for name in mdb.findall("./NAMEN/NAME"):
         first_name = name.findtext("VORNAME")
         last_name = name.findtext("NACHNAME")
-        location_information = name.findtext("ORTSZUSATZ")
+        constituency = name.findtext("ORTSZUSATZ")
         aristocracy = name.findtext("ADEL")
         prefix = name.findtext("PRAEFIX")
         academic_title = name.findtext("AKAD_TITEL")
@@ -106,23 +106,23 @@ for mdb in tree.iter("MDB"):
         # Frank Schmidt!!
         if regex.search(r"\(Weilburg\)", last_name):
             last_name = last_name.replace(" (Weilburg)", "")
-            location_information = "(Weilburg)"
+            constituency = "(Weilburg)"
 
         # Iterate over parliament periods the politician was member
         # of the Bundestag.
-        for wp in mdb.findall("./WAHLPERIODEN/WAHLPERIODE"):
-            wp_number = wp.findtext("WP")
-            mdb_from = wp.findtext("MDBWP_VON")
-            mdb_until = wp.findtext("MDBWP_BIS")
-            electoral_district_number = wp.findtext("WKR_NUMMER")
-            electoral_district_name = wp.findtext("WKR_NAME")
-            electoral_district_region = wp.findtext("WKR_LAND")
-            electoral_list = wp.findtext("LISTE")
-            type_of_mandate = wp.findtext("MANDATSART")
+        for electoral_term in mdb.findall("./WAHLPERIODEN/WAHLPERIODE"):
+            electoral_term_number = electoral_term.findtext("WP")
+            mp_from = electoral_term.findtext("MDBWP_VON")
+            mp_until = electoral_term.findtext("MDBWP_BIS")
+            constituency_number = electoral_term.findtext("WKR_NUMMER")
+            constituency_name = electoral_term.findtext("WKR_NAME")
+            constituency_region = electoral_term.findtext("WKR_LAND")
+            electoral_list = electoral_term.findtext("LISTE")
+            type_of_mandate = electoral_term.findtext("MANDATSART")
 
             # Iterate over faction membership in each parliament period, e.g.
             # multiple entries exist if faction was changed within period.
-            for institution in wp.findall("./INSTITUTIONEN/INSTITUTION"):
+            for institution in electoral_term.findall("./INSTITUTIONEN/INSTITUTION"):
                 institution_name = institution.findtext("INS_LANG")
                 institution_type = institution.findtext("INSART_LANG")
                 institution_member_from = institution.findtext("MDBINS_VON")
@@ -131,67 +131,55 @@ for mdb in tree.iter("MDB"):
                 function_from = institution.findtext("FKTINS_VON")
                 function_until = institution.findtext("FKTINS_BIS")
 
-                politicians["ui"].append(ui)
-                politicians["wp_period"].append(wp_number)
-                politicians["first_name"].append(first_name)
-                politicians["last_name"].append(last_name)
-                politicians["birth_place"].append(birth_place)
-                politicians["birth_country"].append(birth_country)
-                politicians["birth_year"].append(birth_year)
-                politicians["death_year"].append(death_year)
-                politicians["gender"].append(gender)
-                politicians["profession"].append(profession)
-                politicians["location_information"].append(location_information)
-                politicians["aristocracy"].append(aristocracy)
-                politicians["prefix"].append(prefix)
-                politicians["academic_title"].append(academic_title)
-                politicians["salutation"].append(salutation)
-                politicians["vita_short"].append(vita_short)
-                politicians["disclosure_requirement"].append(disclosure_requirement)
-                politicians["history_from"].append(history_from)
-                politicians["history_until"].append(history_until)
-                politicians["electoral_district_number"].append(
-                    electoral_district_number
-                )
-                politicians["electoral_district_name"].append(electoral_district_name)
-                politicians["electoral_district_region"].append(
-                    electoral_district_region
-                )
-                politicians["electoral_list"].append(electoral_list)
-                politicians["type_of_mandate"].append(type_of_mandate)
-                politicians["mdb_from"].append(mdb_from)
-                politicians["mdb_until"].append(mdb_until)
+                mps["ui"].append(ui)
+                mps["electoral_term"].append(electoral_term_number)
+                mps["first_name"].append(first_name)
+                mps["last_name"].append(last_name)
+                mps["birth_place"].append(birth_place)
+                mps["birth_country"].append(birth_country)
+                mps["birth_year"].append(birth_year)
+                mps["death_year"].append(death_year)
+                mps["gender"].append(gender)
+                mps["profession"].append(profession)
+                mps["constituency"].append(constituency)
+                mps["aristocracy"].append(aristocracy)
+                mps["prefix"].append(prefix)
+                mps["academic_title"].append(academic_title)
+                mps["salutation"].append(salutation)
+                mps["vita_short"].append(vita_short)
+                mps["disclosure_requirement"].append(disclosure_requirement)
+                mps["history_from"].append(history_from)
+                mps["history_until"].append(history_until)
+                mps["constituency_number"].append(constituency_number)
+                mps["constituency_name"].append(constituency_name)
+                mps["constituency_region"].append(constituency_region)
+                mps["electoral_list"].append(electoral_list)
+                mps["type_of_mandate"].append(type_of_mandate)
+                mps["mp_from"].append(mp_from)
+                mps["mp_until"].append(mp_until)
 
-                politicians["institution_type"].append(institution_type)
-                politicians["institution_name"].append(institution_name)
-                politicians["institution_member_from"].append(institution_member_from)
-                politicians["institution_member_until"].append(institution_member_until)
+                mps["institution_type"].append(institution_type)
+                mps["institution_name"].append(institution_name)
+                mps["institution_member_from"].append(institution_member_from)
+                mps["institution_member_until"].append(institution_member_until)
 
-                politicians["function_long"].append(function_long)
-                politicians["function_from"].append(function_from)
-                politicians["function_until"].append(function_until)
+                mps["function_long"].append(function_long)
+                mps["function_from"].append(function_from)
+                mps["function_until"].append(function_until)
 
 
-politicians = pd.DataFrame(politicians)
-politicians.location_information = politicians.location_information.str.replace(
-    "[)(]", ""
-)
-politicians = politicians.astype(
-    dtype={"ui": "int64", "birth_year": "str", "death_year": "str"}
-)
+mps = pd.DataFrame(mps)
+mps.constituency = mps.constituency.str.replace("[)(]", "")
+mps = mps.astype(dtype={"ui": "int64", "birth_year": "str", "death_year": "str"})
 
 # Convert to date stamp
-politicians.history_from = pd.to_datetime(politicians.history_from).dt.date
-politicians.history_until = pd.to_datetime(politicians.history_until).dt.date
-politicians.mdb_from = pd.to_datetime(politicians.mdb_from).dt.date
-politicians.mdb_until = pd.to_datetime(politicians.mdb_until).dt.date
-politicians.function_from = pd.to_datetime(politicians.function_from).dt.date
-politicians.function_until = pd.to_datetime(politicians.function_until).dt.date
-politicians.institution_member_from = pd.to_datetime(
-    politicians.institution_member_from
-).dt.date
-politicians.institution_member_until = pd.to_datetime(
-    politicians.institution_member_until
-).dt.date
+mps.history_from = pd.to_datetime(mps.history_from).dt.date
+mps.history_until = pd.to_datetime(mps.history_until).dt.date
+mps.mp_from = pd.to_datetime(mps.mp_from).dt.date
+mps.mp_until = pd.to_datetime(mps.mp_until).dt.date
+mps.function_from = pd.to_datetime(mps.function_from).dt.date
+mps.function_until = pd.to_datetime(mps.function_until).dt.date
+mps.institution_member_from = pd.to_datetime(mps.institution_member_from).dt.date
+mps.institution_member_until = pd.to_datetime(mps.institution_member_until).dt.date
 
-politicians.to_pickle(save_path)
+mps.to_pickle(save_path)

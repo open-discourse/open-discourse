@@ -8,7 +8,7 @@ import os
 
 # Output directory _____________________________________________________________
 POLITICIANS_STAGE_01 = path_definitions.POLITICIANS_STAGE_01
-save_path = os.path.join(POLITICIANS_STAGE_01 + "/government_members.pkl")
+save_path = os.path.join(POLITICIANS_STAGE_01 + "/mgs.pkl")
 
 if not os.path.exists(POLITICIANS_STAGE_01):
     os.makedirs(POLITICIANS_STAGE_01)
@@ -19,7 +19,7 @@ page = requests.get(URL)
 soup = BeautifulSoup(page.text, "html.parser")
 main_section = soup.find("div", {"id": "mw-content-text"})
 
-government_members = {
+mgs = {
     "ui": [],
     "last_name": [],
     "first_name": [],
@@ -28,8 +28,8 @@ government_members = {
     "position_until": [],
     "birth_year": [],
     "death_year": [],
-    "party": [],
-    "additional_party": [],
+    "faction": [],
+    "additional_faction": [],
 }
 
 ui = 0
@@ -50,24 +50,24 @@ for div in main_section.find_all("div", recursive=False):
             # as she is member of StammdatenXML
             if "CDU" in name:
                 continue
-                # government_members["first_name"].append("Kristina")
-                # government_members["last_name"].append("Schröder")
-                # party = "CDU"
-                # government_members["party"][-1] = party
+                # mgs["first_name"].append("Kristina")
+                # mgs["last_name"].append("Schröder")
+                # faction = "CDU"
+                # mgs["faction"][-1] = faction
 
             name = name.split(" ")
             first_name = name[:-1]
             last_name = name[-1]
 
             if len(find_all_a) > 2:
-                party = find_all_a[1].text
-                additional_party = find_all_a[2].text
+                faction = find_all_a[1].text
+                additional_faction = find_all_a[2].text
             elif len(find_all_a) == 2:
-                party = find_all_a[1].text
-                additional_party = ""
+                faction = find_all_a[1].text
+                additional_faction = ""
             else:
-                party = "parteilos"
-                additional_party = ""
+                faction = "parteilos"
+                additional_faction = ""
 
             birth_death = li.a.next_sibling.strip()
 
@@ -119,16 +119,16 @@ for div in main_section.find_all("div", recursive=False):
 
                     # Position will be appended twice. Here and below after
                     # the if statement.
-                    government_members["ui"].append("gov_" + str(ui))
-                    government_members["first_name"].append(first_name)
-                    government_members["last_name"].append(last_name)
-                    government_members["position"].append(position)
-                    government_members["position_from"].append(position_from)
-                    government_members["position_until"].append(position_until)
-                    government_members["birth_year"].append(birth_year)
-                    government_members["death_year"].append(death_year)
-                    government_members["party"].append(party)
-                    government_members["additional_party"].append(additional_party)
+                    mgs["ui"].append("gov_" + str(ui))
+                    mgs["first_name"].append(first_name)
+                    mgs["last_name"].append(last_name)
+                    mgs["position"].append(position)
+                    mgs["position_from"].append(position_from)
+                    mgs["position_until"].append(position_until)
+                    mgs["birth_year"].append(birth_year)
+                    mgs["death_year"].append(death_year)
+                    mgs["faction"].append(faction)
+                    mgs["additional_faction"].append(additional_faction)
 
                     position_from = int(match_years[2])
                     position_until = int(match_years[3])
@@ -136,18 +136,18 @@ for div in main_section.find_all("div", recursive=False):
                 else:
                     raise ValueError("Still something wrong")
 
-                government_members["ui"].append("gov_" + str(ui))
-                government_members["first_name"].append(first_name)
-                government_members["last_name"].append(last_name)
-                government_members["position"].append(position)
-                government_members["position_from"].append(position_from)
-                government_members["position_until"].append(position_until)
-                government_members["birth_year"].append(birth_year)
-                government_members["death_year"].append(death_year)
-                government_members["party"].append(party)
-                government_members["additional_party"].append(additional_party)
+                mgs["ui"].append("gov_" + str(ui))
+                mgs["first_name"].append(first_name)
+                mgs["last_name"].append(last_name)
+                mgs["position"].append(position)
+                mgs["position_from"].append(position_from)
+                mgs["position_until"].append(position_until)
+                mgs["birth_year"].append(birth_year)
+                mgs["death_year"].append(death_year)
+                mgs["faction"].append(faction)
+                mgs["additional_faction"].append(additional_faction)
 
             ui += 1
 
-government_members = pd.DataFrame(government_members)
-government_members.to_pickle(save_path)
+mgs = pd.DataFrame(mgs)
+mgs.to_pickle(save_path)

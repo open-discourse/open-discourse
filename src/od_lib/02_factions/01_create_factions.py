@@ -14,11 +14,9 @@ if not os.path.exists(FACTIONS_STAGE_01):
     os.makedirs(FACTIONS_STAGE_01)
 
 # read data.
-politicians = pd.read_pickle(os.path.join(POLITICIANS_STAGE_01, "mdbs.pkl"))
+mps = pd.read_pickle(os.path.join(POLITICIANS_STAGE_01, "mps.pkl"))
 
-factions = politicians.institution_name.loc[
-    (politicians.institution_type == "Fraktion/Gruppe")
-]
+factions = mps.institution_name.loc[(mps.institution_type == "Fraktion/Gruppe")]
 
 unique_factions = np.unique(factions)
 unique_factions = np.append(

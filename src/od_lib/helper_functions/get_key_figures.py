@@ -6,12 +6,12 @@ SPOKEN_CONTENT = path_definitions.FINAL
 CONTRIBUTIONS = path_definitions.FINAL
 POLITICIANS = path_definitions.FINAL
 
-speeches = pd.read_pickle(os.path.join(SPOKEN_CONTENT, "spoken_content.pkl"))
+speeches = pd.read_pickle(os.path.join(SPOKEN_CONTENT, "speech_content.pkl"))
 contributions = pd.read_pickle(os.path.join(CONTRIBUTIONS, "contributions.pkl"))
-people = pd.read_csv(os.path.join(POLITICIANS, "people.csv"))
+politicians = pd.read_csv(os.path.join(POLITICIANS, "politicians.csv"))
 
-people = people.drop_duplicates(subset=["ui"], keep="first")
+politicians = politicians.drop_duplicates(subset=["ui"], keep="first")
 
 print("Anzahl an Speeches:", str(len(speeches)))
 print("Anzahl an Contributions:", str(len(contributions)))
-print("Anzahl an Politikern:", str(len(people)))
+print("Anzahl an Politikern:", str(len(politicians)))

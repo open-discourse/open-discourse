@@ -2,4 +2,4 @@
 per-file-ignores =
     src/od_lib/helper_functions/extract_contributions.py: E501,
     src/od_lib/helper_functions/match_names.py: E501,
-    src/od_lib/04_spoken_content/02_extract_speech_parts.py: E501,
+    src/od_lib/04_speech_content/02_extract_speeches.py: E501,

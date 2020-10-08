@@ -20,28 +20,28 @@ for xml_file in os.listdir(WP_19_INPUT):
     tree = et.parse(os.path.join(WP_19_INPUT, xml_file))
     root = tree.getroot()
 
-    vorspann = et.ElementTree(root.find("vorspann"))
-    sitzungsverlauf = et.ElementTree(root.find("sitzungsverlauf"))
-    anlagen = et.ElementTree(root.find("anlagen"))
-    rednerliste = et.ElementTree(root.find("rednerliste"))
+    toc = et.ElementTree(root.find("vorspann"))
+    session_content = et.ElementTree(root.find("sitzungsverlauf"))
+    appendix = et.ElementTree(root.find("anlagen"))
+    meta_data = et.ElementTree(root.find("rednerliste"))
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
     # save to xmls _____________________________________________________________
-    vorspann.write(
-        os.path.join(save_path, "vorspann.xml"), encoding="UTF-8", xml_declaration=True
+    toc.write(
+        os.path.join(save_path, "toc.xml"), encoding="UTF-8", xml_declaration=True
     )
-    sitzungsverlauf.write(
-        os.path.join(save_path, "sitzungsverlauf.xml"),
+    session_content.write(
+        os.path.join(save_path, "session_content.xml"),
         encoding="UTF-8",
         xml_declaration=True,
     )
-    anlagen.write(
-        os.path.join(save_path, "anlagen.xml"), encoding="UTF-8", xml_declaration=True
+    appendix.write(
+        os.path.join(save_path, "appendix.xml"), encoding="UTF-8", xml_declaration=True
     )
-    rednerliste.write(
-        os.path.join(save_path, "rednerliste.xml"),
+    meta_data.write(
+        os.path.join(save_path, "meta_data.xml"),
         encoding="UTF-8",
         xml_declaration=True,
     )

@@ -23,7 +23,7 @@ The Input and Output paths start at the project root
   - Input: `None`
   - Output: `./data/01_raw/xml/*`
 
-### 2. [Download Raw Data WP 19](./01_preprocessing/02_download_raw_data_wp_19.py)
+### 2. [Download Raw Data WP 19](./01_preprocessing/02_download_raw_data_electoral_term_19.py)
 
 - Function:
 
@@ -32,14 +32,14 @@ The Input and Output paths start at the project root
 
 - Attributes:
   - Input: `None`
-  - Output: `./data/02_cached/wp_10/stage_01/*`
+  - Output: `./data/02_cached/electoral_term_10/stage_01/*`
 
 ### 3. [Split XML](./01_preprocessing/03_split_xml.py)
 
 - Function:
 
   - A cleaning function checks the text corpus. It deletes things like the titles that were left from the pdf files, the XML files were generated from. The cleaning function can be found in [helper_functions/clean_text.py](./helper_functions/clean_text.py)
-  - Splits the XML files of the 3rd to 18th electoral period into the table of content, spoken_content and appendix
+  - Splits the XML files of the 3rd to 18th electoral period into the table of content, speech_content and appendix
 
 - Attributes:
   - Input: `./data/01_raw/xml/*`
@@ -50,7 +50,7 @@ The Input and Output paths start at the project root
 - Function:
 
   - A cleaning function checks the text corpus. It deletes things like the titles that were left from the pdf files, the XML files were generated from. The cleaning function can be found in [helper_functions/clean_text.py](./helper_functions/clean_text.py)
-  - Because of the "interesting" structure of the first two election periods, we use a different approach to split the XML files into the table of content, spoken_content and appendix
+  - Because of the "interesting" structure of the first two election periods, we use a different approach to split the XML files into the table of content, speech_content and appendix
 
 - Attributes:
   - Input: `./data/01_raw/xml/*`
@@ -60,11 +60,11 @@ The Input and Output paths start at the project root
 
 - Function:
 
-  - Splits the XML file into table of content, spoken_content and appendix based on the XML tags
+  - Splits the XML file into table of content, speech_content and appendix based on the XML tags
 
 - Attributes:
-  - Input: `./data/02_cached/wp_19/stage_01/*`
-  - Output: `./data/02_cached/wp_19/stage_02/*`
+  - Input: `./data/02_cached/electoral_term_19/stage_01/*`
+  - Output: `./data/02_cached/electoral_term_19/stage_02/*`
 
 ### 6. [Extract MDBs from personal details](./01_preprocessing/06_extract_mdbs_from_STAMMDATEN_XML.py)
 
@@ -76,7 +76,7 @@ The Input and Output paths start at the project root
   - Input: `./data/01_raw/mdb_stammdaten/MDB_STAMMDATEN.XML`
   - Output: `./data/02_cached/politicians/stage_01/mdbs.pkl`
 
-### 7. [Create Election Periods](./01_preprocessing/07_create_election_periods.py)
+### 7. [Create Election Periods](./01_preprocessing/07_create_electoral_terms.py)
 
 - Function:
 
@@ -84,7 +84,7 @@ The Input and Output paths start at the project root
 
 - Attributes:
   - Input: `None`
-  - Output: `./data/03_final/election_periods.csv`
+  - Output: `./data/03_final/electoral_terms.csv`
 
 ## Factions
 
@@ -132,7 +132,7 @@ The Input and Output paths start at the project root
   - Input: `None`
   - Output: `./data/02_cached/politicians/stage_01/government_members.pkl`
 
-### 3. [Merge People](./03_politicians/03_merge_people.py)
+### 3. [Merge People](./03_politicians/03_merge_politicians.py)
 
 - Function:
 
@@ -143,11 +143,11 @@ The Input and Output paths start at the project root
     - `./data/02_cached/politicians/stage_02/mdbs.pkl`
     - `./data/02_cached/politicians/stage_01/government_members.pkl`
     - `./data/03_final/factions.pkl`
-  - Output: `./data/03_final/people.csv`
+  - Output: `./data/03_final/politicians.csv`
 
 ## Spoken Content
 
-### 1. [Split Corpus at every Agenda Item](./04_spoken_content/01_split_at_tops.py)
+### 1. [Split Corpus at every Agenda Item](./04_speech_content/01_split_at_tops.py)
 
 - Function:
 
@@ -155,31 +155,31 @@ The Input and Output paths start at the project root
 
 - Attributes:
   - Input: `./data/01_raw/txt/*`
-  - Output: `./data/02_cached/spoken_content/stage_01/*`
+  - Output: `./data/02_cached/speech_content/stage_01/*`
   - File Format:
-    - spoken_content:
+    - speech_content:
       | top | additional_tops | content |
       | --- | --- | --- |
       | intro | | Peter Schmidt (CDU/CSU): Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... |
       | ... | ... | ... |
 
-### 2. [Extract Speech Parts](./04_spoken_content/02_extract_speech_parts.py)
+### 2. [Extract Speech Parts](./04_speech_content/02_extract_speech_parts.py)
 
 - Function:
 
   - Searches for Speaches in the Corpus using Regex Patterns.
 
 - Attributes:
-  - Input: `./data/02_cached/spoken_content/stage_01/*`
-  - Output: `./data/02_cached/spoken_content/stage_02/*`
+  - Input: `./data/02_cached/speech_content/stage_01/*`
+  - Output: `./data/02_cached/speech_content/stage_02/*`
   - File Format:
-    - spoken_content:
-      | sitting | top | additional_tops | name | position | speech_content | span_begin | span_end |
+    - speech_content:
+      | session | top | additional_tops | name | position | speech_content | span_begin | span_end |
       | --- | --- | --- | --- | --- | --- | --- | --- |
       | 18245.pkl | intro | | Peter Schmidt | CDU/CSU | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
       | ... | ... | ... | ... | ... | ... | ... | ... |
 
-### 3. [Clean Speeches](./04_spoken_content/03_clean_speeches.py)
+### 3. [Clean Speeches](./04_speech_content/03_clean_speeches.py)
 
 - Function:
 
@@ -189,17 +189,17 @@ The Input and Output paths start at the project root
 
 - Attributes:
   - Input:
-    - `./data/02_cached/spoken_content/stage_02/*`
+    - `./data/02_cached/speech_content/stage_02/*`
     - `./data/03_final/factions.pkl`
-  - Output: `./data/02_cached/spoken_content/stage_03/*`
+  - Output: `./data/02_cached/speech_content/stage_03/*`
   - File Format:
-    - spoken_content:
-      | sitting | top | additional_tops | faction_id | name | last_name | first_name | title | position_short | position_long | speech_content | span_begin | span_end |
+    - speech_content:
+      | session | top | additional_tops | faction_id | name | last_name | first_name | title | position_short | position_long | speech_content | span_begin | span_end |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
       | 18245.pkl | intro | | 4 | Peter Schmidt | Schmidt | ['Peter'] | [] | | Member of Parliament | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
       | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
-### 4. [Match Names](./04_spoken_content/04_match_names_spoken_content.py)
+### 4. [Match Names](./04_speech_content/04_match_names_speech_content.py)
 
 - Function:
 
@@ -207,12 +207,12 @@ The Input and Output paths start at the project root
 
 - Attributes:
   - Input:
-    - `./data/02_cached/spoken_content/stage_03/*`
-    - `./data/03_final/people.csv`
-  - Output: `./data/02_cached/spoken_content/stage_04/*`
+    - `./data/02_cached/speech_content/stage_03/*`
+    - `./data/03_final/politicians.csv`
+  - Output: `./data/02_cached/speech_content/stage_04/*`
   - File Format:
-    - spoken_content:
-      | sitting | top | additional_tops | faction_id | politician_id |name | last_name | first_name | title | position_short | position_long | speech_content | span_begin | span_end |
+    - speech_content:
+      | session | top | additional_tops | faction_id | politician_id |name | last_name | first_name | title | position_short | position_long | speech_content | span_begin | span_end |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
       | 18245.pkl | intro | | 4 | 1109312 | Peter Schmidt | Schmidt | ['Peter'] | [] | | Member of Parliament | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
       | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
@@ -226,31 +226,31 @@ The Input and Output paths start at the project root
   - Speeches are extracted from the XML Structure
   - Searches for Contributions in the Speeches using Regex Pattern
   - Text in Braces that can't be assigned to a Contribution, are saved as Miscellaneous
-  - The Script replaces Contributions in the spoken_content with an Identifier
+  - The Script replaces Contributions in the speech_content with an Identifier
   - The extract_contribution funciton can be found in [helper_functions/extract_contributions.py](./helper_functions/extract_contributions.py)
 
 - Attributes:
 
-  - Input: `./data/02_cached/wp_19/stage_02/*`
+  - Input: `./data/02_cached/electoral_term_19/stage_02/*`
   - Output:
-    - `./data/02_cached/wp_19/stage_03/spoken_content/spoken_content.pkl`
+    - `./data/02_cached/electoral_term_19/stage_03/speech_content/speech_content.pkl`
     - `./data/02_cached/contributions/stage_01/*`
     - `./data/02_cached/miscellaneous/stage_01/*`
-    - `./data/03_final/text_position_x_text.pkl`
+    - `./data/03_final/contributions_lookup.pkl`
   - File Format:
-    - spoken_content:
-      | id | sitting | first_name | last_name | faction_id | position_short | position_long | people_id | speech_content | date |
+    - speech_content:
+      | id | session | first_name | last_name | faction_id | position_short | position_long | politician_id | speech_content | date |
       | --- | --- | ---| --- | --- | --- | --- | --- | --- | --- |
       | 25000 | 19171 | Stefan | Müller | 23 | | Member of Parliament | 1122402 | Sehr geehrte Damen und Herren ({0}) | 1508803200.0 |
       | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
     - contributions:
-      | id |  type | name | party | location_information | content | text_position |
+      | id |  type | name | faction | constituency | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- |
       | 0 | Beifall | | SPD | | | 0 |
       | 1 | Personen-Einruf | Hans Müller | AfD | | Fisch! | 0 |
       | ... | ... | ... | ... | ... | ... | ... |
     - miscellaneous:
-      | id | name | party | content | position |
+      | id | name | faction | content | position |
       | --- | --- | --- | --- | --- |
       | 0 | | | Links | 0 |
       | ... | ... | ... | ... | ... |
@@ -263,31 +263,31 @@ The Input and Output paths start at the project root
 
   - Searches for Contributions in the Speeches using Regex Pattern
   - Text in Braces that can't be assigned to a Contribution, are saved as Miscellaneous
-  - The Script replaces Contributions in the spoken_content with an Identifier
+  - The Script replaces Contributions in the speech_content with an Identifier
   - The extract_contribution funciton can be found in [helper_functions/extract_contributions.py](./helper_functions/extract_contributions.py)
 
 - Attributes:
 
-  - Input: `./data/02_cached/spoken_content/stage_05/*`
+  - Input: `./data/02_cached/speech_content/stage_05/*`
   - Output:
-    - `./data/02_cached/spoken_content/stage_06/*`
+    - `./data/02_cached/speech_content/stage_06/*`
     - `./data/02_cached/contributions/stage_01/*`
     - `./data/02_cached/miscellaneous/stage_01/*`
-    - `./data/03_final/text_position_x_text.pkl`
+    - `./data/03_final/contributions_lookup.pkl`
   - File Format:
-    - spoken_content:
-      | speech_id | sitting | top | additional_tops | faction_id | politician_id |name | last_name | first_name | title | position_short | position_long | speech_content | span_begin | span_end |
+    - speech_content:
+      | speech_id | session | top | additional_tops | faction_id | politician_id |name | last_name | first_name | title | position_short | position_long | speech_content | span_begin | span_end |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
       | 0 | 18245.pkl | intro | | 4 | 1109312 | Peter Schmidt | Schmidt | ['Peter'] | [] | | Member of Parliament | Sehr geehrter ({0})... | 0.0 | 255.0 |
       | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
     - contributions:
-      | id |  type | name | party | location_information | content | text_position |
+      | id |  type | name | faction | constituency | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- |
       | 0 | Beifall | | SPD | | | 0 |
       | 1 | Personen-Einruf | Hans Müller | AfD | | Fisch! | 0 |
       | ... | ... | ... | ... | ... | ... | ... |
     - miscellaneous:
-      | id | name | party | content | position |
+      | id | name | faction | content | position |
       | --- | --- | --- | --- | --- |
       | 0 | | | Links | 0 |
       | ... | ... | ... | ... | ... |
@@ -302,11 +302,11 @@ The Input and Output paths start at the project root
 - Attributes:
   - Input:
     - `./data/02_cached/contributions/stage_01/*`
-    - `./data/03_final/people.csv`
+    - `./data/03_final/politicians.csv`
   - Output: `./data/02_cached/contributions/stage_02/*`
   - File Format:
     - contributions:
-      | id | type | name | faction_id | party | last_name | first_name | title | location_information | content | text_position |
+      | id | type | name | faction_id | faction | last_name | first_name | title | constituency | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
       | 0 | Beifall | | 23 | SPD | | [] | [] | | 0 |
       | 1 | Personen-Einruf | Hans Müller | 0 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
@@ -321,11 +321,11 @@ The Input and Output paths start at the project root
 - Attributes:
   - Input:
     - `./data/02_cached/contributions/stage_01/*`
-    - `./data/03_final/people.csv`
+    - `./data/03_final/politicians.csv`
   - Output: `./data/02_cached/contributions/stage_02/*`
   - File Format:
     - contributions:
-      | id | type | name | faction_id | politician_id | party | last_name | first_name | title | location_information | content | text_position |
+      | id | type | name | faction_id | politician_id | faction | last_name | first_name | title | constituency | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
       | 0 | Beifall | | 23 | -1 | SPD | | [] | [] | | | 0 |
       | 1 | Personen-Einruf | Hans Müller | 0 | 1109373 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
@@ -337,18 +337,18 @@ The Input and Output paths start at the project root
 
 - Function:
 
-  - Concats every spoken_content DataFrame into one single DataFrame. Does this as well for contributions and miscellaneous
+  - Concats every speech_content DataFrame into one single DataFrame. Does this as well for contributions and miscellaneous
 
 - Attributes:
 
   - Input:
     - `./data/01_raw/xml/*`
-    - `./data/02_cached/spoken_content/stage_06/*`
-    - `./data/02_cached/wp_19/stage_03/spoken_content/spoken_content.pkl`
+    - `./data/02_cached/speech_content/stage_06/*`
+    - `./data/02_cached/electoral_term_19/stage_03/speech_content/speech_content.pkl`
     - `./data/02_cached/contributions/stage_03/*`
     - `./data/02_cached/miscellaneous/stage_01/*`
   - Output:
-    - `./data/03_final/spoken_content.pkl`
+    - `./data/03_final/speech_content.pkl`
     - `./data/03_final/contributions.pkl`
     - `./data/03_final/miscellaneous.pkl`
 

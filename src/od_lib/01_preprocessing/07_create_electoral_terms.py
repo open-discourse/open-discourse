@@ -4,13 +4,13 @@ import datetime
 import os
 
 # output directory ____________________________________________________________
-ELECTION_PERIOD = path_definitions.ELECTION_PERIOD
-save_path = os.path.join(ELECTION_PERIOD, "election_periods.csv")
+ELECTORAL_TERMS = path_definitions.ELECTORAL_TERMS
+save_path = os.path.join(ELECTORAL_TERMS, "electoral_terms.csv")
 
-if not os.path.exists(ELECTION_PERIOD):
-    os.makedirs(ELECTION_PERIOD)
+if not os.path.exists(ELECTORAL_TERMS):
+    os.makedirs(ELECTORAL_TERMS)
 
-election_periods = [
+electoral_terms = [
     {
         "id": 1,
         "start_date": (
@@ -222,4 +222,4 @@ election_periods = [
     },
 ]
 
-pd.DataFrame(election_periods).to_csv(save_path, index=False)
+pd.DataFrame(electoral_terms).to_csv(save_path, index=False)

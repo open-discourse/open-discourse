@@ -38,8 +38,12 @@ text_Pattern = (
 )
 
 # Bracket Patterns (can also be extended modularly):
-start_contributions_opening_bracket_Pattern = r"(?:(?<=\()|(?<=[-––]\s)|(?<=[––])|(?<=[-––]\.\s)|(?<=\s[-––]){})"
-start_contributions_closing_bracket_Pattern = r"(?=\)|–[^\)\(]+\)|{{|—[^\)\(]+\)|\)|-[^\)\(]+\){})"
+start_contributions_opening_bracket_Pattern = (
+    r"(?:(?<=\()|(?<=[-––]\s)|(?<=[––])|(?<=[-––]\.\s)|(?<=\s[-––]){})"
+)
+start_contributions_closing_bracket_Pattern = (
+    r"(?=\)|–[^\)\(]+\)|{{|—[^\)\(]+\)|\)|-[^\)\(]+\){})"
+)
 
 opening_bracket_Pattern = r"[({\[]"
 closing_bracket_Pattern = r"[)}\]]"
@@ -88,15 +92,15 @@ name_Pattern = {
     + text_Pattern.format("").replace(
         "{}", "{{}}"
     )  # Text Pattern can be extended if needed
-    + r")+)(\s*{0}(?P<location_information>"
+    + r")+)(\s*{0}(?P<constituency>"
     + text_Pattern.format("").replace(
         "{}", "{{}}"
     )  # Text Pattern can be extended if needed
-    + r"+){1})*\s*{0}(?P<party>"
+    + r"+){1})*\s*{0}(?P<faction>"
     + text_Pattern.format("").replace(
         "{}", "{{}}"
     )  # Text Pattern can be extended if needed
-    + r"*){1}(\s*{0}(?P<location_information>"
+    + r"*){1}(\s*{0}(?P<constituency>"
     + text_Pattern.format("").replace(
         "{}", "{{}}"
     )  # Text Pattern can be extended if needed
@@ -105,7 +109,7 @@ name_Pattern = {
     + text_Pattern.format("").replace(
         "{}", "{{}}"
     )  # Text Pattern can be extended if needed
-    + r")+)(?P<location_information>{0}"
+    + r")+)(?P<constituency>{0}"
     + text_Pattern.format("").replace(
         "{}", "{{}}"
     )  # Text Pattern can be extended if needed
@@ -113,9 +117,9 @@ name_Pattern = {
 }
 
 
-def get_government_factions(wp):
-    """Get the government factions for the given wp"""
-    government_wp = {
+def get_government_factions(electoral_term):
+    """Get the government factions for the given electoral_term"""
+    government_electoral_term = {
         1: ["CDU/CSU", "FDP", "DP"],
         2: ["CDU/CSU", "FDP", "DP"],
         3: ["CDU/CSU", "DP"],
@@ -137,7 +141,7 @@ def get_government_factions(wp):
         19: ["CDU/CSU", "SPD"],
     }
 
-    return government_wp[wp]
+    return government_electoral_term[electoral_term]
 
 
 def convert_to_string(string):
@@ -164,16 +168,14 @@ def clean_person_name(name):
     return name
 
 
-def add_entry(
-    frame, id, type, name, party, location_information, content, text_position
-):
+def add_entry(frame, id, type, name, faction, constituency, content, text_position):
     """adds an entry for every Contribution into the given frame"""
     # Append the corresponding variables to the dictionary
     frame["id"].append(id)
     frame["type"].append(type)
     frame["name"].append(clean_person_name(name))
-    frame["party"].append(convert_to_string(party))
-    frame["location_information"].append(convert_to_string(location_information))
+    frame["faction"].append(convert_to_string(faction))
+    frame["constituency"].append(convert_to_string(constituency))
     frame["content"].append(convert_to_string(content))
     frame["text_position"].append(int(text_position))
 
@@ -181,9 +183,11 @@ def add_entry(
     return frame
 
 
-def extract_initiators(initiators, wp, sitting, identity, text_position, frame, type):
+def extract_initiators(
+    initiators, electoral_term, session, identity, text_position, frame, type
+):
     """extracts the initators and creates and entry in the frame (for each initiator)
-    Tries extracting people (twice - different methods); parties by themselves;
+    Tries extracting politicians (twice - different methods); parties by themselves;
     'links', 'rechts', 'mitte' and government parties"""
 
     initiators_not_removed = copy.copy(initiators)
@@ -195,15 +199,15 @@ def extract_initiators(initiators, wp, sitting, identity, text_position, frame, 
     if other_contributions:
         frame, _ = methods[other_contributions.group("type").lower()](
             "(" + other_contributions.group() + ")",
-            wp,
-            sitting,
+            electoral_term,
+            session,
             identity,
             text_position,
             frame,
         )
         initiators = initiators.replace(other_contributions.group(), "")
 
-    if sitting < 7115:
+    if session < 7115:
         # Set name pattern to the second name pattern (second row in name_Pattern)
         name_Pattern_id = 1
     else:
@@ -213,8 +217,7 @@ def extract_initiators(initiators, wp, sitting, identity, text_position, frame, 
     # Create the first_person_search_Pattern (looking for key Abg.)
     first_person_search_Pattern = r"Abg\s?\.\s?{}(?:(?<=!:)|(?!:))".format(
         name_Pattern[name_Pattern_id].format(
-            opening_bracket_Pattern,
-            closing_bracket_Pattern,
+            opening_bracket_Pattern, closing_bracket_Pattern,
         )
     )
     # Find match
@@ -226,33 +229,25 @@ def extract_initiators(initiators, wp, sitting, identity, text_position, frame, 
         if not regex.search("[Zz]wischenfrage", initiators):
             # Get the persons name
             name = first_person_match.group("name")
-            # Try to get the persons party
+            # Try to get the persons faction
             try:
-                party = first_person_match.group("party")
+                faction = first_person_match.group("faction")
             except IndexError:
-                party = ""
+                faction = ""
             # Try to get the persons location information
             try:
-                location_information = first_person_match.group("location_information")
+                constituency = first_person_match.group("constituency")
             except IndexError:
-                location_information = ""
+                constituency = ""
             # Add an entry to the frame
             frame = add_entry(
-                frame,
-                identity,
-                type,
-                name,
-                party,
-                location_information,
-                "",
-                text_position,
+                frame, identity, type, name, faction, constituency, "", text_position,
             )
 
     # Create the first_person_search_Pattern (looking for key und)
     second_person_search_Pattern = r"(?:\sund|sowie\sdes)\s+(?:des|der)?{}(?:(?<=!:)|(?!:))".format(
         name_Pattern[name_Pattern_id].format(
-            opening_bracket_Pattern,
-            closing_bracket_Pattern,
+            opening_bracket_Pattern, closing_bracket_Pattern,
         )
     )
 
@@ -265,40 +260,33 @@ def extract_initiators(initiators, wp, sitting, identity, text_position, frame, 
         if not regex.search("[Zz]wischenfrage", initiators):
             # Get the persons name
             name = second_person_match.group("name")
-            # Try to get the persons party
+            # Try to get the persons faction
             try:
-                party = second_person_match.group("party")
+                faction = second_person_match.group("faction")
             except IndexError:
-                party = ""
+                faction = ""
             # Try to get the persons location information
             try:
-                location_information = second_person_match.group("location_information")
+                constituency = second_person_match.group("constituency")
             except IndexError:
-                location_information = ""
+                constituency = ""
             # Add an entry to the frame
             frame = add_entry(
-                frame,
-                identity,
-                type,
-                name,
-                party,
-                location_information,
-                "",
-                text_position,
+                frame, identity, type, name, faction, constituency, "", text_position,
             )
 
     # Iterate over all parties
-    for party in parties:
-        # Create the party_search_Pattern
-        party_search_Pattern = r"(?<!\[)(" + parties[party] + r")(?![^[\s]*\])"
-        # Find match for party
-        party_match = regex.search(party_search_Pattern, initiators)
+    for faction in parties:
+        # Create the faction_search_Pattern
+        faction_search_Pattern = r"(?<!\[)(" + parties[faction] + r")(?![^[\s]*\])"
+        # Find match for faction
+        faction_match = regex.search(faction_search_Pattern, initiators)
         # Check if there is a match
-        if party_match:
-            # Remove the party from the search text
-            initiators = initiators.replace(party_match.group(), "")
+        if faction_match:
+            # Remove the faction from the search text
+            initiators = initiators.replace(faction_match.group(), "")
             # Add an entry to the frame
-            frame = add_entry(frame, identity, type, "", party, "", "", text_position)
+            frame = add_entry(frame, identity, type, "", faction, "", "", text_position)
 
     # Create the left_right_search_Pattern
     left_right_search_Pattern = left_right_Pattern
@@ -316,10 +304,10 @@ def extract_initiators(initiators, wp, sitting, identity, text_position, frame, 
     government_matches = regex.search(r"[Rr]egierungspar[^\s]+", initiators)
     if government_matches:
         initiators = initiators.replace(government_matches.group(), "")
-        # iterate over every party get_government_factions returns
-        for party in get_government_factions(wp):
-            # Add and entry to the frame for every party in the government
-            frame = add_entry(frame, identity, type, "", party, "", "", text_position)
+        # iterate over every faction get_government_factions returns
+        for faction in get_government_factions(electoral_term):
+            # Add and entry to the frame for every faction in the government
+            frame = add_entry(frame, identity, type, "", faction, "", "", text_position)
 
     search_stuff = [
         ": Das haben Sie 16 Jahre lang versäumt!",
@@ -333,13 +321,13 @@ def extract_initiators(initiators, wp, sitting, identity, text_position, frame, 
             # or stuff in initiators_not_removed
         ):
             print(
-                initiators_not_removed, sitting, first_person_search_Pattern,
+                initiators_not_removed, session, first_person_search_Pattern,
             )
     # Return the frame
     return frame, initiators
 
 
-def extract_applause(text, wp, sitting, identity, text_position, frame):
+def extract_applause(text, electoral_term, session, identity, text_position, frame):
     """Extracts applause from the given text"""
 
     # creates the Pattern modularly
@@ -361,8 +349,8 @@ def extract_applause(text, wp, sitting, identity, text_position, frame):
         # Extract the initiators and create entries to the dataframe
         frame, returned = extract_initiators(
             match.group("initiator"),
-            wp,
-            sitting,
+            electoral_term,
+            session,
             identity,
             text_position,
             frame,
@@ -373,11 +361,13 @@ def extract_applause(text, wp, sitting, identity, text_position, frame):
     return frame, text
 
 
-def extract_person_interjection(text, wp, sitting, identity, text_position, frame):
+def extract_person_interjection(
+    text, electoral_term, session, identity, text_position, frame
+):
     """Extracts person interjections from the given text"""
 
-    # Check if sitting is under 7115
-    if sitting < 7115:
+    # Check if session is under 7115
+    if session < 7115:
         # Set name pattern to the second name pattern (second row in name_Pattern)
         name_Pattern_id = 1
         extra_Pattern = r"(?:Abg\s?\.\s?)"
@@ -392,13 +382,10 @@ def extract_person_interjection(text, wp, sitting, identity, text_position, fram
         + base_person_interjection_Pattern.format(
             extra_Pattern
             + name_Pattern[name_Pattern_id].format(
-                opening_bracket_Pattern,
-                closing_bracket_Pattern,
+                opening_bracket_Pattern, closing_bracket_Pattern,
             )
         )
-        + start_contributions_closing_bracket_Pattern.format(
-            ""
-        )
+        + start_contributions_closing_bracket_Pattern.format("")
     )
 
     # Match person interjections
@@ -408,20 +395,18 @@ def extract_person_interjection(text, wp, sitting, identity, text_position, fram
     for match in matches:
         # replace everything except the delimeters
         text = text.replace(match.group("delete"), " ")
-        # Get the name
         name = match.group("name")
-        # Get the content
         content = match.group("content")
-        # Try to get the party
+
         try:
-            party = match.group("party")
+            faction = match.group("faction")
         except IndexError:
-            party = ""
-        # Try to get the location_information
+            faction = ""
+
         try:
-            location_information = match.group("location_information")
+            constituency = match.group("constituency")
         except IndexError:
-            location_information = ""
+            constituency = ""
 
         # Add entry to the frame
         frame = add_entry(
@@ -429,8 +414,8 @@ def extract_person_interjection(text, wp, sitting, identity, text_position, fram
             identity,
             "Personen-Einruf",
             name,
-            party,
-            location_information,
+            faction,
+            constituency,
             content,
             text_position,
         )
@@ -438,11 +423,11 @@ def extract_person_interjection(text, wp, sitting, identity, text_position, fram
     return frame, text
 
 
-def extract_shout(text, wp, sitting, identity, text_position, frame):
+def extract_shout(text, electoral_term, session, identity, text_position, frame):
     """Extracts shouts from the given text"""
 
-    # Check if sitting is under 7115
-    if sitting < 7115:
+    # Check if session is under 7115
+    if session < 7115:
         # Set name pattern to the second name pattern (second row in name_Pattern)
         name_Pattern_id = 1
     else:
@@ -457,8 +442,7 @@ def extract_shout(text, wp, sitting, identity, text_position, frame):
         + base_shout_Pattern.format(
             r"\s*Abg\s?\.\s?{}".format(
                 name_Pattern[name_Pattern_id].format(
-                    opening_bracket_Pattern,
-                    closing_bracket_Pattern,
+                    opening_bracket_Pattern, closing_bracket_Pattern,
                 )
             ),
             text_Pattern.format("").replace("{}", "{{}}"),
@@ -476,8 +460,8 @@ def extract_shout(text, wp, sitting, identity, text_position, frame):
             # Extract the initiators and create entries to the dataframe
             frame, _ = extract_initiators(
                 match.group("initiator"),
-                wp,
-                sitting,
+                electoral_term,
+                session,
                 identity,
                 text_position,
                 frame,
@@ -486,38 +470,38 @@ def extract_shout(text, wp, sitting, identity, text_position, frame):
         else:
             # replace everything except the delimeters
             text = text.replace(match.group("delete"), " ")
-            # Get the name
+
             try:
                 name = match.group("name")
             except IndexError:
                 name = ""
-            # Get the content
             content = match.group("content")
-            # Try to get the party
+
             try:
-                party = match.group("party")
+                faction = match.group("faction")
             except IndexError:
-                party = ""
-            # Try to get the location_information
+                faction = ""
+
             try:
-                location_information = match.group("location_information")
+                constituency = match.group("constituency")
             except IndexError:
-                location_information = ""
+                constituency = ""
+
             # Add an entry to the frame
             frame = add_entry(
                 frame,
                 identity,
                 "Zuruf",
                 name,
-                party,
-                location_information,
+                faction,
+                constituency,
                 content,
                 text_position,
             )
 
-    # Extract party shouts
+    # Extract faction shouts
     # creates the Pattern modularly
-    party_shout_Pattern = (
+    faction_shout_Pattern = (
         start_contributions_opening_bracket_Pattern.format(
             r"|(?<=[Hh]eiterkeit\s)|(?<=[Ll]achen\s)|(?<=[Ww]eiterer\s)|(?<=[Ww]eitere\s)|(?<=[Ee]rneuter\s)|(?<=[Ee]rneute\s)|(?<=[Ff]ortgesetzte\s)|(?<=[Ll]ebhafte\s)|(?<=[Ww]eitere\s[Ll]ebhafte\s|(?<=Andauernde\s)|(?<=Fortdauernde\s))"  # Extending the opening_bracket_Pattern
         )
@@ -531,7 +515,7 @@ def extract_shout(text, wp, sitting, identity, text_position, frame):
         )
     )
 
-    matches = list(regex.finditer(party_shout_Pattern, text,))
+    matches = list(regex.finditer(faction_shout_Pattern, text,))
     for match in matches:
         # replace everything except the delimeters
         text = text.replace(match.group("delete"), " ")
@@ -539,25 +523,25 @@ def extract_shout(text, wp, sitting, identity, text_position, frame):
         initiators = match.group("initiator")
 
         # Iterate over all parties
-        for party in parties:
-            # Create the party_search_Pattern
-            party_search_Pattern = r"(?<!\[)(" + parties[party] + r")(?![^[\s]*\])"
-            # Find match for party
-            party_match = regex.search(party_search_Pattern, initiators)
+        for faction in parties:
+            # Create the faction_search_Pattern
+            faction_search_Pattern = r"(?<!\[)(" + parties[faction] + r")(?![^[\s]*\])"
+            # Find match for faction
+            faction_match = regex.search(faction_search_Pattern, initiators)
             # Check if there is a match
-            if party_match:
-                # Remove the party from the search text
-                initiators = initiators.replace(party_match.group(), "")
+            if faction_match:
+                # Remove the faction from the search text
+                initiators = initiators.replace(faction_match.group(), "")
                 # Add an entry to the frame
                 frame = add_entry(
-                    frame, identity, "Zuruf", "", party, "", content, text_position
+                    frame, identity, "Zuruf", "", faction, "", content, text_position
                 )
 
     # Return the frame
     return frame, text
 
 
-def extract_cheerfulness(text, wp, sitting, identity, text_position, frame):
+def extract_cheerfulness(text, electoral_term, session, identity, text_position, frame):
     """Extracts cheerfulness from the given text"""
 
     # creates the Pattern modularly
@@ -578,8 +562,8 @@ def extract_cheerfulness(text, wp, sitting, identity, text_position, frame):
         # Extract the initiators and create entries to the dataframe
         frame, _ = extract_initiators(
             match.group("initiator"),
-            wp,
-            sitting,
+            electoral_term,
+            session,
             identity,
             text_position,
             frame,
@@ -590,7 +574,7 @@ def extract_cheerfulness(text, wp, sitting, identity, text_position, frame):
     return frame, text
 
 
-def extract_objection(text, wp, sitting, identity, text_position, frame):
+def extract_objection(text, electoral_term, session, identity, text_position, frame):
     """Extracts objection from the given text"""
 
     # creates the Pattern modularly
@@ -611,8 +595,8 @@ def extract_objection(text, wp, sitting, identity, text_position, frame):
         # Extract the initiators and create entries to the dataframe
         frame, _ = extract_initiators(
             match.group("initiator"),
-            wp,
-            sitting,
+            electoral_term,
+            session,
             identity,
             text_position,
             frame,
@@ -623,7 +607,7 @@ def extract_objection(text, wp, sitting, identity, text_position, frame):
     return frame, text
 
 
-def extract_laughter(text, wp, sitting, identity, text_position, frame):
+def extract_laughter(text, electoral_term, session, identity, text_position, frame):
     """Extracts laughter from the given text"""
 
     # creates the Pattern modularly
@@ -644,8 +628,8 @@ def extract_laughter(text, wp, sitting, identity, text_position, frame):
         # Extract the initiators and create entries to the dataframe
         frame, _ = extract_initiators(
             match.group("initiator"),
-            wp,
-            sitting,
+            electoral_term,
+            session,
             identity,
             text_position,
             frame,
@@ -656,7 +640,7 @@ def extract_laughter(text, wp, sitting, identity, text_position, frame):
     return frame, text
 
 
-def extract_approval(text, wp, sitting, identity, text_position, frame):
+def extract_approval(text, electoral_term, session, identity, text_position, frame):
     """Extracts approval from the given text"""
 
     # creates the Pattern modularly
@@ -677,8 +661,8 @@ def extract_approval(text, wp, sitting, identity, text_position, frame):
         # Extract the initiators and create entries to the dataframe
         frame, _ = extract_initiators(
             match.group("initiator"),
-            wp,
-            sitting,
+            electoral_term,
+            session,
             identity,
             text_position,
             frame,
@@ -689,7 +673,7 @@ def extract_approval(text, wp, sitting, identity, text_position, frame):
     return frame, ""
 
 
-def extract_interruption(text, wp, sitting, identity, text_position, frame):
+def extract_interruption(text, electoral_term, session, identity, text_position, frame):
     """Extracts interruptions from the given text"""
 
     # Creates the Pattern modularly
@@ -725,7 +709,7 @@ def extract_interruption(text, wp, sitting, identity, text_position, frame):
     return frame, text
 
 
-def extract_disturbance(text, wp, sitting, identity, text_position, frame):
+def extract_disturbance(text, electoral_term, session, identity, text_position, frame):
     """Extracts disturbance from the given text"""
 
     # creates the Pattern modularly
@@ -747,8 +731,8 @@ def extract_disturbance(text, wp, sitting, identity, text_position, frame):
         # Extract the initiators and create entries to the dataframe
         frame, _ = extract_initiators(
             match.group("initiator"),
-            wp,
-            sitting,
+            electoral_term,
+            session,
             identity,
             text_position,
             frame,
@@ -759,7 +743,9 @@ def extract_disturbance(text, wp, sitting, identity, text_position, frame):
     return frame, text
 
 
-def extract_miscellaneous(text, wp, sitting, identity, text_position, frame):
+def extract_miscellaneous(
+    text, electoral_term, session, identity, text_position, frame
+):
     """Extracts miscellaneous from the given text"""
 
     # creates the Pattern modularly
@@ -794,8 +780,8 @@ def extract_miscellaneous(text, wp, sitting, identity, text_position, frame):
     return frame, text
 
 
-def extract(speech_text, sitting, identity, text_position=0):
-    wp = sitting // 1000
+def extract(speech_text, session, identity, text_position=0):
+    electoral_term = session // 1000
 
     # Match all brackets
     brackets = list(
@@ -807,8 +793,8 @@ def extract(speech_text, sitting, identity, text_position=0):
         "id": [],
         "type": [],
         "name": [],
-        "party": [],
-        "location_information": [],
+        "faction": [],
+        "constituency": [],
         "content": [],
         "text_position": [],
     }
@@ -818,13 +804,13 @@ def extract(speech_text, sitting, identity, text_position=0):
         "id": [],
         "type": [],
         "name": [],
-        "party": [],
-        "location_information": [],
+        "faction": [],
+        "constituency": [],
         "content": [],
         "text_position": [],
     }
 
-    text_position_x_text = {"text_position": [], "deleted_text": [], "speech_id": []}
+    contributions_lookup = {"text_position": [], "deleted_text": [], "speech_id": []}
 
     # Iterate over all brackets
     for bracket in reversed(brackets):
@@ -836,15 +822,15 @@ def extract(speech_text, sitting, identity, text_position=0):
         # Save the bracket text
         bracket_text = bracket.group()
         # Save deleted text to DataFrame
-        text_position_x_text["text_position"].append(reversed_text_position)
-        text_position_x_text["deleted_text"].append(bracket_text)
-        text_position_x_text["speech_id"].append(identity)
+        contributions_lookup["text_position"].append(reversed_text_position)
+        contributions_lookup["deleted_text"].append(bracket_text)
+        contributions_lookup["speech_id"].append(identity)
 
         deletion_span = bracket.span(1)
 
         # Remove the bracket text from the speech_text and replace it with the text_position
         speech_text = (
-            speech_text[: deletion_span[0]]
+            speech_text[:deletion_span[0]]
             + "{"
             + str(reversed_text_position)
             + "}"
@@ -866,15 +852,20 @@ def extract(speech_text, sitting, identity, text_position=0):
         for method in contribution_methods:
             frame, speech_text_no_newline = method(
                 speech_text_no_newline,
-                wp,
-                sitting,
+                electoral_term,
+                session,
                 identity,
                 reversed_text_position,
                 frame,
             )
 
         miscellaneous_frame, speech_text_no_newline = extract_miscellaneous(
-            speech_text_no_newline, wp, sitting, identity, reversed_text_position, frame
+            speech_text_no_newline,
+            electoral_term,
+            session,
+            identity,
+            reversed_text_position,
+            frame,
         )
 
         text_position += 1
@@ -883,7 +874,7 @@ def extract(speech_text, sitting, identity, text_position=0):
         pd.DataFrame(frame),
         pd.DataFrame(miscellaneous_frame),
         speech_text,
-        pd.DataFrame(text_position_x_text),
+        pd.DataFrame(contributions_lookup),
         text_position,
     )
 

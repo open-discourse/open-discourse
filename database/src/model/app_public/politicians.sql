@@ -1,4 +1,4 @@
-CREATE TABLE app_public.people (
+CREATE TABLE app_public.politicians (
 	id int8 NOT NULL,
 	first_name varchar NOT NULL,
 	last_name varchar NOT NULL,
@@ -8,20 +8,20 @@ CREATE TABLE app_public.people (
 	death_year date NULL,
 	gender varchar NULL,
 	profession varchar NULL,
-	location_information varchar NULL,
+	constituency varchar NULL,
 	aristocracy varchar NULL,
 	prefix varchar NULL,
 	academic_title varchar NULL,
 	salutation varchar NULL,
 	vita_short varchar NULL,
 	disclosure_requirement varchar NULL,
-	electoral_district_number int8 NULL,
-	electoral_district_name varchar NULL,
-	electoral_district_region varchar NULL,
+	constituency_number int8 NULL,
+	constituency_name varchar NULL,
+	constituency_region varchar NULL,
 	electoral_list varchar NULL,
 	type_of_mandate varchar NULL,
-	mdb_from date NULL,
-	mdb_until date NULL,
+	mp_from date NULL,
+	mp_until date NULL,
 	history_from date NULL,
 	history_until date NULL,
 	function_long varchar NULL,
@@ -30,4 +30,4 @@ CREATE TABLE app_public.people (
 	CONSTRAINT mdbs_pk PRIMARY KEY (id)
 );
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE app_public.people TO visitor;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE app_public.politicians TO visitor;

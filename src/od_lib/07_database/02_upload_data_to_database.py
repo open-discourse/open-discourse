@@ -12,25 +12,25 @@ engine = create_engine("postgresql://postgres:postgres@localhost:5432/next")
 
 CONTRIBUTIONS = os.path.join(path_definitions.DATA_FINAL, "contributions.pkl")
 MISCELLANEOUS = os.path.join(path_definitions.DATA_FINAL, "miscellaneous.pkl")
-SPOKEN_CONTENT = os.path.join(path_definitions.DATA_FINAL, "spoken_content.pkl")
+SPOKEN_CONTENT = os.path.join(path_definitions.DATA_FINAL, "speech_content.pkl")
 FACTIONS = os.path.join(path_definitions.DATA_FINAL, "factions.pkl")
-PEOPLE = os.path.join(path_definitions.DATA_FINAL, "people.csv")
-TEXT_POSITION_X_TEXT = os.path.join(
-    path_definitions.TEXT_POSITION_X_TEXT, "text_position_x_text.pkl"
+PEOPLE = os.path.join(path_definitions.DATA_FINAL, "politicians.csv")
+CONTRIBUTIONS_LOOKUP = os.path.join(
+    path_definitions.CONTRIBUTIONS_LOOKUP, "contributions_lookup.pkl"
 )
-TEXT_POSITION_X_TEXT_WP19 = os.path.join(
-    path_definitions.TEXT_POSITION_X_TEXT, "text_position_x_text_wp_19.pkl"
+CONTRIBUTIONS_LOOKUP_WP19 = os.path.join(
+    path_definitions.CONTRIBUTIONS_LOOKUP, "contributions_lookup_electoral_term_19.pkl"
 )
-ELECTION_PERIOD = os.path.join(path_definitions.ELECTION_PERIOD, "election_periods.csv")
+ELECTORAL_TERMS = os.path.join(path_definitions.ELECTORAL_TERMS, "electoral_terms.csv")
 
 # Load data ____________________________________________________________________
-election_periods = pd.read_csv(ELECTION_PERIOD)
+electoral_terms = pd.read_csv(ELECTORAL_TERMS)
 
-people = pd.read_csv(PEOPLE)
-people = people.drop_duplicates(subset=["ui"], keep="first")
-people = people.drop(
+politicians = pd.read_csv(PEOPLE)
+politicians = politicians.drop_duplicates(subset=["ui"], keep="first")
+politicians = politicians.drop(
     [
-        "wp_period",
+        "electoral_term",
         "faction_id",
         "institution_type",
         "institution_name",
@@ -40,7 +40,7 @@ people = people.drop(
     axis=1,
 )
 
-people.columns = [
+politicians.columns = [
     "id",
     "first_name",
     "last_name",
@@ -50,20 +50,20 @@ people.columns = [
     "death_year",
     "gender",
     "profession",
-    "location_information",
+    "constituency",
     "aristocracy",
     "prefix",
     "academic_title",
     "salutation",
     "vita_short",
     "disclosure_requirement",
-    "electoral_district_number",
-    "electoral_district_name",
-    "electoral_district_region",
+    "constituency_number",
+    "constituency_name",
+    "constituency_region",
     "electoral_list",
     "type_of_mandate",
-    "mdb_from",
-    "mdb_until",
+    "mp_from",
+    "mp_until",
     "history_from",
     "history_until",
     "function_long",
@@ -81,18 +81,18 @@ series = {
     "death_year": None,
     "gender": None,
     "profession": None,
-    "location_information": None,
+    "constituency": None,
     "aristocracy": None,
     "prefix": None,
     "academic_title": None,
     "salutation": None,
     "vita_short": None,
     "disclosure_requirement": None,
-    "electoral_district_number": None,
-    "electoral_district_name": None,
+    "constituency_number": None,
+    "constituency_name": None,
     "electoral_list": None,
-    "mdb_from": None,
-    "mdb_until": None,
+    "mp_from": None,
+    "mp_until": None,
     "history_from": None,
     "history_until": None,
     "function_long": None,
@@ -100,7 +100,7 @@ series = {
     "function_until": None,
 }
 
-people = people.append(pd.Series(series), ignore_index=True)
+politicians = politicians.append(pd.Series(series), ignore_index=True)
 
 
 def convert_date(date):
@@ -112,38 +112,38 @@ def convert_date(date):
         return None
 
 
-def check_people(row):
-    speaker_id = row.people_id
+def check_politicians(row):
+    speaker_id = row.politician_id
 
-    people_ids = people.id.tolist()
-    if speaker_id not in people_ids:
+    politician_ids = politicians.id.tolist()
+    if speaker_id not in politician_ids:
         speaker_id = -1
     return speaker_id
 
 
-if "election_periods" in sys.argv or "all" in sys.argv:
-    print("starting election_periods..")
-    election_periods.to_sql(
-        "election_periods", engine, if_exists="append", schema="app_public", index=False
+if "electoral_terms" in sys.argv or "all" in sys.argv:
+    print("starting electoral_terms..")
+    electoral_terms.to_sql(
+        "electoral_terms", engine, if_exists="append", schema="app_public", index=False
     )
 
 
-if "people" in sys.argv or "all" in sys.argv:
-    print("starting people..")
+if "politicians" in sys.argv or "all" in sys.argv:
+    print("starting politicians..")
 
-    people = people.where((pd.notnull(people)), None)
+    politicians = politicians.where((pd.notnull(politicians)), None)
 
-    people.birth_year = people.birth_year.apply(convert_date)
-    people.death_year = people.death_year.apply(convert_date)
-    people.mdb_from = people.mdb_from.apply(convert_date)
-    people.mdb_until = people.mdb_until.apply(convert_date)
-    people.history_from = people.history_from.apply(convert_date)
-    people.history_until = people.history_until.apply(convert_date)
-    people.function_from = people.function_from.apply(convert_date)
-    people.function_until = people.function_until.apply(convert_date)
+    politicians.birth_year = politicians.birth_year.apply(convert_date)
+    politicians.death_year = politicians.death_year.apply(convert_date)
+    politicians.mp_from = politicians.mp_from.apply(convert_date)
+    politicians.mp_until = politicians.mp_until.apply(convert_date)
+    politicians.history_from = politicians.history_from.apply(convert_date)
+    politicians.history_until = politicians.history_until.apply(convert_date)
+    politicians.function_from = politicians.function_from.apply(convert_date)
+    politicians.function_until = politicians.function_until.apply(convert_date)
 
-    people.to_sql(
-        "people", engine, if_exists="append", schema="app_public", index=False
+    politicians.to_sql(
+        "politicians", engine, if_exists="append", schema="app_public", index=False
     )
 
 if "factions" in sys.argv or "all" in sys.argv:
@@ -255,7 +255,7 @@ if "spoken" in sys.argv or "all" in sys.argv:
     speeches = pd.read_pickle(SPOKEN_CONTENT)
 
     speeches = speeches.where((pd.notnull(speeches)), None)
-    speeches.people_id = speeches.apply(check_people, axis=1)
+    speeches.politician_id = speeches.apply(check_politicians, axis=1)
 
     speeches.to_sql(
         "speeches", engine, if_exists="append", schema="app_public", index=False
@@ -284,25 +284,25 @@ if "miscellaneous" in sys.argv or "all" in sys.argv:
         "miscellaneous", engine, if_exists="append", schema="app_public", index=False
     )
 
-if "text_position_x_text" in sys.argv or "all" in sys.argv:
-    print("starting text_position_x_text..")
+if "contributions_lookup" in sys.argv or "all" in sys.argv:
+    print("starting contributions_lookup..")
 
-    text_position_x_text = pd.read_pickle(TEXT_POSITION_X_TEXT)
+    contributions_lookup = pd.read_pickle(CONTRIBUTIONS_LOOKUP)
 
-    text_position_x_text_wp_19 = pd.read_pickle(TEXT_POSITION_X_TEXT_WP19)
+    contributions_lookup_electoral_term_19 = pd.read_pickle(CONTRIBUTIONS_LOOKUP_WP19)
 
-    text_position_x_text = pd.concat(
-        [text_position_x_text, text_position_x_text_wp_19], sort=False
+    contributions_lookup = pd.concat(
+        [contributions_lookup, contributions_lookup_electoral_term_19], sort=False
     )
 
-    text_position_x_text = text_position_x_text.where(
-        (pd.notnull(text_position_x_text)), None
+    contributions_lookup = contributions_lookup.where(
+        (pd.notnull(contributions_lookup)), None
     )
 
-    text_position_x_text["id"] = range(len(text_position_x_text.deleted_text))
+    contributions_lookup["id"] = range(len(contributions_lookup.deleted_text))
 
-    text_position_x_text.to_sql(
-        "text_position_x_text",
+    contributions_lookup.to_sql(
+        "contributions_lookup",
         engine,
         if_exists="append",
         schema="app_public",

@@ -4,12 +4,12 @@ import regex
 import os
 
 # input ________________________________________________________________________
-GOV_MEMBERS = path_definitions.POLITICIANS_STAGE_01
-MDBS = path_definitions.POLITICIANS_STAGE_02
+MGS = path_definitions.POLITICIANS_STAGE_01
+MPS = path_definitions.POLITICIANS_STAGE_02
 FACTIONS = path_definitions.DATA_FINAL
 
-mdbs = pd.read_pickle(os.path.join(MDBS, "mdbs.pkl"))
-gov_members = pd.read_pickle(os.path.join(GOV_MEMBERS, "government_members.pkl"))
+mps = pd.read_pickle(os.path.join(MPS, "mps.pkl"))
+mgs = pd.read_pickle(os.path.join(MGS, "mgs.pkl"))
 factions = pd.read_pickle(os.path.join(FACTIONS, "factions.pkl"))
 
 # output _______________________________________________________________________
@@ -18,7 +18,7 @@ if not os.path.exists(DATA_FINAL):
     os.makedirs(DATA_FINAL)
 
 # helper functions _____________________________________________________________
-wps_dict = {
+electoral_terms_dict = {
     "from": [
         1949,
         1953,
@@ -63,7 +63,7 @@ wps_dict = {
     ],
 }
 
-parties_patterns = {
+faction_patterns = {
     "Bündnis 90/Die Grünen": r"(?:BÜNDNIS\s*(?:90)?/?(?:\s*D[1I]E)?|Bündnis\s*90/(?:\s*D[1I]E)?)?\s*[GC]R[UÜ].?\s*[ÑN]EN?(?:/Bündnis 90)?|Bündnis 90/Die Grünen",  # noqa: E501
     "CDU/CSU": r"(?:Gast|-)?(?:\s*C\s*[DSMU]\s*S?[DU]\s*(?:\s*[/,':!.-]?)*\s*(?:\s*C+\s*[DSs]?\s*[UÙ]?\s*)?)(?:-?Hosp\.|-Gast|1)?",  # noqa: E501
     "BP": r"^BP",
@@ -90,41 +90,41 @@ parties_patterns = {
 }
 
 
-def get_faction_abbrev(party, parties_patterns):
-    """matches the given party and returns an id"""
+def get_faction_abbrev(faction, faction_patterns):
+    """matches the given faction and returns an id"""
 
-    for party_abbrev, party_pattern in parties_patterns.items():
-        if regex.search(party_pattern, party):
-            return party_abbrev
+    for faction_abbrev, faction_pattern in faction_patterns.items():
+        if regex.search(faction_pattern, faction):
+            return faction_abbrev
     return None
 
 
-def get_wp(from_year=None, to_year=None):
+def get_electoral_term(from_year=None, to_year=None):
     if not from_year and not to_year:
         raise AttributeError()
     elif not from_year:
-        if to_year in wps_dict["until"]:
-            return wps_dict["until"].index(to_year) + 1
+        if to_year in electoral_terms_dict["until"]:
+            return electoral_terms_dict["until"].index(to_year) + 1
         else:
             if to_year > 2017:
                 return 19
-            for counter, year in enumerate(wps_dict["until"]):
+            for counter, year in enumerate(electoral_terms_dict["until"]):
                 if year > to_year:
                     return counter + 1
             raise ValueError()
     elif not to_year:
-        if from_year in wps_dict["from"]:
-            return wps_dict["from"].index(from_year) + 1
+        if from_year in electoral_terms_dict["from"]:
+            return electoral_terms_dict["from"].index(from_year) + 1
         else:
             if from_year > 2017:
                 return 19
-            for counter, year in enumerate(wps_dict["from"]):
+            for counter, year in enumerate(electoral_terms_dict["from"]):
                 if year > from_year:
                     return counter
             raise ValueError()
     else:
-        from_year = get_wp(from_year=from_year, to_year=None)
-        to_year = get_wp(from_year=None, to_year=to_year)
+        from_year = get_electoral_term(from_year=from_year, to_year=None)
+        to_year = get_electoral_term(from_year=None, to_year=to_year)
         if from_year != to_year:
             return list(range(from_year, to_year + 1))
         else:
@@ -133,12 +133,12 @@ def get_wp(from_year=None, to_year=None):
 
 i = 0
 failure_counter = 0
-people = mdbs.copy()
-people.first_name = people.first_name.str.replace("-", " ", regex=False)
+politicians = mps.copy()
+politicians.first_name = politicians.first_name.str.replace("-", " ", regex=False)
 
 print("Started merging...")
 
-# merging for gov_members
+# merging for mgs
 for (
     last_name,
     first_name,
@@ -147,16 +147,16 @@ for (
     position,
     position_from,
     position_until,
-    party,
+    faction,
 ) in zip(
-    gov_members.last_name,
-    gov_members.first_name,
-    gov_members.birth_year,
-    gov_members.death_year,
-    gov_members.position,
-    gov_members.position_from,
-    gov_members.position_until,
-    gov_members.party,
+    mgs.last_name,
+    mgs.first_name,
+    mgs.birth_year,
+    mgs.death_year,
+    mgs.position,
+    mgs.position_from,
+    mgs.position_until,
+    mgs.faction,
 ):
 
     # Hardcode special cases
@@ -173,35 +173,37 @@ for (
     elif last_name == "Möllemann" and first_name[0] == "Jürgen":
         first_name = ["Jürgen W."]
     elif last_name == "Kinkel" and first_name[0] == "Klaus":
-        party = "FDP"
+        faction = "FDP"
 
-    faction_abbrev = get_faction_abbrev(party, parties_patterns)
+    faction_abbrev = get_faction_abbrev(faction, faction_patterns)
 
     if faction_abbrev:
-        party_match = int(
+        faction_match = int(
             factions.id.loc[factions.abbreviation == faction_abbrev].iloc[0]
         )
     else:
-        party_match = -1
+        faction_match = -1
 
     first_name = [regex.sub("-", " ", name) for name in first_name]
 
-    wp_to_be_changed = -1
-    wps = get_wp(from_year=int(position_from), to_year=int(position_until))
-    possible_matches = people.loc[
-        (people.last_name == last_name)
-        & (people.first_name.str.contains(first_name[0]))
-        & (people.birth_year.str.contains(str(birth_year)))
+    electoral_term_to_be_changed = -1
+    electoral_terms = get_electoral_term(
+        from_year=int(position_from), to_year=int(position_until)
+    )
+    possible_matches = politicians.loc[
+        (politicians.last_name == last_name)
+        & (politicians.first_name.str.contains(first_name[0]))
+        & (politicians.birth_year.str.contains(str(birth_year)))
     ]
 
     possible_matches = possible_matches.drop_duplicates(subset="ui", keep="first")
 
     if len(possible_matches) == 1:
-        for wp in wps:
+        for electoral_term in electoral_terms:
             series = {
                 "ui": possible_matches.ui.iloc[0],
-                "wp_period": wp,
-                "faction_id": party_match,
+                "electoral_term": electoral_term,
+                "faction_id": faction_match,
                 "first_name": possible_matches.first_name.iloc[0],
                 "last_name": possible_matches.last_name.iloc[0],
                 "birth_place": possible_matches.birth_place.iloc[0],
@@ -210,7 +212,7 @@ for (
                 "death_year": possible_matches.death_year.iloc[0],
                 "gender": possible_matches.gender.iloc[0],
                 "profession": possible_matches.profession.iloc[0],
-                "location_information": possible_matches.location_information.iloc[0],
+                "constituency": possible_matches.constituency.iloc[0],
                 "aristocracy": possible_matches.aristocracy.iloc[0],
                 "prefix": possible_matches.prefix.iloc[0],
                 "academic_title": possible_matches.academic_title.iloc[0],
@@ -219,15 +221,11 @@ for (
                 "disclosure_requirement": possible_matches.disclosure_requirement.iloc[
                     0
                 ],
-                "electoral_district_number": possible_matches.electoral_district_number.iloc[
-                    0
-                ],
-                "electoral_district_name": possible_matches.electoral_district_name.iloc[
-                    0
-                ],
+                "constituency_number": possible_matches.constituency_number.iloc[0],
+                "constituency_name": possible_matches.constituency_name.iloc[0],
                 "electoral_list": possible_matches.electoral_list.iloc[0],
-                "mdb_from": possible_matches.mdb_from.iloc[0],
-                "mdb_until": possible_matches.mdb_until.iloc[0],
+                "mp_from": possible_matches.mp_from.iloc[0],
+                "mp_until": possible_matches.mp_until.iloc[0],
                 "history_from": possible_matches.history_from.iloc[0],
                 "history_until": possible_matches.history_until.iloc[0],
                 "institution_type": "Regierungsmitglied",
@@ -238,17 +236,17 @@ for (
                 "function_from": "",
                 "function_until": "",
             }
-            people = people.append(pd.Series(series), ignore_index=True)
+            politicians = politicians.append(pd.Series(series), ignore_index=True)
             # success_counter += 1
     elif len(possible_matches) > 1:
         # This doesn't get reached
         failure_counter += 0
     else:
         if len(first_name) > 1:
-            possible_matches = people.loc[
-                (people.last_name == last_name)
-                & (people.first_name == (" ".join([first_name[0], first_name[1]])))
-                & (people.birth_year.str.contains(str(birth_year)))
+            possible_matches = politicians.loc[
+                (politicians.last_name == last_name)
+                & (politicians.first_name == (" ".join([first_name[0], first_name[1]])))
+                & (politicians.birth_year.str.contains(str(birth_year)))
             ]
 
             possible_matches = possible_matches.drop_duplicates(
@@ -256,11 +254,11 @@ for (
             )
 
         if len(possible_matches) == 1:
-            for wp in wps:
+            for electoral_term in electoral_terms:
                 series = {
                     "ui": possible_matches.ui.iloc[0],
-                    "wp_period": wp,
-                    "faction_id": party_match,
+                    "electoral_term": electoral_term,
+                    "faction_id": faction_match,
                     "first_name": possible_matches.first_name.iloc[0],
                     "last_name": possible_matches.last_name.iloc[0],
                     "birth_place": possible_matches.birth_place.iloc[0],
@@ -269,7 +267,7 @@ for (
                     "death_year": possible_matches.death_year.iloc[0],
                     "gender": possible_matches.gender.iloc[0],
                     "profession": possible_matches.profession.iloc[0],
-                    "location_information": possible_matches.location_information.iloc[
+                    "constituency": possible_matches.constituency.iloc[
                         0
                     ],
                     "aristocracy": possible_matches.aristocracy.iloc[0],
@@ -280,15 +278,11 @@ for (
                     "disclosure_requirement": possible_matches.disclosure_requirement.iloc[
                         0
                     ],
-                    "electoral_district_number": possible_matches.electoral_district_number.iloc[
-                        0
-                    ],
-                    "electoral_district_name": possible_matches.electoral_district_name.iloc[
-                        0
-                    ],
+                    "constituency_number": possible_matches.constituency_number.iloc[0],
+                    "constituency_name": possible_matches.constituency_name.iloc[0],
                     "electoral_list": possible_matches.electoral_list.iloc[0],
-                    "mdb_from": possible_matches.mdb_from.iloc[0],
-                    "mdb_until": possible_matches.mdb_until.iloc[0],
+                    "mp_from": possible_matches.mp_from.iloc[0],
+                    "mp_until": possible_matches.mp_until.iloc[0],
                     "history_from": possible_matches.history_from.iloc[0],
                     "history_until": possible_matches.history_until.iloc[0],
                     "institution_type": "Regierungsmitglied",
@@ -299,17 +293,17 @@ for (
                     "function_from": "",
                     "function_until": "",
                 }
-                people = people.append(pd.Series(series), ignore_index=True)
+                politicians = politicians.append(pd.Series(series), ignore_index=True)
         elif len(possible_matches) > 1:
             # This doesn't get reached
             failure_counter += 1
         else:
-            ui_temp = max(people.ui.tolist()) + 1
-            for wp in wps:
+            ui_temp = max(politicians.ui.tolist()) + 1
+            for electoral_term in electoral_terms:
                 series = {
                     "ui": ui_temp,
-                    "wp_period": wp,
-                    "faction_id": party_match,
+                    "electoral_term": electoral_term,
+                    "faction_id": faction_match,
                     "first_name": " ".join(first_name),
                     "last_name": last_name,
                     "birth_place": "",
@@ -318,18 +312,18 @@ for (
                     "death_year": str(death_year),
                     "gender": "",
                     "profession": "",
-                    "location_information": "",
+                    "constituency": "",
                     "aristocracy": "",
                     "prefix": "",
                     "academic_title": "",
                     "salutation": "",
                     "vita_short": "",
                     "disclosure_requirement": "",
-                    "electoral_district_number": "",
-                    "electoral_district_name": "",
+                    "constituency_number": "",
+                    "constituency_name": "",
                     "electoral_list": "",
-                    "mdb_from": "",
-                    "mdb_until": "",
+                    "mp_from": "",
+                    "mp_until": "",
                     "history_from": "",
                     "history_until": "",
                     "institution_type": "Regierungsmitglied",
@@ -340,7 +334,7 @@ for (
                     "function_from": "",
                     "function_until": "",
                 }
-                people = people.append(pd.Series(series), ignore_index=True)
+                politicians = politicians.append(pd.Series(series), ignore_index=True)
     i += 1
 
-people.to_csv(os.path.join(DATA_FINAL, "people.csv"), index=False)
+politicians.to_csv(os.path.join(DATA_FINAL, "politicians.csv"), index=False)

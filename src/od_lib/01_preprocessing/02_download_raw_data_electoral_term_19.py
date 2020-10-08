@@ -10,7 +10,7 @@ if not os.path.exists(WP_19_OUTPUT):
     os.makedirs(WP_19_OUTPUT)
 
 
-links_wp_19_files = [
+links_electoral_term_19_files = [
     "https://www.bundestag.de/resource/blob/704800/a2bb9229c2e19bbd633d30c747b41c62/19171-data.xml",
     "https://www.bundestag.de/resource/blob/704394/2ee950699f5383918d26a7dfa3b88862/19170-data.xml",
     "https://www.bundestag.de/resource/blob/704076/d4d05087c6b18b90aff271367b6fe467/19169-data.xml",
@@ -184,10 +184,10 @@ links_wp_19_files = [
     "https://www.bundestag.de/resource/blob/543388/e95b7194470ed3c4e8bca546dd0da950/19001-data.xml",
 ]
 
-for url in links_wp_19_files:
+for url in links_electoral_term_19_files:
     page = requests.get(url)
-    sitting = regex.search(r"\d{5}(?=-data\.xml)", url).group(0)
+    session = regex.search(r"\d{5}(?=-data\.xml)", url).group(0)
 
-    print(sitting)
-    with open(os.path.join(WP_19_OUTPUT, sitting + ".xml"), "wb") as file:
+    print(session)
+    with open(os.path.join(WP_19_OUTPUT, session + ".xml"), "wb") as file:
         file.write(page.content)

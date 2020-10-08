@@ -18,7 +18,7 @@ CONTRIBUTIONS_OUTPUT = path_definitions.CONTRIBUTIONS_STAGE_02
 factions = pd.read_pickle(os.path.join(FACTIONS, "factions.pkl"))
 
 
-parties_patterns = {
+faction_patterns = {
     "Bündnis 90/Die Grünen": r"(?:BÜNDNIS\s*(?:90)?/?(?:\s*D[1I]E)?|Bündnis\s*90/(?:\s*D[1I]E)?)?\s*[GC]R[UÜ].?\s*[ÑN]EN?(?:/Bündnis 90)?",  # noqa: E501
     "CDU/CSU": r"(?:Gast|-)?(?:\s*C\s*[DSMU]\s*S?[DU]\s*(?:\s*[/,':!.-]?)*\s*(?:\s*C+\s*[DSs]?\s*[UÙ]?\s*)?)(?:-?Hosp\.|-Gast|1)?",  # noqa: E501
     "BP": r"^\[?BP\]?",
@@ -46,42 +46,45 @@ parties_patterns = {
 }
 
 
-def get_faction_abbrev(party, parties_patterns):
-    """matches the given party and returns an id"""
+def get_faction_abbrev(faction, faction_patterns):
+    """matches the given faction and returns an id"""
 
-    for party_abbrev, party_pattern in parties_patterns.items():
-        if regex.search(party_pattern, party):
-            # if party_abbrev == "DIE LINKE.":
-            #     print("stop")
-            return party_abbrev
+    for faction_abbrev, faction_pattern in faction_patterns.items():
+        if regex.search(faction_pattern, faction):
+            return faction_abbrev
     return None
 
 
-# iterate over all wp_folders
-for wp_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
+# iterate over all electoral_term_folders
+for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
 
-    if "wp" not in wp_folder:
+    if "electoral_term" not in electoral_term_folder:
         continue
     if len(sys.argv) > 1:
-        if str(int(regex.sub("wp_", "", wp_folder))) not in sys.argv:
+        if (
+            str(int(regex.sub("electoral_term_", "", electoral_term_folder)))
+            not in sys.argv
+        ):
             continue
-    wp_folder_path = os.path.join(CONTRIBUTIONS_INPUT, wp_folder)
+    electoral_term_folder_path = os.path.join(
+        CONTRIBUTIONS_INPUT, electoral_term_folder
+    )
 
-    print(wp_folder)
+    print(electoral_term_folder)
 
-    save_path = os.path.join(CONTRIBUTIONS_OUTPUT, wp_folder)
+    save_path = os.path.join(CONTRIBUTIONS_OUTPUT, electoral_term_folder)
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
     # iterate over every contributions file
-    for contributions_file in sorted(os.listdir(wp_folder_path)):
+    for contributions_file in sorted(os.listdir(electoral_term_folder_path)):
         # checks if the file is a .pkl file
         if ".pkl" not in contributions_file:
             continue
 
         print(contributions_file)
 
-        filepath = os.path.join(wp_folder_path, contributions_file)
+        filepath = os.path.join(electoral_term_folder_path, contributions_file)
 
         # read the spoken content csv
         contributions = pd.read_pickle(filepath)
@@ -105,7 +108,9 @@ for wp_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
         # THIS PART IS IMPORTANT AND SHOULD WORK PROPERLY, AS REOCCURING NAMES
         # CAN INTRODUCE A LARGE BIAS IN TEXT ANALYSIS
         names = contributions.name.to_list()
-        contributions.content = contributions.content.apply(clean_name_headers, args=(names, True,))
+        contributions.content = contributions.content.apply(
+            clean_name_headers, args=(names, True,)
+        )
 
         contributions.reset_index(inplace=True, drop=True)
 
@@ -114,7 +119,9 @@ for wp_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
         # Question: Is any other character deleted, which could be in a name?
         # Answer: I don't think so.
         contributions.name = contributions.name.astype(str)
-        contributions.name = contributions.name.str.replace(r"[^a-zA-ZÖÄÜäöüß\-]", " ", regex=True)
+        contributions.name = contributions.name.str.replace(
+            r"[^a-zA-ZÖÄÜäöüß\-]", " ", regex=True
+        )
 
         # Replace more than two whitespaces with one.
         contributions.name = contributions.name.str.replace(r"  +", " ", regex=True)
@@ -144,7 +151,8 @@ for wp_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
 
         # Extract title, if it is in the titles list.
         contributions.title = [
-            [title for title in title_list if title in titles] for title_list in first_last_titles
+            [title for title in title_list if title in titles]
+            for title_list in first_last_titles
         ]
 
         # Remove titles from the first_last_name list.
@@ -166,17 +174,21 @@ for wp_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
                 contributions.first_name.iloc[index] = []
                 contributions.last_name.iloc[index] = ""
 
-        # look for parties in the party column and replace them with a
-        # standardized party name
-        for index, party in zip(contributions.index, contributions.party):
-            if party:
-                faction_abbrev = get_faction_abbrev(str(party), parties_patterns=parties_patterns)
+        # look for parties in the faction column and replace them with a
+        # standardized faction name
+        for index, faction in zip(contributions.index, contributions.faction):
+            if faction:
+                faction_abbrev = get_faction_abbrev(
+                    str(faction), faction_patterns=faction_patterns
+                )
 
                 if faction_abbrev:
-                    contributions.party.at[index] = faction_abbrev
+                    contributions.faction.at[index] = faction_abbrev
                     try:
                         contributions.faction_id.at[index] = int(
-                            factions.id.loc[factions.abbreviation == faction_abbrev].iloc[0]
+                            factions.id.loc[
+                                factions.abbreviation == faction_abbrev
+                            ].iloc[0]
                         )
                     except IndexError:
                         contributions.faction_id.at[index] = -1
