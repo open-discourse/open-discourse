@@ -240,5 +240,5 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
                 except IndexError:
                     speech_content.faction_id.at[index] = -1
 
-        speech_content = speech_content.drop(columns=["position_raw"])
+        speech_content = speech_content.drop(columns=["position_raw", "name_raw"])
         speech_content.to_pickle(os.path.join(save_path, speech_content_file))

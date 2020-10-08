@@ -12,7 +12,7 @@ The Input and Output paths start at the project root
 
 ## 01_preprocessing
 
-### 1. [Download Raw Data](./01_preprocessing/01_download_raw_data.py)
+### 1. [Download Raw Data](./od_lib/01_preprocessing/01_download_raw_data.py)
 
 - Function:
 
@@ -23,7 +23,7 @@ The Input and Output paths start at the project root
   - Input: `None`
   - Output: `./data/01_raw/xml/*`
 
-### 2. [Download Raw Data WP 19](./01_preprocessing/02_download_raw_data_electoral_term_19.py)
+### 2. [Download Raw Data WP 19](./od_lib/01_preprocessing/02_download_raw_data_electoral_term_19.py)
 
 - Function:
 
@@ -34,29 +34,29 @@ The Input and Output paths start at the project root
   - Input: `None`
   - Output: `./data/02_cached/electoral_term_10/stage_01/*`
 
-### 3. [Split XML](./01_preprocessing/03_split_xml.py)
+### 3. [Split XML](./od_lib/01_preprocessing/03_split_xml.py)
 
 - Function:
 
-  - A cleaning function checks the text corpus. It deletes things like the titles that were left from the pdf files, the XML files were generated from. The cleaning function can be found in [helper_functions/clean_text.py](./helper_functions/clean_text.py)
+  - A cleaning function checks the text corpus. It deletes things like the titles that were left from the pdf files, the XML files were generated from. The cleaning function can be found in [helper_functions/clean_text.py](./od_lib/helper_functions/clean_text.py)
   - Splits the XML files of the 3rd to 18th electoral period into the table of content, speech_content and appendix
 
 - Attributes:
   - Input: `./data/01_raw/xml/*`
   - Output: `./data/01_raw/txt/*`
 
-### 4. [Split XML of period 1 and 2](./01_preprocessing/04_split_xml_of_period_1_and_2.py)
+### 4. [Split XML of period 1 and 2](./od_lib/01_preprocessing/04_split_xml_of_period_1_and_2.py)
 
 - Function:
 
-  - A cleaning function checks the text corpus. It deletes things like the titles that were left from the pdf files, the XML files were generated from. The cleaning function can be found in [helper_functions/clean_text.py](./helper_functions/clean_text.py)
+  - A cleaning function checks the text corpus. It deletes things like the titles that were left from the pdf files, the XML files were generated from. The cleaning function can be found in [helper_functions/clean_text.py](./od_lib/helper_functions/clean_text.py)
   - Because of the "interesting" structure of the first two election periods, we use a different approach to split the XML files into the table of content, speech_content and appendix
 
 - Attributes:
   - Input: `./data/01_raw/xml/*`
   - Output: `./data/01_raw/txt/*`
 
-### 5. [Split XML of period 19](./01_preprocessing/05_split_xml_of_period_19.py)
+### 5. [Split XML of period 19](./od_lib/01_preprocessing/05_split_xml_of_period_19.py)
 
 - Function:
 
@@ -66,7 +66,7 @@ The Input and Output paths start at the project root
   - Input: `./data/02_cached/electoral_term_19/stage_01/*`
   - Output: `./data/02_cached/electoral_term_19/stage_02/*`
 
-### 6. [Extract MDBs from personal details](./01_preprocessing/06_extract_mdbs_from_STAMMDATEN_XML.py)
+### 6. [Extract MDBs from personal details](./od_lib/01_preprocessing/06_extract_mdbs_from_STAMMDATEN_XML.py)
 
 - Function:
 
@@ -76,7 +76,7 @@ The Input and Output paths start at the project root
   - Input: `./data/01_raw/mdb_stammdaten/MDB_STAMMDATEN.XML`
   - Output: `./data/02_cached/politicians/stage_01/mdbs.pkl`
 
-### 7. [Create Election Periods](./01_preprocessing/07_create_electoral_terms.py)
+### 7. [Create Election Periods](./od_lib/01_preprocessing/07_create_electoral_terms.py)
 
 - Function:
 
@@ -88,7 +88,7 @@ The Input and Output paths start at the project root
 
 ## Factions
 
-### 1. [Create Factions](./02_factions/01_create_factions.py)
+### 1. [Create Factions](./od_lib/02_factions/01_create_factions.py)
 
 - Function:
 
@@ -98,7 +98,7 @@ The Input and Output paths start at the project root
   - Input: `./data/02_cached/politicians/stage_01/mdbs.pkl`
   - Output: `./data/02_cached/factions/stage_01/factions.pkl`
 
-### 2. [Add Abbreviations](./02_factions/02_add_abbreviations_and_ids.py)
+### 2. [Add Abbreviations](./od_lib/02_factions/02_add_abbreviations_and_ids.py)
 
 - Function:
 
@@ -110,7 +110,7 @@ The Input and Output paths start at the project root
 
 ## Politicians
 
-### 1. [Add Faction IDs to MDBs](./03_politicians/01_add_faction_id_to_mdbs.py)
+### 1. [Add Faction IDs to MDBs](./od_lib/03_politicians/01_add_faction_id_to_mdbs.py)
 
 - Function:
 
@@ -122,7 +122,7 @@ The Input and Output paths start at the project root
     - `./data/03_final/factions.pkl`
   - Output: `./data/02_cached/politicians/stage_02/mdbs.pkl`
 
-### 2. [Scrape the Government Members](./03_politicians/02_scrape_government_members.py)
+### 2. [Scrape the Government Members](./od_lib/03_politicians/02_scrape_government_members.py)
 
 - Function:
 
@@ -132,7 +132,7 @@ The Input and Output paths start at the project root
   - Input: `None`
   - Output: `./data/02_cached/politicians/stage_01/government_members.pkl`
 
-### 3. [Merge People](./03_politicians/03_merge_politicians.py)
+### 3. [Merge People](./od_lib/03_politicians/03_merge_politicians.py)
 
 - Function:
 
@@ -147,39 +147,23 @@ The Input and Output paths start at the project root
 
 ## Spoken Content
 
-### 1. [Split Corpus at every Agenda Item](./04_speech_content/01_split_at_tops.py)
-
-- Function:
-
-  - Searches for Patterns in the Text that imply the beginning of a new Agenda Item
-
-- Attributes:
-  - Input: `./data/01_raw/txt/*`
-  - Output: `./data/02_cached/speech_content/stage_01/*`
-  - File Format:
-    - speech_content:
-      | top | additional_tops | content |
-      | --- | --- | --- |
-      | intro | | Peter Schmidt (CDU/CSU): Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... |
-      | ... | ... | ... |
-
-### 2. [Extract Speech Parts](./04_speech_content/02_extract_speech_parts.py)
+### 1. [Extract Speech Parts](./od_lib/04_speech_content/01_extract_speech_parts.py)
 
 - Function:
 
   - Searches for Speaches in the Corpus using Regex Patterns.
 
 - Attributes:
-  - Input: `./data/02_cached/speech_content/stage_01/*`
-  - Output: `./data/02_cached/speech_content/stage_02/*`
+  - Input: `./data/01_raw/txt/*`
+  - Output: `./data/02_cached/speech_content/stage_01/*`
   - File Format:
     - speech_content:
-      | session | top | additional_tops | name | position | speech_content | span_begin | span_end |
-      | --- | --- | --- | --- | --- | --- | --- | --- |
-      | 18245.pkl | intro | | Peter Schmidt | CDU/CSU | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
-      | ... | ... | ... | ... | ... | ... | ... | ... |
+      | session | name_raw | position_raw | constituency | speech_content | span_begin | span_end |
+      | --- | --- | --- | --- | --- | --- | --- |
+      | 18245 | Peter Schmidt | CDU/CSU | | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
+      | ... | ... | ... | ... | ... | ... | ... |
 
-### 3. [Clean Speeches](./04_speech_content/03_clean_speeches.py)
+### 2. [Clean Speeches](./od_lib/04_speech_content/02_clean_speeches.py)
 
 - Function:
 
@@ -189,17 +173,17 @@ The Input and Output paths start at the project root
 
 - Attributes:
   - Input:
-    - `./data/02_cached/speech_content/stage_02/*`
+    - `./data/02_cached/speech_content/stage_01/*`
     - `./data/03_final/factions.pkl`
-  - Output: `./data/02_cached/speech_content/stage_03/*`
+  - Output: `./data/02_cached/speech_content/stage_02/*`
   - File Format:
     - speech_content:
-      | session | top | additional_tops | faction_id | name | last_name | first_name | title | position_short | position_long | speech_content | span_begin | span_end |
-      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-      | 18245.pkl | intro | | 4 | Peter Schmidt | Schmidt | ['Peter'] | [] | | Member of Parliament | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
-      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+      | session | position_short | position_long | last_name | first_name | acad_title | faction_id | constituency | speech_content | span_begin | span_end |
+      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+      | 18245 | Member of Parliament | | Schmidt | ['Peter'] | [] | 4 | | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
+      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
-### 4. [Match Names](./04_speech_content/04_match_names_speech_content.py)
+### 3. [Match Names](./od_lib/04_speech_content/03_match_names_speech_content.py)
 
 - Function:
 
@@ -209,17 +193,17 @@ The Input and Output paths start at the project root
   - Input:
     - `./data/02_cached/speech_content/stage_03/*`
     - `./data/03_final/politicians.csv`
-  - Output: `./data/02_cached/speech_content/stage_04/*`
+  - Output: `./data/02_cached/speech_content/stage_03/*`
   - File Format:
     - speech_content:
-      | session | top | additional_tops | faction_id | politician_id |name | last_name | first_name | title | position_short | position_long | speech_content | span_begin | span_end |
-      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-      | 18245.pkl | intro | | 4 | 1109312 | Peter Schmidt | Schmidt | ['Peter'] | [] | | Member of Parliament | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
-      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+      | session | position_short | position_long | politician_id | last_name | first_name | acad_title | faction_id | constituency | speech_content | span_begin | span_end |
+      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+      | 18245 | Member of Parliament | | 1109312 | Schmidt | ['Peter'] | [] | 4 | | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
+      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
 ## Election Period 19
 
-### 1. [Extract Speeches and Contributions Period 19](./06_election_period_19/01_extract_speeches_and_contributions_period_19.py)
+### 1. [Extract Speeches and Contributions Period 19](./od_lib/06_election_period_19/01_extract_speeches_and_contributions_period_19.py)
 
 - Function:
 
@@ -227,7 +211,7 @@ The Input and Output paths start at the project root
   - Searches for Contributions in the Speeches using Regex Pattern
   - Text in Braces that can't be assigned to a Contribution, are saved as Miscellaneous
   - The Script replaces Contributions in the speech_content with an Identifier
-  - The extract_contribution funciton can be found in [helper_functions/extract_contributions.py](./helper_functions/extract_contributions.py)
+  - The extract_contribution funciton can be found in [helper_functions/extract_contributions.py](./od_lib/helper_functions/extract_contributions.py)
 
 - Attributes:
 
@@ -239,10 +223,10 @@ The Input and Output paths start at the project root
     - `./data/03_final/contributions_lookup.pkl`
   - File Format:
     - speech_content:
-      | id | session | first_name | last_name | faction_id | position_short | position_long | politician_id | speech_content | date |
-      | --- | --- | ---| --- | --- | --- | --- | --- | --- | --- |
-      | 25000 | 19171 | Stefan | Müller | 23 | | Member of Parliament | 1122402 | Sehr geehrte Damen und Herren ({0}) | 1508803200.0 |
-      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+      | speech_id |session | position_short | position_long | politician_id | last_name | first_name | acad_title | faction_id | constituency | speech_content | span_begin | span_end |
+      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+      | 18245 | Member of Parliament | | 1109312 | Schmidt | ['Peter'] | [] | 4 | | Sehr geehrter ({0})... | 0.0 | 255.0 |
+      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
     - contributions:
       | id |  type | name | faction | constituency | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- |
@@ -257,20 +241,20 @@ The Input and Output paths start at the project root
 
 ## Contributions
 
-### 1. [Extract Contributions](./05_contributions/01_extract_contributions.py)
+### 1. [Extract Contributions](./od_lib/05_contributions/01_extract_contributions.py)
 
 - Function:
 
   - Searches for Contributions in the Speeches using Regex Pattern
   - Text in Braces that can't be assigned to a Contribution, are saved as Miscellaneous
   - The Script replaces Contributions in the speech_content with an Identifier
-  - The extract_contribution funciton can be found in [helper_functions/extract_contributions.py](./helper_functions/extract_contributions.py)
+  - The extract_contribution funciton can be found in [helper_functions/extract_contributions.py](./od_lib/helper_functions/extract_contributions.py)
 
 - Attributes:
 
-  - Input: `./data/02_cached/speech_content/stage_05/*`
+  - Input: `./data/02_cached/speech_content/stage_03/*`
   - Output:
-    - `./data/02_cached/speech_content/stage_06/*`
+    - `./data/02_cached/speech_content/stage_04/*`
     - `./data/02_cached/contributions/stage_01/*`
     - `./data/02_cached/miscellaneous/stage_01/*`
     - `./data/03_final/contributions_lookup.pkl`
@@ -292,7 +276,7 @@ The Input and Output paths start at the project root
       | 0 | | | Links | 0 |
       | ... | ... | ... | ... | ... |
 
-### 2. [Clean Contributions](./05_contributions/02_clean_contributions.py)
+### 2. [Clean Contributions](./od_lib/05_contributions/02_clean_contributions.py)
 
 - Function:
 
@@ -306,13 +290,13 @@ The Input and Output paths start at the project root
   - Output: `./data/02_cached/contributions/stage_02/*`
   - File Format:
     - contributions:
-      | id | type | name | faction_id | faction | last_name | first_name | title | constituency | content | text_position |
+      | id | type | name | faction_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
       | 0 | Beifall | | 23 | SPD | | [] | [] | | 0 |
       | 1 | Personen-Einruf | Hans Müller | 0 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
       | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
-### 3. [Match Contributions](./05_contributions/03_match_contributions.py)
+### 3. [Match Contributions](./od_lib/05_contributions/03_match_contributions.py)
 
 - Function:
 
@@ -325,7 +309,7 @@ The Input and Output paths start at the project root
   - Output: `./data/02_cached/contributions/stage_02/*`
   - File Format:
     - contributions:
-      | id | type | name | faction_id | politician_id | faction | last_name | first_name | title | constituency | content | text_position |
+      | id | type | name | faction_id | politician_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
       | 0 | Beifall | | 23 | -1 | SPD | | [] | [] | | | 0 |
       | 1 | Personen-Einruf | Hans Müller | 0 | 1109373 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
@@ -333,7 +317,7 @@ The Input and Output paths start at the project root
 
 ## Database
 
-### 1. [Concat Everything](./07_database/01_concat_everything.py)
+### 1. [Concat Everything](./od_lib/07_database/01_concat_everything.py)
 
 - Function:
 
@@ -343,7 +327,7 @@ The Input and Output paths start at the project root
 
   - Input:
     - `./data/01_raw/xml/*`
-    - `./data/02_cached/speech_content/stage_06/*`
+    - `./data/02_cached/speech_content/stage_04/*`
     - `./data/02_cached/electoral_term_19/stage_03/speech_content/speech_content.pkl`
     - `./data/02_cached/contributions/stage_03/*`
     - `./data/02_cached/miscellaneous/stage_01/*`
@@ -352,7 +336,7 @@ The Input and Output paths start at the project root
     - `./data/03_final/contributions.pkl`
     - `./data/03_final/miscellaneous.pkl`
 
-### 2. [Upload Data to Database](./07_database/02_upload_data_to_database.py)
+### 2. [Upload Data to Database](./od_lib/07_database/02_upload_data_to_database.py)
 
 - Function:
 
