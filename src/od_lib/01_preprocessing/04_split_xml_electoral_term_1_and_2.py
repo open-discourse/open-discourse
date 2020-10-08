@@ -5,21 +5,20 @@ import os
 import regex
 import dicttoxml
 
-# input directory ______________________________________________________________
+# input directory
 RAW_XML = path_definitions.RAW_XML
 
-# output directory _____________________________________________________________
+# output directory
 RAW_TXT = path_definitions.RAW_TXT
 
 if not os.path.exists(RAW_TXT):
     os.makedirs(RAW_TXT)
 
-i = 0
-# Open every xml plenar file in every legislature period.
+# Open every xml plenar file in every electoral term.
 for electoral_term_folder in sorted(os.listdir(RAW_XML)):
     electoral_term_folder_path = os.path.join(RAW_XML, electoral_term_folder)
 
-    # Skip e.g. the .DS_Store file.  ___________________________________________
+    # Skip e.g. the .DS_Store file.
     if not os.path.isdir(electoral_term_folder_path):
         continue
 
@@ -45,19 +44,13 @@ for electoral_term_folder in sorted(os.listdir(RAW_XML)):
             meta_data["date"] = tree.find("DATUM").text
             text_corpus = tree.find("TEXT").text
 
-            # Clean text corpus. _______________________________________________
+            # Clean text corpus.
             text_corpus = clean(text_corpus)
 
-            # Find the beginnings and endings of the spoken contents in the ____
-            # pattern plenar files. ____________________________________________
+            # Find the beginnings and endings of the spoken contents in the
+            # pattern plenar files.
             find_beginnings = list(regex.finditer(begin_pattern, text_corpus))
             find_endings = list(regex.finditer(appendix_pattern, text_corpus))
-
-            # For the first and second period a duplicate beginning pattern
-            # means in all cases an interruption and restarting of the
-            # session, possibly on another day.
-            # print(find_beginnings)
-            # print(find_endings)
 
             # Append "END OF FILE" to document text, otherwise pattern is
             # not found, when appearing at the end of the file.

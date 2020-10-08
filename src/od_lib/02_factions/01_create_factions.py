@@ -3,10 +3,10 @@ import pandas as pd
 import numpy as np
 import os
 
-# input directory ______________________________________________________________
+# input directory
 POLITICIANS_STAGE_01 = path_definitions.POLITICIANS_STAGE_01
 
-# output directory _____________________________________________________________
+# output directory
 FACTIONS_STAGE_01 = path_definitions.FACTIONS_STAGE_01
 save_path_factions = os.path.join(FACTIONS_STAGE_01, "factions.pkl")
 

@@ -3,7 +3,7 @@ import pandas as pd
 import datetime
 import os
 
-# output directory ____________________________________________________________
+# output directory
 ELECTORAL_TERMS = path_definitions.ELECTORAL_TERMS
 save_path = os.path.join(ELECTORAL_TERMS, "electoral_terms.csv")
 

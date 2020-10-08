@@ -8,12 +8,12 @@ import regex
 # Disabling pandas warnings.
 pd.options.mode.chained_assignment = None
 
-# input directory ______________________________________________________________
-SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_02
+# input directory
+SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_01
 FACTIONS = path_definitions.DATA_FINAL
 
-# output directory _____________________________________________________________
-SPEECH_CONTENT_OUTPUT = path_definitions.SPEECH_CONTENT_STAGE_03
+# output directory
+SPEECH_CONTENT_OUTPUT = path_definitions.SPEECH_CONTENT_STAGE_02
 
 factions = pd.read_pickle(os.path.join(FACTIONS, "factions.pkl"))
 
@@ -234,4 +234,5 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
                 except IndexError:
                     speech_content.faction_id.at[index] = -1
 
+        speech_content = speech_content.drop(columns=['position_raw'])
         speech_content.to_pickle(os.path.join(save_path, speech_content_file))

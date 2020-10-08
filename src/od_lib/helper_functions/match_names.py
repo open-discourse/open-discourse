@@ -8,14 +8,12 @@ import regex
 # some optimization logic already included. Would still be nice to clean this up
 # a little together with the preceeding scripts.
 
-# ______________________________________________________________________________
 def get_fuzzy_names(df, name_to_check, fuzzy_threshold=70):
     return df.loc[
         df.last_name.apply(fuzz.ratio, args=[name_to_check]) >= fuzzy_threshold
     ]
 
 
-# ______________________________________________________________________________
 def get_possible_matches(df, **columns):
     """ Returns possible matches in df with respect to specified columns. """
 
@@ -25,7 +23,6 @@ def get_possible_matches(df, **columns):
     return df
 
 
-# ______________________________________________________________________________
 def check_unique(possible_matches, col="ui"):
     return len(np.unique(possible_matches[col])) == 1
 
@@ -43,7 +40,6 @@ def set_value(df, index, col, value):
     df[col].at[index] = value
 
 
-# ______________________________________________________________________________
 def check_last_name(df, index, possible_matches, last_name):
     # Get possible matches according to last name.
     possible_matches = get_possible_matches(possible_matches, last_name=last_name)
@@ -55,7 +51,6 @@ def check_last_name(df, index, possible_matches, last_name):
         return False, possible_matches
 
 
-# ______________________________________________________________________________
 def check_first_name(df, index, possible_matches, first_name):
     first_name_set = set(first_name)
 
@@ -70,7 +65,6 @@ def check_first_name(df, index, possible_matches, first_name):
         return False, possible_matches
 
 
-# ______________________________________________________________________________
 def check_faction_id(df, index, possible_matches, faction_id):
     # Get possible matches according to faction_id.
     possible_matches = get_possible_matches(possible_matches, faction_id=faction_id)
@@ -83,7 +77,6 @@ def check_faction_id(df, index, possible_matches, faction_id):
         return False, possible_matches
 
 
-# ______________________________________________________________________________
 def check_location_info(df, index, possible_matches, constituency, fuzzy_threshold=70):
     possible_matches = possible_matches.loc[
         possible_matches.constituency.apply(fuzz.ratio, args=[constituency])
@@ -95,9 +88,6 @@ def check_location_info(df, index, possible_matches, constituency, fuzzy_thresho
         return True, possible_matches
     else:
         return False, possible_matches
-
-
-# ______________________________________________________________________________
 
 
 def check_name_and_profession(
@@ -213,11 +203,6 @@ def check_woman(df, index, acad_title, possible_matches):
             set_id(df, index, possible_matches, col_set="politician_id", col_check="ui")
             return True, possible_matches
     return False, possible_matches
-
-
-# ______________________________________________________________________________
-# ______________________________________________________________________________
-# ______________________________________________________________________________
 
 
 def insert_politician_id_into_speech_content(
@@ -465,11 +450,6 @@ def insert_politician_id_into_speech_content(
     return df, problem_df
 
 
-# ______________________________________________________________________________
-# ______________________________________________________________________________
-# ______________________________________________________________________________
-
-
 def insert_politician_id_into_contributions(
     df, politicians_electoral_term, mgs_electoral_term
 ):
@@ -521,13 +501,6 @@ def insert_politician_id_into_contributions(
                     continue
                 else:
                     continue
-
-        # if row.faction_id >= 0:
-        #     if check_special_positions(df, index, row.position, row.last_name, mgs_electoral_term, fuzzy_threshold=0.75):
-        #         continue
-        #     else:
-        #         problem_df.append(row)
-        #         continue
 
         # Fuzzy search, if last_name can't be found.
         if len(possible_matches) == 0:

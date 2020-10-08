@@ -3,8 +3,8 @@ import regex
 
 
 def clean(filetext, remove_pdf_header=True):
-    # Replaces all the misplaced hyphens
-    filetext = filetext.replace(r"", "-")  # What is replaced here?
+    # Replaces all the misrecognized characters
+    filetext = filetext.replace(r"", "-")
     filetext = filetext.replace(r"", "-")
     filetext = filetext.replace("—", "-")
     filetext = filetext.replace("–", "-")
@@ -21,14 +21,8 @@ def clean(filetext, remove_pdf_header=True):
         )
         filetext = regex.sub(r"\s*(\(A\)|\(B\)|\(C\)|\(D\))", "", filetext)
 
-    # Remove delimeter (maybe delete the first one?)
+    # Remove delimeter
     filetext = regex.sub(r"-\n+(?![^(]*\))", "", filetext)
-
-    # Delete all the newlines in speaker names:
-    # speaker_newlines = regex.findall(r"(?<=\n).*(?:\n.*){1,3}:", filetext)
-
-    # for newline in speaker_newlines:
-    #     filetext = filetext.replace(str(newline), regex.sub(r"[-]?\n+", ' ', str(newline)))
 
     # Deletes all the newlines in brackets
     bracket_text = regex.finditer(r"\(([^(\)]*(\(([^(\)]*)\))*[^(\)]*)\)", filetext)
@@ -51,7 +45,7 @@ def clean(filetext, remove_pdf_header=True):
 
 
 def clean_name_headers(filetext, names, contributions_filter=False):
-    """ Cleans in a given text lines which remained from the header.
+    """ Cleans lines a given text which remained from the pdf header.
         Usually something like: "Präsident Dr. Lammert"
         Keep in mind this also deletes lines from voting lists.
     """

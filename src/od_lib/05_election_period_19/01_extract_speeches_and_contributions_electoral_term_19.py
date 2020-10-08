@@ -8,24 +8,24 @@ import os
 import datetime
 
 
-# input directory ______________________________________________________________
-WP_19_INPUT = path_definitions.WP_19_STAGE_02
+# input directory
+ELECTORAL_TERM_19_INPUT = path_definitions.ELECTORAL_TERM_19_STAGE_02
 FACTIONS = path_definitions.DATA_FINAL
 politicians = path_definitions.DATA_FINAL
 
-# output directory _____________________________________________________________
-WP_19_OUTPUT = path_definitions.WP_19_STAGE_03
+# output directory
+ELECTORAL_TERM_19_OUTPUT = path_definitions.ELECTORAL_TERM_19_STAGE_03
 CONTRIBUTIONS_OUTPUT = os.path.join(
     path_definitions.CONTRIBUTIONS_STAGE_01, "electoral_term_19"
 )
-WP_19_SPOKEN_CONTENT = os.path.join(WP_19_OUTPUT, "speech_content")
+ELECTORAL_TERM_19_SPOKEN_CONTENT = os.path.join(ELECTORAL_TERM_19_OUTPUT, "speech_content")
 MISCELLANEOUS_OUTPUT = os.path.join(
     path_definitions.CONTRIBUTIONS_MISCELLANEOUS_STAGE_01, "electoral_term_19"
 )
 CONTRIBUTIONS_LOOKUP = path_definitions.CONTRIBUTIONS_LOOKUP
 
-if not os.path.exists(WP_19_OUTPUT):
-    os.makedirs(WP_19_SPOKEN_CONTENT)
+if not os.path.exists(ELECTORAL_TERM_19_OUTPUT):
+    os.makedirs(ELECTORAL_TERM_19_SPOKEN_CONTENT)
 
 # Contributions are saved to the normale contributions folder not the seperate electoral_term_19 folders  # noqa: E501
 if not os.path.exists(CONTRIBUTIONS_OUTPUT):
@@ -175,7 +175,7 @@ politicians.first_name = politicians.first_name.str.lower()
 politicians.first_name = politicians.first_name.str.replace("ß", "ss", regex=False)
 politicians.first_name = politicians.first_name.apply(str.split)
 
-for session in sorted(os.listdir(WP_19_INPUT)):
+for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
 
     if session == ".DS_Store":
         continue
@@ -207,10 +207,10 @@ for session in sorted(os.listdir(WP_19_INPUT)):
     print(session)
 
     session_content = et.parse(
-        os.path.join(WP_19_INPUT, session, "session_content.xml")
+        os.path.join(ELECTORAL_TERM_19_INPUT, session, "session_content.xml")
     )
 
-    meta_data = et.parse(os.path.join(WP_19_INPUT, session, "meta_data.xml"))
+    meta_data = et.parse(os.path.join(ELECTORAL_TERM_19_INPUT, session, "meta_data.xml"))
 
     date = meta_data.getroot().get("sitzung-datum")
     # Wrong date in xml file. Fixing manually
@@ -425,7 +425,7 @@ for session in sorted(os.listdir(WP_19_INPUT)):
 
     miscellaneous.to_pickle(os.path.join(MISCELLANEOUS_OUTPUT, session + ".pkl"))
 
-speech_content.to_pickle(os.path.join(WP_19_SPOKEN_CONTENT, "speech_content.pkl"))
+speech_content.to_pickle(os.path.join(ELECTORAL_TERM_19_SPOKEN_CONTENT, "speech_content.pkl"))
 
 contributions_lookup.to_pickle(
     os.path.join(CONTRIBUTIONS_LOOKUP, "contributions_lookup_electoral_term_19.pkl")

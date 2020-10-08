@@ -8,7 +8,7 @@ import sys
 
 engine = create_engine("postgresql://postgres:postgres@localhost:5432/next")
 
-# Load Final Data ______________________________________________________________
+# Load Final Data
 
 CONTRIBUTIONS = os.path.join(path_definitions.DATA_FINAL, "contributions.pkl")
 MISCELLANEOUS = os.path.join(path_definitions.DATA_FINAL, "miscellaneous.pkl")
@@ -23,7 +23,7 @@ CONTRIBUTIONS_LOOKUP_WP19 = os.path.join(
 )
 ELECTORAL_TERMS = os.path.join(path_definitions.ELECTORAL_TERMS, "electoral_terms.csv")
 
-# Load data ____________________________________________________________________
+# Load data______
 electoral_terms = pd.read_csv(ELECTORAL_TERMS)
 
 politicians = pd.read_csv(PEOPLE)

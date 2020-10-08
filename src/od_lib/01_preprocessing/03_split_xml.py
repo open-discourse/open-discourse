@@ -6,10 +6,10 @@ import regex
 import sys
 import dicttoxml
 
-# input directory ______________________________________________________________
+# input directory
 RAW_XML = path_definitions.RAW_XML
 
-# output directory _____________________________________________________________
+# output directory
 RAW_TXT = path_definitions.RAW_TXT
 
 if not os.path.exists(RAW_TXT):
@@ -19,7 +19,7 @@ if not os.path.exists(RAW_TXT):
 for electoral_term_folder in sorted(os.listdir(RAW_XML)):
     electoral_term_folder_path = os.path.join(RAW_XML, electoral_term_folder)
 
-    # Skip e.g. the .DS_Store file.  ___________________________________________
+    # Skip e.g. the .DS_Store file.
     if not os.path.isdir(electoral_term_folder_path):
         continue
 
@@ -77,7 +77,6 @@ for electoral_term_folder in sorted(os.listdir(RAW_XML)):
             meta_data["date"] = tree.find("DATUM").text
             text_corpus = tree.find("TEXT").text
 
-            # __________________________________________________________________
             # Some files have issues which have to be handled mannualy
             # like a duplicated text corpus or two sessions in one file.
             if meta_data["document_number"] == "03/16":
@@ -191,10 +190,10 @@ for electoral_term_folder in sorted(os.listdir(RAW_XML)):
                 begin_pattern = begin_pattern_electoral_term
                 appendix_pattern = appendix_pattern_electoral_term
 
-            # Clean text corpus. _______________________________________________
+            # Clean text corpus.
             text_corpus = clean(text_corpus)
 
-            # Find the beginning pattern in plenar file. _______________________
+            # Find the beginning pattern in plenar file.
             find_beginnings = list(regex.finditer(begin_pattern, text_corpus))
 
             # If found more than once, handle depending on period.
@@ -209,7 +208,6 @@ for electoral_term_folder in sorted(os.listdir(RAW_XML)):
             toc = text_corpus[:begin_of_session]
             session_content = text_corpus[begin_of_session:]
 
-            # ___________________________________________________________________
             # At this point the document has a unique beginning. The spoken
             # content begins after the matched phrase.
 

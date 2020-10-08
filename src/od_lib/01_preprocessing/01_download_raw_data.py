@@ -5,7 +5,7 @@ import zipfile
 import os
 import regex
 
-# output directory _________________________________________________________________________________
+# output directory
 RAW_XML = path_definitions.RAW_XML
 
 zip_links = [
@@ -39,7 +39,7 @@ for link in zip_links:
         r"(?<=pp)\d+(?=-data\.zip)", link
     ).group(
         0
-    )  # noqa: E501
+    )
 
     print("Unzipping: ", electoral_term_str)
 
@@ -50,7 +50,7 @@ for link in zip_links:
     z.extractall(save_path)
 
 
-# Download MDB Stammdaten. _________________________________________________________________________
+# Download MDB Stammdaten.
 mp_master_data_link = "https://www.bundestag.de/resource/blob/472878/7d4d417dbb7f7bd44508b3dc5de08ae2/MdB-Stammdaten-data.zip"  # noqa: E501
 
 r = requests.get(mp_master_data_link)

@@ -8,11 +8,11 @@ import regex
 # Disabling pandas warnings.
 pd.options.mode.chained_assignment = None
 
-# input directory ______________________________________________________________
+# input directory
 CONTRIBUTIONS_INPUT = path_definitions.CONTRIBUTIONS_STAGE_01
 FACTIONS = path_definitions.DATA_FINAL
 
-# output directory _____________________________________________________________
+# output directory
 CONTRIBUTIONS_OUTPUT = path_definitions.CONTRIBUTIONS_STAGE_02
 
 factions = pd.read_pickle(os.path.join(FACTIONS, "factions.pkl"))
@@ -89,12 +89,12 @@ for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
         # read the spoken content csv
         contributions = pd.read_pickle(filepath)
 
-        # Insert title column and extract plain name and titles.
+        # Insert acad_title column and extract plain name and titles.
         # ADD DOCUMENTATION HERE
         contributions.insert(3, "faction_id", -1)
         contributions.insert(5, "last_name", "")
         contributions.insert(6, "first_name", "")
-        contributions.insert(7, "title", "")
+        contributions.insert(7, "acad_title", "")
 
         # Current workaround, because some speeches seem to not be matched
         # correctly. If second stage works without mistakes, this should not be
@@ -149,17 +149,17 @@ for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
         # Split the name column into it's components at space character.
         first_last_titles = contributions.name.apply(str.split)
 
-        # Extract title, if it is in the titles list.
-        contributions.title = [
-            [title for title in title_list if title in titles]
+        # Extract acad_title, if it is in the titles list.
+        contributions.acad_title = [
+            [acad_title for acad_title in title_list if acad_title in titles]
             for title_list in first_last_titles
         ]
 
         # Remove titles from the first_last_name list.
         for politician_titles in first_last_titles:
-            for title in politician_titles[:]:
-                if title in titles:
-                    politician_titles.remove(title)
+            for acad_title in politician_titles[:]:
+                if acad_title in titles:
+                    politician_titles.remove(acad_title)
 
         # Get the first and last name based on the amount of elements.
         for index, first_last in zip(range(len(first_last_titles)), first_last_titles):

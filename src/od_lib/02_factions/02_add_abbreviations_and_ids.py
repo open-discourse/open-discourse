@@ -3,10 +3,10 @@ import pandas as pd
 import numpy as np
 import os
 
-# input directory ______________________________________________________________
+# input directory
 FACTIONS_STAGE_01 = path_definitions.FACTIONS_STAGE_01
 
-# output directory _____________________________________________________________
+# output directory
 DATA_FINAL = path_definitions.DATA_FINAL
 
 if not os.path.exists(DATA_FINAL):

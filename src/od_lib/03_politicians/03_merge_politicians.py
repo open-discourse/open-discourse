@@ -3,7 +3,7 @@ import pandas as pd
 import regex
 import os
 
-# input ________________________________________________________________________
+# input directory
 MGS = path_definitions.POLITICIANS_STAGE_01
 MPS = path_definitions.POLITICIANS_STAGE_02
 FACTIONS = path_definitions.DATA_FINAL
@@ -12,12 +12,12 @@ mps = pd.read_pickle(os.path.join(MPS, "mps.pkl"))
 mgs = pd.read_pickle(os.path.join(MGS, "mgs.pkl"))
 factions = pd.read_pickle(os.path.join(FACTIONS, "factions.pkl"))
 
-# output _______________________________________________________________________
+# output directory
 DATA_FINAL = path_definitions.DATA_FINAL
 if not os.path.exists(DATA_FINAL):
     os.makedirs(DATA_FINAL)
 
-# helper functions _____________________________________________________________
+# helper functions
 electoral_terms_dict = {
     "from": [
         1949,
@@ -131,8 +131,6 @@ def get_electoral_term(from_year=None, to_year=None):
             return [from_year]
 
 
-i = 0
-failure_counter = 0
 politicians = mps.copy()
 politicians.first_name = politicians.first_name.str.replace("-", " ", regex=False)
 
@@ -240,7 +238,7 @@ for (
             # success_counter += 1
     elif len(possible_matches) > 1:
         # This doesn't get reached
-        failure_counter += 0
+        pass
     else:
         if len(first_name) > 1:
             possible_matches = politicians.loc[
@@ -296,7 +294,7 @@ for (
                 politicians = politicians.append(pd.Series(series), ignore_index=True)
         elif len(possible_matches) > 1:
             # This doesn't get reached
-            failure_counter += 1
+            pass
         else:
             ui_temp = max(politicians.ui.tolist()) + 1
             for electoral_term in electoral_terms:
@@ -335,6 +333,5 @@ for (
                     "function_until": "",
                 }
                 politicians = politicians.append(pd.Series(series), ignore_index=True)
-    i += 1
 
 politicians.to_csv(os.path.join(DATA_FINAL, "politicians.csv"), index=False)

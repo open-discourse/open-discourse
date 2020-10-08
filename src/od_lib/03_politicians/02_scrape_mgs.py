@@ -6,7 +6,7 @@ import requests
 import os
 
 
-# Output directory _____________________________________________________________
+# Output directory
 POLITICIANS_STAGE_01 = path_definitions.POLITICIANS_STAGE_01
 save_path = os.path.join(POLITICIANS_STAGE_01 + "/mgs.pkl")
 
@@ -50,10 +50,6 @@ for div in main_section.find_all("div", recursive=False):
             # as she is member of StammdatenXML
             if "CDU" in name:
                 continue
-                # mgs["first_name"].append("Kristina")
-                # mgs["last_name"].append("Schröder")
-                # faction = "CDU"
-                # mgs["faction"][-1] = faction
 
             name = name.split(" ")
             first_name = name[:-1]

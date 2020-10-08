@@ -3,21 +3,21 @@ import xml.etree.ElementTree as et
 import os
 import regex
 
-# input directory ______________________________________________________________
-WP_19_INPUT = path_definitions.WP_19_STAGE_01
+# input directory
+ELECTORAL_TERM_19_INPUT = path_definitions.ELECTORAL_TERM_19_STAGE_01
 
-# output directory _____________________________________________________________
-WP_19_OUTPUT = path_definitions.WP_19_STAGE_02
+# output directory
+ELECTORAL_TERM_19_OUTPUT = path_definitions.ELECTORAL_TERM_19_STAGE_02
 
 
-for xml_file in os.listdir(WP_19_INPUT):
+for xml_file in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
 
     print(xml_file)
 
-    save_path = os.path.join(WP_19_OUTPUT, regex.search(r"\d+", xml_file).group())
+    save_path = os.path.join(ELECTORAL_TERM_19_OUTPUT, regex.search(r"\d+", xml_file).group())
 
-    # read data ________________________________________________________________
-    tree = et.parse(os.path.join(WP_19_INPUT, xml_file))
+    # read data
+    tree = et.parse(os.path.join(ELECTORAL_TERM_19_INPUT, xml_file))
     root = tree.getroot()
 
     toc = et.ElementTree(root.find("vorspann"))
@@ -28,7 +28,7 @@ for xml_file in os.listdir(WP_19_INPUT):
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    # save to xmls _____________________________________________________________
+    # save to xmls
     toc.write(
         os.path.join(save_path, "toc.xml"), encoding="UTF-8", xml_declaration=True
     )

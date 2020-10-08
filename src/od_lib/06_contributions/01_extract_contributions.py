@@ -5,11 +5,11 @@ import sys
 import os
 import regex
 
-# input directory ______________________________________________________________
-SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_04
+# input directory
+SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_03
 
-# output directory _____________________________________________________________
-SPEECH_CONTENT_OUTPUT = path_definitions.SPEECH_CONTENT_STAGE_05
+# output directory
+SPEECH_CONTENT_OUTPUT = path_definitions.SPEECH_CONTENT_STAGE_04
 CONTRIBUTIONS_OUTPUT = path_definitions.CONTRIBUTIONS_STAGE_01
 CONTRIBUTIONS_MISCELLANEOUS_STAGE_01 = (
     path_definitions.CONTRIBUTIONS_MISCELLANEOUS_STAGE_01

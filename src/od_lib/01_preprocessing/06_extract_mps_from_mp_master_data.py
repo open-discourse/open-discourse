@@ -4,21 +4,21 @@ import xml.etree.ElementTree as et
 import os
 import regex
 
-# input directory ______________________________________________________________
+# input directory
 MP_MASTER_DATA = path_definitions.MP_MASTER_DATA
 
-# output directory _____________________________________________________________
+# output directory
 POLITICIANS_STAGE_01 = path_definitions.POLITICIANS_STAGE_01
 save_path = os.path.join(POLITICIANS_STAGE_01, "mps.pkl")
 
 if not os.path.exists(POLITICIANS_STAGE_01):
     os.makedirs(POLITICIANS_STAGE_01)
 
-# read data ____________________________________________________________________
+# read data
 tree = et.parse(MP_MASTER_DATA)
 root = tree.getroot()
 
-# placeholder for final dataframe ______________________________________________
+# placeholder for final dataframe
 mps = {
     "ui": [],
     "electoral_term": [],
@@ -57,7 +57,7 @@ mps = {
 
 last_names_to_revisit = []
 i = 0
-# Iterate over all MDBs (Mitglieder des Bundestages) in XML File. ______________
+# Iterate over all MDBs (Mitglieder des Bundestages) in XML File.
 for mdb in tree.iter("MDB"):
     ui = mdb.findtext("ID")
 
@@ -81,7 +81,6 @@ for mdb in tree.iter("MDB"):
 
     gender = mdb.findtext("BIOGRAFISCHE_ANGABEN/GESCHLECHT")
     profession = mdb.findtext("BIOGRAFISCHE_ANGABEN/BERUF")
-    # last_faction_membership = mdb.findtext("BIOGRAFISCHE_ANGABEN/PARTEI_KURZ")
     vita_short = mdb.findtext("BIOGRAFISCHE_ANGABEN/VITA_KURZ")
     disclosure_requirement = mdb.findtext(
         "BIOGRAFISCHE_ANGABEN/VEROEFFENTLICHUNGSPFLICHTIGES"

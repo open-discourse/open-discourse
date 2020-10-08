@@ -4,12 +4,12 @@ import pandas as pd
 import regex
 import os
 
-# input directory ______________________________________________________________
-SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_03
+# input directory
+SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_02
 DATA_FINAL = path_definitions.DATA_FINAL
 
-# output directory _____________________________________________________________
-SPEECH_CONTENT_OUTPUT = path_definitions.SPEECH_CONTENT_STAGE_04
+# output directory
+SPEECH_CONTENT_OUTPUT = path_definitions.SPEECH_CONTENT_STAGE_03
 
 if not os.path.exists(SPEECH_CONTENT_OUTPUT):
     os.makedirs(SPEECH_CONTENT_OUTPUT)

@@ -7,14 +7,14 @@ import time
 import datetime
 import sys
 
-# input directory ______________________________________________________________
+# input directory
 RAW_XML = path_definitions.RAW_XML
-SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_05
-SPEECH_CONTENT_INPUT_2 = path_definitions.WP_19_STAGE_03
+SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_04
+SPEECH_CONTENT_INPUT_2 = path_definitions.ELECTORAL_TERM_19_STAGE_03
 CONTRIBUTIONS_INPUT = path_definitions.CONTRIBUTIONS_STAGE_03
 MISCELLANEOUS_INPUT = path_definitions.MISCELLANEOUS_STAGE_01
 
-# output directory _____________________________________________________________
+# output directory
 SPEECH_CONTENT_OUTPUT = path_definitions.FINAL
 CONTRIBUTIONS_OUTPUT = path_definitions.FINAL
 MISCELLANEOUS_OUTPUT = path_definitions.FINAL
@@ -28,7 +28,7 @@ if not os.path.exists(CONTRIBUTIONS_OUTPUT):
 if not os.path.exists(MISCELLANEOUS_OUTPUT):
     os.makedirs(MISCELLANEOUS_OUTPUT)
 
-# spoken content _______________________________________________________________
+# spoken content_
 
 # Placeholder for concating speeches DF of all sessions.
 speech_content_01_18 = pd.DataFrame()
@@ -170,7 +170,7 @@ speech_content_19.session = speech_content_19.session.astype("int32")
 speech_content = pd.concat([speech_content_01_18, speech_content_19])
 
 
-# save data. ___________________________________________________________________
+# save data._____
 
 speech_content.to_pickle(os.path.join(SPEECH_CONTENT_OUTPUT, "speech_content.pkl"))
 

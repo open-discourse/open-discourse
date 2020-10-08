@@ -10,11 +10,11 @@ import sys
 
 DEBUG_MODE = False
 
-# input directory ______________________________________________________________
+# input directory
 CONTRIBUTIONS_INPUT = path_definitions.CONTRIBUTIONS_STAGE_02
 DATA_FINAL = path_definitions.DATA_FINAL
 
-# output directory _____________________________________________________________
+# output directory
 CONTRIBUTIONS_OUTPUT = path_definitions.CONTRIBUTIONS_STAGE_03
 
 # MDBS
