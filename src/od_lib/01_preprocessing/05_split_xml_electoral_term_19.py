@@ -14,7 +14,9 @@ for xml_file in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
 
     print(xml_file)
 
-    save_path = os.path.join(ELECTORAL_TERM_19_OUTPUT, regex.search(r"\d+", xml_file).group())
+    save_path = os.path.join(
+        ELECTORAL_TERM_19_OUTPUT, regex.search(r"\d+", xml_file).group()
+    )
 
     # read data
     tree = et.parse(os.path.join(ELECTORAL_TERM_19_INPUT, xml_file))

@@ -5,11 +5,6 @@ import regex
 import os
 import sys
 
-
-# from src.helper_functions.matching_functions import levenshtein_ratio_and_distance
-
-DEBUG_MODE = False
-
 # input directory
 CONTRIBUTIONS_INPUT = path_definitions.CONTRIBUTIONS_STAGE_02
 DATA_FINAL = path_definitions.DATA_FINAL
@@ -73,7 +68,9 @@ for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
     electoral_term = int(regex.sub("electoral_term_0?", "", electoral_term_folder))
 
     # Only select politicians of the election period.
-    politicians_electoral_term = politicians.loc[politicians.electoral_term == electoral_term]
+    politicians_electoral_term = politicians.loc[
+        politicians.electoral_term == electoral_term
+    ]
     gov_members_electoral_term = politicians_electoral_term.loc[
         politicians_electoral_term.institution_type == "Regierungsmitglied"
     ]

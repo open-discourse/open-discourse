@@ -8,6 +8,7 @@ import regex
 # some optimization logic already included. Would still be nice to clean this up
 # a little together with the preceeding scripts.
 
+
 def get_fuzzy_names(df, name_to_check, fuzzy_threshold=70):
     return df.loc[
         df.last_name.apply(fuzz.ratio, args=[name_to_check]) >= fuzzy_threshold
@@ -455,9 +456,13 @@ def insert_politician_id_into_contributions(
 ):
     "Appends a politician id column with matched IDs"
 
-    assert {"last_name", "first_name", "faction_id", "acad_title", "constituency"}.issubset(
-        df.columns
-    )
+    assert {
+        "last_name",
+        "first_name",
+        "faction_id",
+        "acad_title",
+        "constituency",
+    }.issubset(df.columns)
 
     if len(df) == 0:
         return df, pd.DataFrame()
@@ -553,7 +558,9 @@ def insert_politician_id_into_contributions(
                 continue
 
         # Check Gender.
-        found, possible_matches = check_woman(df, index, row.acad_title, possible_matches)
+        found, possible_matches = check_woman(
+            df, index, row.acad_title, possible_matches
+        )
         if found:
             continue
 

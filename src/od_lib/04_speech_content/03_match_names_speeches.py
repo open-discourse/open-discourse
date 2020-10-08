@@ -65,7 +65,9 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
     electoral_term = int(regex.sub("electoral_term_0?", "", electoral_term_folder))
 
     # Only select politicians of the election period.
-    politicians_electoral_term = politicians.loc[politicians.electoral_term == electoral_term]
+    politicians_electoral_term = politicians.loc[
+        politicians.electoral_term == electoral_term
+    ]
     mgs_electoral_term = politicians_electoral_term.loc[
         politicians_electoral_term.institution_type == "Regierungsmitglied"
     ]

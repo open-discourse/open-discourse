@@ -75,9 +75,7 @@ speech_content_01_18 = speech_content_01_18.loc[
     ],
 ]
 
-speech_content_01_18 = speech_content_01_18.rename(
-    columns={"speech_id": "id"}
-)
+speech_content_01_18 = speech_content_01_18.rename(columns={"speech_id": "id"})
 
 
 speech_content_01_18.first_name = speech_content_01_18.first_name.apply(" ".join)

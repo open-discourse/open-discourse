@@ -37,9 +37,7 @@ for link in zip_links:
     # Extract election period from URL
     electoral_term_str = "electoral_term_" + regex.search(
         r"(?<=pp)\d+(?=-data\.zip)", link
-    ).group(
-        0
-    )
+    ).group(0)
 
     print("Unzipping: ", electoral_term_str)
 

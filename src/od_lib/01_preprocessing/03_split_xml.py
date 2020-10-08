@@ -185,7 +185,7 @@ for electoral_term_folder in sorted(os.listdir(RAW_XML)):
                     + r"\. Sitzung(?=\nBonn)",
                     text_corpus,
                 )
-                text_corpus = text_corpus[find_second.span()[0]:]
+                text_corpus = text_corpus[find_second.span()[0] :]
             else:
                 begin_pattern = begin_pattern_electoral_term
                 appendix_pattern = appendix_pattern_electoral_term

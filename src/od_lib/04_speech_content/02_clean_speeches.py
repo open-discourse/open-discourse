@@ -165,7 +165,9 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
         )
 
         # Replace more than two whitespaces with one.
-        speech_content.name_raw = speech_content.name_raw.str.replace(r"  +", " ", regex=True)
+        speech_content.name_raw = speech_content.name_raw.str.replace(
+            r"  +", " ", regex=True
+        )
 
         # Graf has to be checked again, as this is also a last_name.
         # Titles have to be added: Like e.c. or when mistakes occur like b.c.
@@ -216,7 +218,9 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
 
         # look for factions in the faction column and replace them with a
         # standardized faction name
-        for index, position_raw in zip(speech_content.index, speech_content.position_raw):
+        for index, position_raw in zip(
+            speech_content.index, speech_content.position_raw
+        ):
             faction_abbrev = get_faction_abbrev(
                 str(position_raw), faction_patterns=faction_patterns
             )
@@ -224,7 +228,9 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
                 speech_content.position_short.at[index],
                 speech_content.position_long.at[index],
             ) = get_position_short_and_long(
-                faction_abbrev if faction_abbrev else regex.sub("\n+", " ", position_raw)
+                faction_abbrev
+                if faction_abbrev
+                else regex.sub("\n+", " ", position_raw)
             )
             if faction_abbrev:
                 try:
@@ -234,5 +240,5 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
                 except IndexError:
                     speech_content.faction_id.at[index] = -1
 
-        speech_content = speech_content.drop(columns=['position_raw'])
+        speech_content = speech_content.drop(columns=["position_raw"])
         speech_content.to_pickle(os.path.join(save_path, speech_content_file))

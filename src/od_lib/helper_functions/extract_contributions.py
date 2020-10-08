@@ -830,11 +830,11 @@ def extract(speech_text, session, identity, text_position=0):
 
         # Remove the bracket text from the speech_text and replace it with the text_position
         speech_text = (
-            speech_text[:deletion_span[0]]
+            speech_text[: deletion_span[0]]
             + "{"
             + str(reversed_text_position)
             + "}"
-            + speech_text[deletion_span[1]:]
+            + speech_text[deletion_span[1] :]
         )
 
         contribution_methods = [

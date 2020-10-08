@@ -1,4 +1,5 @@
 [flake8]
+ignore = E203, W503
 per-file-ignores =
     src/od_lib/helper_functions/extract_contributions.py: E501,
     src/od_lib/helper_functions/match_names.py: E501,

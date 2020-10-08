@@ -265,9 +265,7 @@ for (
                     "death_year": possible_matches.death_year.iloc[0],
                     "gender": possible_matches.gender.iloc[0],
                     "profession": possible_matches.profession.iloc[0],
-                    "constituency": possible_matches.constituency.iloc[
-                        0
-                    ],
+                    "constituency": possible_matches.constituency.iloc[0],
                     "aristocracy": possible_matches.aristocracy.iloc[0],
                     "prefix": possible_matches.prefix.iloc[0],
                     "academic_title": possible_matches.academic_title.iloc[0],

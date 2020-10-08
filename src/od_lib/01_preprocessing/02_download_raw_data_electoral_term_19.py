@@ -30,6 +30,8 @@ while not reached_end:
         session = regex.search(r"\d{5}(?=-data\.xml)", url).group(0)
 
         print(session)
-        with open(os.path.join(ELECTORAL_TERM_19_OUTPUT, session + ".xml"), "wb") as file:
+        with open(
+            os.path.join(ELECTORAL_TERM_19_OUTPUT, session + ".xml"), "wb"
+        ) as file:
             file.write(page.content)
     offset += 10

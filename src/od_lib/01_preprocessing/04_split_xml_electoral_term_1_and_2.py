@@ -68,11 +68,11 @@ for electoral_term_folder in sorted(os.listdir(RAW_XML)):
                 continue
             elif len(find_beginnings) > len(find_endings) and len(find_endings) == 1:
                 session_content = text_corpus[
-                    find_beginnings[0].span()[1]: find_endings[0].span()[0]
+                    find_beginnings[0].span()[1] : find_endings[0].span()[0]
                 ]
             elif len(find_beginnings) == len(find_endings):
                 for begin, end in zip(find_beginnings, find_endings):
-                    session_content += text_corpus[begin.span()[1]: end.span()[0]]
+                    session_content += text_corpus[begin.span()[1] : end.span()[0]]
             else:
                 continue
 

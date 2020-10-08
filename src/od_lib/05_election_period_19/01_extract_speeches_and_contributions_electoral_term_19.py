@@ -18,7 +18,9 @@ ELECTORAL_TERM_19_OUTPUT = path_definitions.ELECTORAL_TERM_19_STAGE_03
 CONTRIBUTIONS_OUTPUT = os.path.join(
     path_definitions.CONTRIBUTIONS_STAGE_01, "electoral_term_19"
 )
-ELECTORAL_TERM_19_SPOKEN_CONTENT = os.path.join(ELECTORAL_TERM_19_OUTPUT, "speech_content")
+ELECTORAL_TERM_19_SPOKEN_CONTENT = os.path.join(
+    ELECTORAL_TERM_19_OUTPUT, "speech_content"
+)
 MISCELLANEOUS_OUTPUT = os.path.join(
     path_definitions.CONTRIBUTIONS_MISCELLANEOUS_STAGE_01, "electoral_term_19"
 )
@@ -210,7 +212,9 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
         os.path.join(ELECTORAL_TERM_19_INPUT, session, "session_content.xml")
     )
 
-    meta_data = et.parse(os.path.join(ELECTORAL_TERM_19_INPUT, session, "meta_data.xml"))
+    meta_data = et.parse(
+        os.path.join(ELECTORAL_TERM_19_INPUT, session, "meta_data.xml")
+    )
 
     date = meta_data.getroot().get("sitzung-datum")
     # Wrong date in xml file. Fixing manually
@@ -301,7 +305,9 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
                     name = regex.sub(":", "", content.text).split()
                     first_name, last_name = get_first_last(" ".join(name[1:]))
                     position_short, position_long = get_position_short_and_long(name[0])
-                    possible_matches = politicians.loc[politicians.last_name == last_name.lower()]
+                    possible_matches = politicians.loc[
+                        politicians.last_name == last_name.lower()
+                    ]
                     length = len(np.unique(possible_matches["ui"]))
                     if length == 1:
                         speaker_id = int(possible_matches["ui"].iloc[0])
@@ -388,10 +394,7 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
                         contributions_lookup_frame,
                         text_position,
                     ) = extract(
-                        content.text,
-                        int(session),
-                        speech_content_id,
-                        text_position,
+                        content.text, int(session), speech_content_id, text_position,
                     )
                     speech_text += speech_replaced
                     contributions = pd.concat(
@@ -425,7 +428,9 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
 
     miscellaneous.to_pickle(os.path.join(MISCELLANEOUS_OUTPUT, session + ".pkl"))
 
-speech_content.to_pickle(os.path.join(ELECTORAL_TERM_19_SPOKEN_CONTENT, "speech_content.pkl"))
+speech_content.to_pickle(
+    os.path.join(ELECTORAL_TERM_19_SPOKEN_CONTENT, "speech_content.pkl")
+)
 
 contributions_lookup.to_pickle(
     os.path.join(CONTRIBUTIONS_LOOKUP, "contributions_lookup_electoral_term_19.pkl")
