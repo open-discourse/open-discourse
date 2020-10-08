@@ -10,8 +10,8 @@ DATA_CACHE = os.path.join(DATA, "02_cached")
 DATA_FINAL = os.path.join(DATA, "03_final")
 FINAL = os.path.join(DATA, "03_final")
 
-# MP_MASTER_DATA ___________________________________________________________________________________
-MP_MASTER_DATA = os.path.join(DATA_RAW, "mp_master_data", "MDB_STAMMDATEN.XML")
+# MP_BASE_DATA ___________________________________________________________________________________
+MP_BASE_DATA = os.path.join(DATA_RAW, "MP_BASE_DATA", "MDB_STAMMDATEN.XML")
 
 # RAW ______________________________________________________________________________________________
 RAW_ZIP = os.path.join(DATA_RAW, "zip")

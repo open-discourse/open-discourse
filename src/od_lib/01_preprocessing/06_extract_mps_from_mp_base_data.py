@@ -5,7 +5,7 @@ import os
 import regex
 
 # input directory
-MP_MASTER_DATA = path_definitions.MP_MASTER_DATA
+MP_BASE_DATA = path_definitions.MP_BASE_DATA
 
 # output directory
 POLITICIANS_STAGE_01 = path_definitions.POLITICIANS_STAGE_01
@@ -15,7 +15,7 @@ if not os.path.exists(POLITICIANS_STAGE_01):
     os.makedirs(POLITICIANS_STAGE_01)
 
 # read data
-tree = et.parse(MP_MASTER_DATA)
+tree = et.parse(MP_BASE_DATA)
 root = tree.getroot()
 
 # placeholder for final dataframe

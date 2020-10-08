@@ -51,11 +51,11 @@ for link in zip_links:
 
 
 # Download MDB Stammdaten.
-mp_master_data_link = "https://www.bundestag.de/resource/blob/472878/7d4d417dbb7f7bd44508b3dc5de08ae2/MdB-Stammdaten-data.zip"  # noqa: E501
+mp_base_data_link = "https://www.bundestag.de/resource/blob/472878/7d4d417dbb7f7bd44508b3dc5de08ae2/MdB-Stammdaten-data.zip"  # noqa: E501
 
-r = requests.get(mp_master_data_link)
+r = requests.get(mp_base_data_link)
 z = zipfile.ZipFile(io.BytesIO(r.content))
-mp_master_data_path = os.path.join(path_definitions.DATA_RAW, "mp_master_data")
-if not os.path.exists(mp_master_data_path):
-    os.makedirs(mp_master_data_path)
-z.extractall(mp_master_data_path)
+mp_base_data_path = os.path.join(path_definitions.DATA_RAW, "MP_BASE_DATA")
+if not os.path.exists(mp_base_data_path):
+    os.makedirs(mp_base_data_path)
+z.extractall(mp_base_data_path)

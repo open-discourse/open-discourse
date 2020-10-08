@@ -196,11 +196,8 @@ for electoral_term_folder in sorted(os.listdir(RAW_XML)):
             # Find the beginning pattern in plenar file.
             find_beginnings = list(regex.finditer(begin_pattern, text_corpus))
 
-            # If found more than once, handle depending on period.
-            if len(find_beginnings) > 1:
-                continue
-
-            elif len(find_beginnings) == 0:
+            # If found more than once or none, handle depending on period.
+            if len(find_beginnings) != 1:
                 continue
 
             begin_of_session = find_beginnings[0].span()[1]
@@ -217,9 +214,7 @@ for electoral_term_folder in sorted(os.listdir(RAW_XML)):
 
             find_endings = list(regex.finditer(appendix_pattern, session_content))
 
-            if len(find_endings) > 1:
-                continue
-            elif len(find_endings) == 0:
+            if len(find_endings) != 1:
                 continue
 
             # Appendix begins before the matched phrase.

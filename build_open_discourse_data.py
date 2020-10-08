@@ -27,8 +27,8 @@ scripts = {
     "05_split_xml_electoral_term_19": os.path.join(
         preprocessing_path, "05_split_xml_electoral_term_19.py"
     ),
-    "06_extract_mps_from_mp_master_data": os.path.join(
-        preprocessing_path, "06_extract_mps_from_mp_master_data.py"
+    "06_extract_mps_from_mp_base_data": os.path.join(
+        preprocessing_path, "06_extract_mps_from_mp_base_data.py"
     ),
     "07_create_electoral_terms": os.path.join(
         preprocessing_path, "07_create_electoral_terms.py"
