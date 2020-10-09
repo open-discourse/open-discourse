@@ -2,8 +2,8 @@ version: "2.1"
 
 services:
   database:
-    container_name: open-discourse-database
-    image: postgres:11.6
+    container_name: open-discourse-databasez
+    build: database
     volumes:
       - ./database/data:/var/lib/postgresql/data
     ports:

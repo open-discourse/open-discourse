@@ -12,4 +12,4 @@ END;
 $$
 LANGUAGE plpgsql;
 
-
+CREATE EXTENSION rum;
