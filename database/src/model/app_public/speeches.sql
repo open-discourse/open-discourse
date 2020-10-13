@@ -7,6 +7,7 @@ CREATE TABLE app_public.speeches (
 	politician_id int8 NOT NULL,
 	speech_content text NOT NULL,
 	faction_id int8 NOT NULL,
+	document_url varchar NOT NULL,
 	"position_short" varchar NOT NULL,
 	"position_long" varchar NULL,
 	"date" date NULL,

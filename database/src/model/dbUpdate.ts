@@ -26,6 +26,7 @@ const FILES = [
   ["app_public", "factions.sql"],
   ["app_public", "politicians.sql"],
   ["app_public", "speeches.sql"],
+  ["app_public", "search_speeches.sql"],
   ["app_public", "contributions.sql"],
   ["app_public", "miscellaneous.sql"],
   ["app_public", "contributions_lookup.sql"],
