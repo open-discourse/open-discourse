@@ -2,7 +2,7 @@ version: "2.1"
 
 services:
   database:
-    container_name: open-discourse-databasez
+    container_name: open-discourse-database
     build: database
     volumes:
       - ./database/data:/var/lib/postgresql/data
