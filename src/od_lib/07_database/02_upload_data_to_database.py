@@ -103,12 +103,22 @@ series = {
 politicians = politicians.append(pd.Series(series), ignore_index=True)
 
 
-def convert_date(date):
+def convert_date_politicians(date):
     try:
         date = datetime.datetime.strptime(date, "%d.%m.%Y")
         date = date.strftime("%Y-%m-%d %H:%M:%S")
         return date
     except (ValueError, TypeError):
+        return None
+
+
+def convert_date_speeches(date):
+    try:
+        date = datetime.datetime.fromtimestamp(date)
+        date = date.strftime("%Y-%m-%d %H:%M:%S")
+        return date
+    except (ValueError, TypeError) as e:
+        print(e)
         return None
 
 
@@ -133,14 +143,14 @@ if "politicians" in sys.argv or "all" in sys.argv:
 
     politicians = politicians.where((pd.notnull(politicians)), None)
 
-    politicians.birth_year = politicians.birth_year.apply(convert_date)
-    politicians.death_year = politicians.death_year.apply(convert_date)
-    politicians.mp_from = politicians.mp_from.apply(convert_date)
-    politicians.mp_until = politicians.mp_until.apply(convert_date)
-    politicians.history_from = politicians.history_from.apply(convert_date)
-    politicians.history_until = politicians.history_until.apply(convert_date)
-    politicians.function_from = politicians.function_from.apply(convert_date)
-    politicians.function_until = politicians.function_until.apply(convert_date)
+    politicians.birth_year = politicians.birth_year.apply(convert_date_politicians)
+    politicians.death_year = politicians.death_year.apply(convert_date_politicians)
+    politicians.mp_from = politicians.mp_from.apply(convert_date_politicians)
+    politicians.mp_until = politicians.mp_until.apply(convert_date_politicians)
+    politicians.history_from = politicians.history_from.apply(convert_date_politicians)
+    politicians.history_until = politicians.history_until.apply(convert_date_politicians)
+    politicians.function_from = politicians.function_from.apply(convert_date_politicians)
+    politicians.function_until = politicians.function_until.apply(convert_date_politicians)
 
     politicians.to_sql(
         "politicians", engine, if_exists="append", schema="app_public", index=False
@@ -253,6 +263,8 @@ if "spoken" in sys.argv or "all" in sys.argv:
     print("starting speeches..")
 
     speeches = pd.read_pickle(SPOKEN_CONTENT)
+
+    speeches["date"] = speeches["date"].apply(convert_date_speeches)
 
     speeches = speeches.where((pd.notnull(speeches)), None)
     speeches.politician_id = speeches.apply(check_politicians, axis=1)
