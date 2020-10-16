@@ -1,4 +1,4 @@
-import * as express from "express";
+import express from "express";
 import PgSimplifyInflectorPlugin from "@graphile-contrib/pg-simplify-inflector";
 import { postgraphile } from "postgraphile";
 
@@ -31,6 +31,11 @@ app.use([
     }
   ),
 ]);
+
+app.get("/", (req, res, next) => {
+  console.log("\x1b[33m%s\x1b[0m", "%c >> hello");
+  res.end();
+});
 
 app.listen(process.env.PORT || 8080, () =>
   console.log(
