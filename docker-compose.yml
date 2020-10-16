@@ -2,7 +2,6 @@ version: "2.1"
 
 services:
   database:
-    container_name: open-discourse-database
     build: database
     volumes:
       - ./database/data:/var/lib/postgresql/data
@@ -19,7 +18,6 @@ services:
       - POSTGRES_PASSWORD=postgres
 
   graphql:
-    command: yarn dev
     build: graphql
     volumes:
       - ./graphql/package.json:/srv/package.json
@@ -29,7 +27,7 @@ services:
       - POSTGRES_DB_NAME=next
       - POSTGRES_DB_USER=postgres
       - POSTGRES_DB_PASSWORD=postgres
-      - POSTGRES_DB_HOST=open-discourse-database
+      - POSTGRES_DB_HOST=database
       - POSTGRES_DB_PORT=5432
       - ENABLE_GRAPHIQL=true
       - CORS_ORIGIN=http://localhost:5000
