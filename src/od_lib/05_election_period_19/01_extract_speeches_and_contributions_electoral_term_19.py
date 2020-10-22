@@ -21,9 +21,6 @@ CONTRIBUTIONS_OUTPUT = os.path.join(
 ELECTORAL_TERM_19_SPOKEN_CONTENT = os.path.join(
     ELECTORAL_TERM_19_OUTPUT, "speech_content"
 )
-MISCELLANEOUS_OUTPUT = os.path.join(
-    path_definitions.CONTRIBUTIONS_MISCELLANEOUS_STAGE_01, "electoral_term_19"
-)
 CONTRIBUTIONS_LOOKUP = path_definitions.CONTRIBUTIONS_LOOKUP
 
 if not os.path.exists(ELECTORAL_TERM_19_OUTPUT):
@@ -32,9 +29,6 @@ if not os.path.exists(ELECTORAL_TERM_19_OUTPUT):
 # Contributions are saved to the normale contributions folder not the seperate electoral_term_19 folders  # noqa: E501
 if not os.path.exists(CONTRIBUTIONS_OUTPUT):
     os.makedirs(CONTRIBUTIONS_OUTPUT)
-
-if not os.path.exists(MISCELLANEOUS_OUTPUT):
-    os.makedirs(MISCELLANEOUS_OUTPUT)
 
 if not os.path.exists(CONTRIBUTIONS_LOOKUP):
     os.makedirs(CONTRIBUTIONS_LOOKUP)
@@ -183,18 +177,6 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
         continue
 
     contributions = pd.DataFrame(
-        {
-            "id": [],
-            "type": [],
-            "name": [],
-            "faction": [],
-            "constituency": [],
-            "content": [],
-            "text_position": [],
-        }
-    )
-
-    miscellaneous = pd.DataFrame(
         {
             "id": [],
             "type": [],
@@ -390,7 +372,6 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
                 elif tag == "kommentar":
                     (
                         contribtuions_frame,
-                        miscellaneous_frame,
                         speech_replaced,
                         contributions_lookup_frame,
                         text_position,
@@ -404,9 +385,6 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
                     speech_text += speech_replaced
                     contributions = pd.concat(
                         [contributions, contribtuions_frame], sort=False
-                    )
-                    miscellaneous = pd.concat(
-                        [miscellaneous, miscellaneous_frame], sort=False
                     )
                     contributions_lookup = pd.concat(
                         [contributions_lookup, contributions_lookup_frame], sort=False
@@ -430,8 +408,6 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
             speech_content_id += 1
 
     contributions.to_pickle(os.path.join(CONTRIBUTIONS_OUTPUT, session + ".pkl"))
-
-    miscellaneous.to_pickle(os.path.join(MISCELLANEOUS_OUTPUT, session + ".pkl"))
 
 speech_content.to_pickle(
     os.path.join(ELECTORAL_TERM_19_SPOKEN_CONTENT, "speech_content.pkl")

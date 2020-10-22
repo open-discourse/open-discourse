@@ -11,7 +11,6 @@ engine = create_engine("postgresql://postgres:postgres@localhost:5432/next")
 # Load Final Data
 
 CONTRIBUTIONS = os.path.join(path_definitions.DATA_FINAL, "contributions.pkl")
-MISCELLANEOUS = os.path.join(path_definitions.DATA_FINAL, "miscellaneous.pkl")
 SPOKEN_CONTENT = os.path.join(path_definitions.DATA_FINAL, "speech_content.pkl")
 FACTIONS = os.path.join(path_definitions.DATA_FINAL, "factions.pkl")
 PEOPLE = os.path.join(path_definitions.DATA_FINAL, "politicians.csv")
@@ -271,17 +270,6 @@ if "contributions" in sys.argv or "all" in sys.argv:
 
     contributions.to_sql(
         "contributions", engine, if_exists="append", schema="app_public", index=False
-    )
-
-if "miscellaneous" in sys.argv or "all" in sys.argv:
-    print("starting miscellaneous..")
-
-    miscellaneous = pd.read_pickle(MISCELLANEOUS)
-
-    miscellaneous = miscellaneous.where((pd.notnull(miscellaneous)), None)
-
-    miscellaneous.to_sql(
-        "miscellaneous", engine, if_exists="append", schema="app_public", index=False
     )
 
 if "contributions_lookup" in sys.argv or "all" in sys.argv:

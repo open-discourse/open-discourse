@@ -209,7 +209,6 @@ The Input and Output paths start at the project root
 
   - Speeches are extracted from the XML Structure
   - Searches for Contributions in the Speeches using Regex Pattern
-  - Text in Braces that can't be assigned to a Contribution, are saved as Miscellaneous
   - The Script replaces Contributions in the speech_content with an Identifier
   - The extract_contribution funciton can be found in [helper_functions/extract_contributions.py](./od_lib/helper_functions/extract_contributions.py)
 
@@ -219,7 +218,6 @@ The Input and Output paths start at the project root
   - Output:
     - `./data/02_cached/electoral_term_19/stage_03/speech_content/speech_content.pkl`
     - `./data/02_cached/contributions/stage_01/*`
-    - `./data/02_cached/miscellaneous/stage_01/*`
     - `./data/03_final/contributions_lookup.pkl`
   - File Format:
     - speech_content:
@@ -233,11 +231,6 @@ The Input and Output paths start at the project root
       | 0 | Beifall | | SPD | | | 0 |
       | 1 | Personen-Einruf | Hans Müller | AfD | | Fisch! | 0 |
       | ... | ... | ... | ... | ... | ... | ... |
-    - miscellaneous:
-      | id | name | faction | content | position |
-      | --- | --- | --- | --- | --- |
-      | 0 | | | Links | 0 |
-      | ... | ... | ... | ... | ... |
 
 ## Contributions
 
@@ -246,7 +239,6 @@ The Input and Output paths start at the project root
 - Function:
 
   - Searches for Contributions in the Speeches using Regex Pattern
-  - Text in Braces that can't be assigned to a Contribution, are saved as Miscellaneous
   - The Script replaces Contributions in the speech_content with an Identifier
   - The extract_contribution funciton can be found in [helper_functions/extract_contributions.py](./od_lib/helper_functions/extract_contributions.py)
 
@@ -256,7 +248,6 @@ The Input and Output paths start at the project root
   - Output:
     - `./data/02_cached/speech_content/stage_04/*`
     - `./data/02_cached/contributions/stage_01/*`
-    - `./data/02_cached/miscellaneous/stage_01/*`
     - `./data/03_final/contributions_lookup.pkl`
   - File Format:
     - speech_content:
@@ -270,11 +261,6 @@ The Input and Output paths start at the project root
       | 0 | Beifall | | SPD | | | 0 |
       | 1 | Personen-Einruf | Hans Müller | AfD | | Fisch! | 0 |
       | ... | ... | ... | ... | ... | ... | ... |
-    - miscellaneous:
-      | id | name_raw | faction | content | position |
-      | --- | --- | --- | --- | --- |
-      | 0 | | | Links | 0 |
-      | ... | ... | ... | ... | ... |
 
 ### 2. [Clean Contributions](./od_lib/05_contributions/02_clean_contributions.py)
 
@@ -321,7 +307,7 @@ The Input and Output paths start at the project root
 
 - Function:
 
-  - Concats every speech_content DataFrame into one single DataFrame. Does this as well for contributions and miscellaneous
+  - Concats every speech_content DataFrame into one single DataFrame. Does this for contributions as well
 
 - Attributes:
 
@@ -330,11 +316,9 @@ The Input and Output paths start at the project root
     - `./data/02_cached/speech_content/stage_04/*`
     - `./data/02_cached/electoral_term_19/stage_03/speech_content/speech_content.pkl`
     - `./data/02_cached/contributions/stage_03/*`
-    - `./data/02_cached/miscellaneous/stage_01/*`
   - Output:
     - `./data/03_final/speech_content.pkl`
     - `./data/03_final/contributions.pkl`
-    - `./data/03_final/miscellaneous.pkl`
 
 ### 2. [Upload Data to Database](./od_lib/07_database/02_upload_data_to_database.py)
 

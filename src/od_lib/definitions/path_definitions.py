@@ -32,15 +32,9 @@ CONTRIBUTIONS_STAGE_01 = os.path.join(CONTRIBUTIONS, "stage_01")
 CONTRIBUTIONS_STAGE_02 = os.path.join(CONTRIBUTIONS, "stage_02")
 CONTRIBUTIONS_STAGE_03 = os.path.join(CONTRIBUTIONS, "stage_03")
 CONTRIBUTIONS_STAGE_04 = os.path.join(CONTRIBUTIONS, "stage_04")
-CONTRIBUTIONS_MISCELLANEOUS_STAGE_01 = os.path.join(
-    DATA_CACHE, "miscellaneous", "stage_01"
-)
 
 CONTRIBUTIONS_FINAL = os.path.join(CONTRIBUTIONS, "final")
 
-# MISCELLANEOUS ____________________________________________________________________________________
-MISCELLANEOUS = os.path.join(DATA_CACHE, "miscellaneous")
-MISCELLANEOUS_STAGE_01 = os.path.join(MISCELLANEOUS, "stage_01")
 
 # POLITICIANS ______________________________________________________________________________________
 POLITICIANS = os.path.join(DATA_CACHE, "politicians")
