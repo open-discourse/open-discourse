@@ -27,7 +27,6 @@ const FILES = [
   ["app_public", "politicians.sql"],
   ["app_public", "speeches.sql"],
   ["app_public", "contributions.sql"],
-  ["app_public", "miscellaneous.sql"],
   ["app_public", "contributions_lookup.sql"],
   ["app_public", "__permission.sql"],
 ];

@@ -12,12 +12,10 @@ RAW_XML = path_definitions.RAW_XML
 SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_04
 SPEECH_CONTENT_INPUT_2 = path_definitions.ELECTORAL_TERM_19_STAGE_03
 CONTRIBUTIONS_INPUT = path_definitions.CONTRIBUTIONS_STAGE_03
-MISCELLANEOUS_INPUT = path_definitions.MISCELLANEOUS_STAGE_01
 
 # output directory
 SPEECH_CONTENT_OUTPUT = path_definitions.FINAL
 CONTRIBUTIONS_OUTPUT = path_definitions.FINAL
-MISCELLANEOUS_OUTPUT = path_definitions.FINAL
 
 if not os.path.exists(SPEECH_CONTENT_OUTPUT):
     os.makedirs(SPEECH_CONTENT_OUTPUT)
@@ -25,16 +23,13 @@ if not os.path.exists(SPEECH_CONTENT_OUTPUT):
 if not os.path.exists(CONTRIBUTIONS_OUTPUT):
     os.makedirs(CONTRIBUTIONS_OUTPUT)
 
-if not os.path.exists(MISCELLANEOUS_OUTPUT):
-    os.makedirs(MISCELLANEOUS_OUTPUT)
-
-# spoken content_
+# spoken content
 
 # Placeholder for concating speeches DF of all sessions.
 speech_content_01_18 = pd.DataFrame()
 
 
-# Walk over all legislature periods. ___________________________________________
+# Walk over all legislature periods.
 for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
     electoral_term_folder_path = os.path.join(
         SPEECH_CONTENT_INPUT, electoral_term_folder
@@ -239,47 +234,4 @@ concat_contributions_df = concat_contributions_df.astype(
 
 concat_contributions_df.to_pickle(
     os.path.join(CONTRIBUTIONS_OUTPUT, "contributions.pkl")
-)
-
-# Placeholder for concating contributions DF of all sessions.
-concat_miscellaneous_df = pd.DataFrame()
-
-# Walk over all legislature periods. ___________________________________________
-for electoral_term_folder in sorted(os.listdir(MISCELLANEOUS_INPUT)):
-    electoral_term_folder_path = os.path.join(
-        MISCELLANEOUS_INPUT, electoral_term_folder
-    )
-
-    if not os.path.isdir(electoral_term_folder_path):
-        continue
-    elif electoral_term_folder == ".DS_Store":
-        continue
-
-    for contributions_file in sorted(os.listdir(electoral_term_folder_path)):
-        if ".pkl" not in contributions_file:
-            continue
-
-        print(contributions_file)
-
-        contributions = pd.read_pickle(
-            os.path.join(electoral_term_folder_path, contributions_file)
-        )
-
-        concat_miscellaneous_df = pd.concat([concat_miscellaneous_df, contributions])
-
-
-concat_miscellaneous_df = concat_miscellaneous_df.loc[
-    :, ["id", "text_position", "content"],
-]
-
-concat_miscellaneous_df = concat_miscellaneous_df.rename(columns={"id": "speech_id"})
-
-concat_miscellaneous_df.insert(0, "id", list(range(len(concat_miscellaneous_df))))
-
-concat_miscellaneous_df = concat_miscellaneous_df.astype(
-    {"id": "int64", "speech_id": "int32", "text_position": "int32", "content": "object"}
-)
-
-concat_miscellaneous_df.to_pickle(
-    os.path.join(MISCELLANEOUS_OUTPUT, "miscellaneous.pkl")
 )
