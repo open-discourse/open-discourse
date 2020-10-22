@@ -277,9 +277,8 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
                 )
 
             speech_text = ""
-
+            text_position = 0
             for content in speech[1:]:
-                text_position = 0
                 tag = content.tag
                 if tag == "name":
                     speech_series = pd.Series(
@@ -322,6 +321,7 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
                         if length == 1:
                             speaker_id = int(possible_matches["ui"].iloc[0])
                     speech_text = ""
+                    text_position = 0
                 elif tag == "p" and content.get("klasse") == "redner":
                     speech_series = pd.Series(
                         {
@@ -342,6 +342,7 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
                     )
                     speech_content_id += 1
                     speech_text = ""
+                    text_position = 0
                     speaker = content.find("redner")
                     speaker_id = int(speaker.get("id"))
                     possible_matches = politicians.loc[politicians.ui == speaker_id]
@@ -394,7 +395,11 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
                         contributions_lookup_frame,
                         text_position,
                     ) = extract(
-                        content.text, int(session), speech_content_id, text_position,
+                        content.text,
+                        int(session),
+                        speech_content_id,
+                        text_position,
+                        False,
                     )
                     speech_text += speech_replaced
                     contributions = pd.concat(

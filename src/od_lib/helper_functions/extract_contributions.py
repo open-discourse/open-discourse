@@ -241,7 +241,14 @@ def extract_initiators(
                 constituency = ""
             # Add an entry to the frame
             frame = add_entry(
-                frame, identity, type, name_raw, faction, constituency, "", text_position,
+                frame,
+                identity,
+                type,
+                name_raw,
+                faction,
+                constituency,
+                "",
+                text_position,
             )
 
     # Create the first_person_search_Pattern (looking for key und)
@@ -272,7 +279,14 @@ def extract_initiators(
                 constituency = ""
             # Add an entry to the frame
             frame = add_entry(
-                frame, identity, type, name_raw, faction, constituency, "", text_position,
+                frame,
+                identity,
+                type,
+                name_raw,
+                faction,
+                constituency,
+                "",
+                text_position,
             )
 
     # Iterate over all parties
@@ -780,7 +794,9 @@ def extract_miscellaneous(
     return frame, text
 
 
-def extract(speech_text, session, identity, text_position=0):
+def extract(
+    speech_text, session, identity, text_position=0, text_position_reversed=True
+):
     electoral_term = session // 1000
 
     # Match all brackets
@@ -822,7 +838,9 @@ def extract(speech_text, session, identity, text_position=0):
         # Save the bracket text
         bracket_text = bracket.group()
         # Save deleted text to DataFrame
-        contributions_lookup["text_position"].append(reversed_text_position)
+        contributions_lookup["text_position"].append(
+            reversed_text_position if text_position_reversed else text_position
+        )
         contributions_lookup["deleted_text"].append(bracket_text)
         contributions_lookup["speech_id"].append(identity)
 
@@ -832,7 +850,7 @@ def extract(speech_text, session, identity, text_position=0):
         speech_text = (
             speech_text[: deletion_span[0]]
             + "{"
-            + str(reversed_text_position)
+            + str(reversed_text_position if text_position_reversed else text_position)
             + "}"
             + speech_text[deletion_span[1] :]
         )
@@ -855,7 +873,7 @@ def extract(speech_text, session, identity, text_position=0):
                 electoral_term,
                 session,
                 identity,
-                reversed_text_position,
+                reversed_text_position if text_position_reversed else text_position,
                 frame,
             )
 
@@ -864,7 +882,7 @@ def extract(speech_text, session, identity, text_position=0):
             electoral_term,
             session,
             identity,
-            reversed_text_position,
+            reversed_text_position if text_position_reversed else text_position,
             frame,
         )
 
