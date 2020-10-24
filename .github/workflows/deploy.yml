@@ -1,0 +1,40 @@
+name: build
+
+on:
+  push:
+    branches:
+      - OD-7-deploy-database-and-graphql-docker-containers-to-digital-ocean
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Use Node.js 13.10
+        uses: actions/setup-node@v1
+        with:
+          node-version: "13.10"
+      - name: Install yarn and run unittest
+        run: |
+          yarn
+          yarn test
+        env:
+          CI: true
+      - name: Publish GraphQl to Github Packages Registry
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: open-discourse/open-discourse/graphql
+          registry: docker.pkg.github.com
+          username: ${{ secrets.DEPLOYMENT_USERNAME }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          dockerfile: graphql/Dockerfile
+          tags: latest
+      - name: Publish Database to Github Packages Registry
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: open-discourse/open-discourse/graphql
+          registry: docker.pkg.github.com
+          username: ${{ secrets.DEPLOYMENT_USERNAME }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          dockerfile: datbase/Dockerfile
+          tags: latest
