@@ -10,10 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: Use Node.js 13.10
-        uses: actions/setup-node@v1
-        with:
-          node-version: "13.10"
       - name: Publish GraphQl to Github Packages Registry
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
@@ -30,5 +26,5 @@ jobs:
           registry: docker.pkg.github.com
           username: ${{ secrets.DEPLOYMENT_USERNAME }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          dockerfile: datbase/Dockerfile
+          dockerfile: database/Dockerfile
           tags: latest
