@@ -1,4 +1,4 @@
-import express from "express";
+import express = require("express");
 import PgSimplifyInflectorPlugin from "@graphile-contrib/pg-simplify-inflector";
 import { postgraphile } from "postgraphile";
 
