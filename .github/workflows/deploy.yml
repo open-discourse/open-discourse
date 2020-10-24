@@ -22,7 +22,7 @@ jobs:
       - name: Publish Database to Github Packages Registry
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
-          name: open-discourse/open-discourse/graphql
+          name: open-discourse/open-discourse/database
           registry: docker.pkg.github.com
           username: ${{ secrets.DEPLOYMENT_USERNAME }}
           password: ${{ secrets.GITHUB_TOKEN }}
