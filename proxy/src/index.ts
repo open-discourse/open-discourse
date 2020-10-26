@@ -27,7 +27,7 @@ app.get("/", async function (req, res) {
   }","positionShortQuery":"${positionShortQuery || ""}"${
     fromDate ? `,"fromDate":"${fromDate}"` : ""
   }${toDate ? `,"toDate":"${toDate}"` : ""}}`;
-  const query = `{"operationName":"Search",${variables},"query":"query Search($contentQuery: String, $factionIdQuery: BigInt, $politicianIdQuery: BigInt, $positionShortQuery: String, $fromDate: Date, $toDate: Date, $first: Int!) {\\n searchSpeeches(first: $first, politicianIdQuery: $politicianIdQuery, positionShortQuery: $positionShortQuery, factionIdQuery: $factionIdQuery, fromDate: $fromDate, toDate: $toDate, contentQuery: $contentQuery) {\\n rank\\n id\\n firstName\\n lastName\\n positionShort\\n date\\n  documentUrl\\n speechContent\\n}\\n}\\n"}`;
+  const query = `{"operationName":"Search",${variables},"query":"query Search($contentQuery: String, $factionIdQuery: BigInt, $politicianIdQuery: BigInt, $positionShortQuery: String, $fromDate: Date, $toDate: Date, $first: Int!) {\\n searchSpeeches(first: $first, politicianIdQuery: $politicianIdQuery, positionShortQuery: $positionShortQuery, factionIdQuery: $factionIdQuery, fromDate: $fromDate, toDate: $toDate, contentQuery: $contentQuery) {\\n rank\\n id\\n firstName\\n lastName\\n positionShort\\n date\\n  documentUrl\\n speechContent\\n abbreviation\\n}\\n}\\n"}`;
   console.log(query);
   console.log(variables);
   const result = await fetch(process.env.GRAPHQL_ENDPOINT, {
