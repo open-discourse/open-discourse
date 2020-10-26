@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "db:update:local": "ts-node -r dotenv/config ./src/model/dbUpdate.ts dotenv_config_path=./.env.local",
+    "db:update:digitalocean": "ts-node -r dotenv/config ./src/model/dbUpdate.ts dotenv_config_path=./.env.digitalocean",
     "db:dump:schema": "pg_dump -s -O -f schema.sql postgres://postgres:postgres@localhost:5432/next",
     "db:dump:data": "pg_dump --column-inserts --data-only -f data.sql postgres://postgres:postgres@localhost:5432/next",
     "format": "prettier --write \"./**/*.{ts,js,json,md}\" --ignore-path ../.prettierignore",

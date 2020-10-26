@@ -32,15 +32,4 @@ app.use([
   ),
 ]);
 
-app.get("/", (req, res, next) => {
-  console.log("\x1b[33m%s\x1b[0m", "%c >> hello");
-  res.end();
-});
-
-app.listen(process.env.PORT || 8080, () =>
-  console.log(
-    "\x1b[33m%s\x1b[0m",
-    ">> server is ready, listening on port",
-    process.env.PORT || 8080
-  )
-);
+app.listen(8080, "0.0.0.0");
