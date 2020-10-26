@@ -4,8 +4,8 @@ COPY . /srv
 
 WORKDIR /srv/
 
-RUN yarn
+RUN yarn && yarn build
 
 EXPOSE 5000
 
-CMD ["yarn", "dev"]
+CMD ["yarn", "start"]

@@ -18,6 +18,7 @@ services:
       - POSTGRES_PASSWORD=postgres
 
   graphql:
+    container_name: od-graphql
     build: graphql
     volumes:
       - ./graphql/package.json:/srv/package.json
@@ -35,4 +36,18 @@ services:
       database:
         condition: service_healthy
     ports:
-      - "8080:8080"
+      - "5000:5000"
+
+  proxy:
+    build: proxy
+    volumes:
+      - ./proxy/package.json:/srv/package.json
+      - ./proxy/yarn.lock:/srv/yarn.lock
+      - ./proxy/src/:/srv/src/
+    environment:
+      - GRAPHQL_ENDPOINT=http://od-graphql:5000/graphql
+    depends_on:
+      graphql:
+        condition: service_started
+    ports:
+      - "80:80"
