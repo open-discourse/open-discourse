@@ -241,7 +241,14 @@ def extract_initiators(
                 constituency = ""
             # Add an entry to the frame
             frame = add_entry(
-                frame, identity, type, name_raw, faction, constituency, "", text_position,
+                frame,
+                identity,
+                type,
+                name_raw,
+                faction,
+                constituency,
+                "",
+                text_position,
             )
 
     # Create the first_person_search_Pattern (looking for key und)
@@ -272,7 +279,14 @@ def extract_initiators(
                 constituency = ""
             # Add an entry to the frame
             frame = add_entry(
-                frame, identity, type, name_raw, faction, constituency, "", text_position,
+                frame,
+                identity,
+                type,
+                name_raw,
+                faction,
+                constituency,
+                "",
+                text_position,
             )
 
     # Iterate over all parties

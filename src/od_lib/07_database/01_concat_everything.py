@@ -28,13 +28,13 @@ if not os.path.exists(CONTRIBUTIONS_OUTPUT):
 if not os.path.exists(MISCELLANEOUS_OUTPUT):
     os.makedirs(MISCELLANEOUS_OUTPUT)
 
-# spoken content_
+# spoken content
 
 # Placeholder for concating speeches DF of all sessions.
 speech_content_01_18 = pd.DataFrame()
 
 
-# Walk over all legislature periods. ___________________________________________
+# Walk over all legislature periods.
 for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
     electoral_term_folder_path = os.path.join(
         SPEECH_CONTENT_INPUT, electoral_term_folder
@@ -78,11 +78,11 @@ speech_content_01_18 = speech_content_01_18.loc[
 speech_content_01_18 = speech_content_01_18.rename(columns={"speech_id": "id"})
 
 
-speech_content_01_18.first_name = speech_content_01_18.first_name.apply(" ".join)
+speech_content_01_18["first_name"] = speech_content_01_18["first_name"].apply(" ".join)
 
-speech_content_01_18.id = list(range(len(speech_content_01_18)))
+speech_content_01_18["id"] = list(range(len(speech_content_01_18)))
 
-speech_content_01_18.session = speech_content_01_18.session.str.replace(r"\.pkl", "")
+speech_content_01_18["session"] = speech_content_01_18["session"].str.replace(r"\.pkl", "")
 
 
 meta_data = {}
@@ -90,7 +90,7 @@ meta_data = {}
 # Open every xml plenar file in every legislature period.
 for electoral_term_folder in sorted(os.listdir(RAW_XML)):
     electoral_term_folder_path = os.path.join(RAW_XML, electoral_term_folder)
-    # Skip e.g. the .DS_Store file.  ___________________________________________
+    # Skip e.g. the .DS_Store file.
     if not os.path.isdir(electoral_term_folder_path):
         continue
 
@@ -121,16 +121,24 @@ for electoral_term_folder in sorted(os.listdir(RAW_XML)):
             meta_data[document_number] = date
 
 speech_content_01_18.insert(1, "electoral_term", -1)
-speech_content_01_18["electoral_term"] = speech_content_01_18.session.apply(
-    lambda x: int(str(x)[:2])
+speech_content_01_18.insert(4, "document_url", "")
+speech_content_01_18["electoral_term"] = speech_content_01_18["session"].apply(
+    lambda x: str(x)[:2]
 )
-speech_content_01_18.session = speech_content_01_18.session.astype("int32")
-speech_content_01_18["date"] = speech_content_01_18.session.apply(meta_data.get)
-speech_content_01_18["session"] = speech_content_01_18.session.apply(
-    lambda x: int(str(x)[-3:])
+speech_content_01_18["session"] = speech_content_01_18["session"].astype("int32")
+speech_content_01_18["date"] = speech_content_01_18["session"].apply(meta_data.get)
+speech_content_01_18["session"] = speech_content_01_18["session"].apply(
+    lambda x: str(x)[-3:]
 )
-speech_content_01_18.session = speech_content_01_18.session.astype("int32")
-speech_content_01_18.electoral_term = speech_content_01_18.electoral_term.astype(
+
+speech_content_01_18["document_url"] = speech_content_01_18.apply(
+    lambda row: "https://dip21.bundestag.de/dip21/btp/{0}/{0}{1}.pdf".format(
+        row["electoral_term"], row["session"]
+    ), axis=1
+)
+
+speech_content_01_18["session"] = speech_content_01_18["session"].astype("int32")
+speech_content_01_18["electoral_term"] = speech_content_01_18["electoral_term"].astype(
     "int32"
 )
 
@@ -156,26 +164,34 @@ speech_content_19 = speech_content_19.loc[
 
 
 speech_content_19.insert(1, "electoral_term", -1)
-speech_content_19["electoral_term"] = speech_content_19.session.apply(
-    lambda x: int(str(x)[:2])
+speech_content.insert(2, "document_url", "")
+
+speech_content_19["electoral_term"] = speech_content_19["session"].apply(
+    lambda x: str(x)[:2]
 )
-speech_content_19["session"] = speech_content_19.session.apply(
-    lambda x: int(str(x)[-3:])
+speech_content_19["session"] = speech_content_19["session"].apply(
+    lambda x: str(x)[-3:]
 )
-speech_content_19.electoral_term = speech_content_19.electoral_term.astype("int32")
-speech_content_19.session = speech_content_19.session.astype("int32")
+
+speech_content_19["document_url"] = speech_content_19.apply(
+    lambda row: "https://dip21.bundestag.de/dip21/btp/{0}/{0}{1}.pdf".format(
+        row["electoral_term"], row["session"]
+    ), axis=1
+)
+
+speech_content_19["electoral_term"] = speech_content_19["electoral_term"].astype("int32")
+speech_content_19["session"] = speech_content_19["session"].astype("int32")
 
 speech_content = pd.concat([speech_content_01_18, speech_content_19])
 
-
-# save data._____
+# save data.
 
 speech_content.to_pickle(os.path.join(SPEECH_CONTENT_OUTPUT, "speech_content.pkl"))
 
 # Placeholder for concating contributions DF of all sessions.
 concat_contributions_df = pd.DataFrame()
 
-# Walk over all legislature periods. ___________________________________________
+# Walk over all legislature periods.
 for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
     electoral_term_folder_path = os.path.join(
         CONTRIBUTIONS_INPUT, electoral_term_folder
@@ -244,7 +260,7 @@ concat_contributions_df.to_pickle(
 # Placeholder for concating contributions DF of all sessions.
 concat_miscellaneous_df = pd.DataFrame()
 
-# Walk over all legislature periods. ___________________________________________
+# Walk over all legislature periods.
 for electoral_term_folder in sorted(os.listdir(MISCELLANEOUS_INPUT)):
     electoral_term_folder_path = os.path.join(
         MISCELLANEOUS_INPUT, electoral_term_folder

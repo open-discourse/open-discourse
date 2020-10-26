@@ -1,0 +1,11 @@
+FROM node:12
+
+COPY . /srv
+
+WORKDIR /srv/
+
+RUN yarn && yarn build
+
+EXPOSE 80
+
+CMD ["yarn", "start"]

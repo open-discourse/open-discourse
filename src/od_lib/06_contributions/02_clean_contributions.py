@@ -124,7 +124,9 @@ for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
         )
 
         # Replace more than two whitespaces with one.
-        contributions.name_raw = contributions.name_raw.str.replace(r"  +", " ", regex=True)
+        contributions.name_raw = contributions.name_raw.str.replace(
+            r"  +", " ", regex=True
+        )
 
         # Graf has to be checked again, as this is also a last_name.
         # Titles have to be added: Like e.c. or when mistakes occur like b.c.

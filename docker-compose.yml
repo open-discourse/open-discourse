@@ -2,8 +2,7 @@ version: "2.1"
 
 services:
   database:
-    container_name: open-discourse-database
-    image: postgres:11.6
+    build: database
     volumes:
       - ./database/data:/var/lib/postgresql/data
     ports:
@@ -19,7 +18,7 @@ services:
       - POSTGRES_PASSWORD=postgres
 
   graphql:
-    command: yarn dev
+    container_name: od-graphql
     build: graphql
     volumes:
       - ./graphql/package.json:/srv/package.json
@@ -29,7 +28,7 @@ services:
       - POSTGRES_DB_NAME=next
       - POSTGRES_DB_USER=postgres
       - POSTGRES_DB_PASSWORD=postgres
-      - POSTGRES_DB_HOST=open-discourse-database
+      - POSTGRES_DB_HOST=database
       - POSTGRES_DB_PORT=5432
       - ENABLE_GRAPHIQL=true
       - CORS_ORIGIN=http://localhost:5000
@@ -38,3 +37,17 @@ services:
         condition: service_healthy
     ports:
       - "5000:5000"
+
+  proxy:
+    build: proxy
+    volumes:
+      - ./proxy/package.json:/srv/package.json
+      - ./proxy/yarn.lock:/srv/yarn.lock
+      - ./proxy/src/:/srv/src/
+    environment:
+      - GRAPHQL_ENDPOINT=http://od-graphql:5000/graphql
+    depends_on:
+      graphql:
+        condition: service_started
+    ports:
+      - "80:80"
