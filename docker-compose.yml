@@ -46,6 +46,7 @@ services:
       - ./proxy/src/:/srv/src/
     environment:
       - GRAPHQL_ENDPOINT=http://od-graphql:5000/graphql
+      - CACHE_EXPIRATION=1000
     depends_on:
       graphql:
         condition: service_started
