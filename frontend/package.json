@@ -1,0 +1,28 @@
+{
+  "name": "open-discourse-ui",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@bit/limebit.chakra-ui-recipes.error-toast": "^0.0.1",
+    "@bit/limebit.chakra-ui-recipes.loading-spinner": "^0.0.1",
+    "@bit/limebit.chakra-ui-recipes.react-table": "^0.0.1",
+    "@chakra-ui/core": "1.0.0-rc.3",
+    "@chakra-ui/icons": "1.0.0-rc.3",
+    "next": "9.4.4",
+    "query-string": "6.13.1",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
+    "react-select": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "14.0.24",
+    "@types/react": "16.9.43",
+    "@types/react-select": "^3.0.22",
+    "typescript": "3.9.7"
+  }
+}
