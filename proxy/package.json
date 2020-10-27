@@ -9,9 +9,11 @@
     "build": "tsc"
   },
   "dependencies": {
+    "@types/cors": "^2.8.8",
     "@types/memory-cache": "^0.2.1",
     "@types/node": "14.11.8",
     "@types/node-fetch": "^2.5.7",
+    "cors": "^2.8.5",
     "express": "4.17.1",
     "memory-cache": "^0.2.0",
     "node-fetch": "^2.6.1"

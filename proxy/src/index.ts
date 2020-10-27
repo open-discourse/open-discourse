@@ -1,8 +1,11 @@
 import express = require("express");
-import fetch from "node-fetch";
 import mcache from "memory-cache";
+import fetch from "node-fetch";
+import cors from "cors";
 
 const app = express();
+
+app.use(cors());
 
 const cache = (duration: number) => {
   return (

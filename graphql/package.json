@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpileOnly src/index.ts",
     "start": "node dist/index.js",
-    "heroku-prebuild": "echo This runs before Heroku installs dependencies.",
     "build": "tsc"
   },
   "dependencies": {
