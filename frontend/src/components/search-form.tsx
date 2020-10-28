@@ -81,23 +81,10 @@ export const SearchForm: React.FC<FormParams> = () => {
     );
   };
 
-  const filterFactions = (inputValue: string) => {
-    return convertedFactions.filter((faction) =>
-      faction.label.toLowerCase().includes(inputValue.toLowerCase())
-    );
-  };
-
   // Timeout for performance. jeez...
   const loadOptionsPoliticians = (inputValue: string, callback: any) => {
     setTimeout(() => {
       callback(filterPoliticians(inputValue));
-    }, 1000);
-  };
-
-  // Timeout for performance. jeez...
-  const loadOptionsFactions = (inputValue: string, callback: any) => {
-    setTimeout(() => {
-      callback(filterFactions(inputValue));
     }, 1000);
   };
 
@@ -123,6 +110,7 @@ export const SearchForm: React.FC<FormParams> = () => {
               onChange={(event) => {
                 setFormParams({
                   ...formParams,
+                  // event type is not correct
                   politicianIdQuery: (event as any)["value"] as number,
                 });
               }}
@@ -135,13 +123,12 @@ export const SearchForm: React.FC<FormParams> = () => {
                   }
                 : {})}
             />
-            <AsyncSelect
-              cacheOptions
-              defaultOptions
-              loadOptions={loadOptionsFactions}
+            <Select
+              options={convertedFactions}
               onChange={(event) => {
                 setFormParams({
                   ...formParams,
+                  // event type is not correct
                   factionIdQuery: (event as any)["value"] as number,
                 });
               }}
@@ -158,6 +145,7 @@ export const SearchForm: React.FC<FormParams> = () => {
               onChange={(event) => {
                 setFormParams({
                   ...formParams,
+                  // event type is not correct
                   positionShortQuery: (event as any)["value"] as string,
                 });
               }}
