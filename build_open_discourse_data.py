@@ -16,10 +16,10 @@ if not os.path.exists("./logs/"):
 
 scripts = {
     # Preprocessing
-    # "01_download_raw_data": os.path.join(preprocessing_path, "01_download_raw_data.py"),
-    # "02_download_raw_data_electoral_term_19": os.path.join(
-    #     preprocessing_path, "02_download_raw_data_electoral_term_19.py"
-    # ),
+    "01_download_raw_data": os.path.join(preprocessing_path, "01_download_raw_data.py"),
+    "02_download_raw_data_electoral_term_19": os.path.join(
+        preprocessing_path, "02_download_raw_data_electoral_term_19.py"
+    ),
     "03_split_xml": os.path.join(preprocessing_path, "03_split_xml.py"),
     "04_split_xml_electoral_term_1_and_2": os.path.join(
         preprocessing_path, "04_split_xml_electoral_term_1_and_2.py"
