@@ -11,9 +11,6 @@ SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_03
 # output directory
 SPEECH_CONTENT_OUTPUT = path_definitions.SPEECH_CONTENT_STAGE_04
 CONTRIBUTIONS_OUTPUT = path_definitions.CONTRIBUTIONS_STAGE_01
-CONTRIBUTIONS_MISCELLANEOUS_STAGE_01 = (
-    path_definitions.CONTRIBUTIONS_MISCELLANEOUS_STAGE_01
-)
 CONTRIBUTIONS_LOOKUP = path_definitions.CONTRIBUTIONS_LOOKUP
 
 
@@ -59,13 +56,6 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
     if not os.path.exists(os.path.join(CONTRIBUTIONS_OUTPUT, electoral_term_folder)):
         os.makedirs(os.path.join(CONTRIBUTIONS_OUTPUT, electoral_term_folder))
 
-    if not os.path.exists(
-        os.path.join(CONTRIBUTIONS_MISCELLANEOUS_STAGE_01, electoral_term_folder)
-    ):
-        os.makedirs(
-            os.path.join(CONTRIBUTIONS_MISCELLANEOUS_STAGE_01, electoral_term_folder)
-        )
-
     # iterate over every speech_content file
     for speech_content_file in sorted(os.listdir(electoral_term_folder_path)):
         print(speech_content_file)
@@ -88,18 +78,7 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
             "text_position": [],
         }
 
-        miscellaneous_frame = {
-            "id": [],
-            "type": [],
-            "name_raw": [],
-            "faction": [],
-            "constituency": [],
-            "content": [],
-            "text_position": [],
-        }
-
         contributions = pd.DataFrame(frame)
-        miscellaneous = pd.DataFrame(miscellaneous_frame)
 
         speech_content.insert(0, "speech_id", 0)
 
@@ -110,7 +89,6 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
 
             (
                 contribution,
-                miscellaneous_frame,
                 speech_text,
                 contributions_lookup_frame,
                 _,
@@ -125,7 +103,6 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
 
             # combine the dataframes
             contributions = pd.concat([contributions, contribution], sort=False)
-            miscellaneous = pd.concat([miscellaneous, miscellaneous_frame], sort=False)
             contributions_lookup = pd.concat(
                 [contributions_lookup, contributions_lookup_frame], sort=False
             )
@@ -134,15 +111,6 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
         contributions.to_pickle(
             os.path.join(
                 CONTRIBUTIONS_OUTPUT, electoral_term_folder, speech_content_file
-            )
-        )
-
-        # save the miscellaneous contributions to pickle
-        miscellaneous.to_pickle(
-            os.path.join(
-                CONTRIBUTIONS_MISCELLANEOUS_STAGE_01,
-                electoral_term_folder,
-                speech_content_file,
             )
         )
 

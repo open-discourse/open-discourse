@@ -21,9 +21,6 @@ CONTRIBUTIONS_OUTPUT = os.path.join(
 ELECTORAL_TERM_19_SPOKEN_CONTENT = os.path.join(
     ELECTORAL_TERM_19_OUTPUT, "speech_content"
 )
-MISCELLANEOUS_OUTPUT = os.path.join(
-    path_definitions.CONTRIBUTIONS_MISCELLANEOUS_STAGE_01, "electoral_term_19"
-)
 CONTRIBUTIONS_LOOKUP = path_definitions.CONTRIBUTIONS_LOOKUP
 
 if not os.path.exists(ELECTORAL_TERM_19_OUTPUT):
@@ -32,9 +29,6 @@ if not os.path.exists(ELECTORAL_TERM_19_OUTPUT):
 # Contributions are saved to the normale contributions folder not the seperate electoral_term_19 folders  # noqa: E501
 if not os.path.exists(CONTRIBUTIONS_OUTPUT):
     os.makedirs(CONTRIBUTIONS_OUTPUT)
-
-if not os.path.exists(MISCELLANEOUS_OUTPUT):
-    os.makedirs(MISCELLANEOUS_OUTPUT)
 
 if not os.path.exists(CONTRIBUTIONS_LOOKUP):
     os.makedirs(CONTRIBUTIONS_LOOKUP)
@@ -194,18 +188,6 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
         }
     )
 
-    miscellaneous = pd.DataFrame(
-        {
-            "id": [],
-            "type": [],
-            "name": [],
-            "faction": [],
-            "constituency": [],
-            "content": [],
-            "text_position": [],
-        }
-    )
-
     print(session)
 
     session_content = et.parse(
@@ -277,9 +259,8 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
                 )
 
             speech_text = ""
-
+            text_position = 0
             for content in speech[1:]:
-                text_position = 0
                 tag = content.tag
                 if tag == "name":
                     speech_series = pd.Series(
@@ -322,6 +303,7 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
                         if length == 1:
                             speaker_id = int(possible_matches["ui"].iloc[0])
                     speech_text = ""
+                    text_position = 0
                 elif tag == "p" and content.get("klasse") == "redner":
                     speech_series = pd.Series(
                         {
@@ -342,6 +324,7 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
                     )
                     speech_content_id += 1
                     speech_text = ""
+                    text_position = 0
                     speaker = content.find("redner")
                     speaker_id = int(speaker.get("id"))
                     possible_matches = politicians.loc[politicians.ui == speaker_id]
@@ -389,19 +372,19 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
                 elif tag == "kommentar":
                     (
                         contribtuions_frame,
-                        miscellaneous_frame,
                         speech_replaced,
                         contributions_lookup_frame,
                         text_position,
                     ) = extract(
-                        content.text, int(session), speech_content_id, text_position,
+                        content.text,
+                        int(session),
+                        speech_content_id,
+                        text_position,
+                        False,
                     )
                     speech_text += speech_replaced
                     contributions = pd.concat(
                         [contributions, contribtuions_frame], sort=False
-                    )
-                    miscellaneous = pd.concat(
-                        [miscellaneous, miscellaneous_frame], sort=False
                     )
                     contributions_lookup = pd.concat(
                         [contributions_lookup, contributions_lookup_frame], sort=False
@@ -425,8 +408,6 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
             speech_content_id += 1
 
     contributions.to_pickle(os.path.join(CONTRIBUTIONS_OUTPUT, session + ".pkl"))
-
-    miscellaneous.to_pickle(os.path.join(MISCELLANEOUS_OUTPUT, session + ".pkl"))
 
 speech_content.to_pickle(
     os.path.join(ELECTORAL_TERM_19_SPOKEN_CONTENT, "speech_content.pkl")

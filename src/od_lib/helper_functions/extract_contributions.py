@@ -79,7 +79,6 @@ base_approval_Pattern = (
     + suffix_Pattern
     + r")"
 )
-base_miscellaneous_Pattern = r"(?P<delete>[^-(){}–—]{1,100}?)"
 base_interruption_Pattern = r"Unterbrechung[^)]*"
 base_disturbance_Pattern = (
     r"(?P<delete>[Uu]nruhe" + prefix_Pattern + suffix_Pattern + r")"
@@ -757,44 +756,9 @@ def extract_disturbance(text, electoral_term, session, identity, text_position, 
     return frame, text
 
 
-def extract_miscellaneous(
-    text, electoral_term, session, identity, text_position, frame
+def extract(
+    speech_text, session, identity, text_position=0, text_position_reversed=True
 ):
-    """Extracts miscellaneous from the given text"""
-
-    # creates the Pattern modularly
-    miscellaneous_Pattern = (
-        start_contributions_opening_bracket_Pattern.format(
-            ""  # Nothing to extend, so .format("")
-        )
-        + base_miscellaneous_Pattern
-        + start_contributions_closing_bracket_Pattern.format(
-            ""  # Extending the closing_bracket_Pattern
-        )
-    )
-
-    # find matches
-    matches = list(regex.finditer(miscellaneous_Pattern, text))
-
-    for match in matches:
-        # replace everything except the delimeters
-        text = text.replace(match.group("delete"), "")
-        # Add entry to the frame
-        frame = add_entry(
-            frame,
-            identity,
-            "Sonstiges",
-            "",
-            "",
-            "",
-            match.group("delete"),
-            text_position,
-        )
-
-    return frame, text
-
-
-def extract(speech_text, session, identity, text_position=0):
     electoral_term = session // 1000
 
     # Match all brackets
@@ -804,17 +768,6 @@ def extract(speech_text, session, identity, text_position=0):
 
     # Create an empty frame for the normal contributions
     frame = {
-        "id": [],
-        "type": [],
-        "name_raw": [],
-        "faction": [],
-        "constituency": [],
-        "content": [],
-        "text_position": [],
-    }
-
-    # Create an empty frame for the miscellaneous "contributions"
-    miscellaneous_frame = {
         "id": [],
         "type": [],
         "name_raw": [],
@@ -836,7 +789,9 @@ def extract(speech_text, session, identity, text_position=0):
         # Save the bracket text
         bracket_text = bracket.group()
         # Save deleted text to DataFrame
-        contributions_lookup["text_position"].append(reversed_text_position)
+        contributions_lookup["text_position"].append(
+            reversed_text_position if text_position_reversed else text_position
+        )
         contributions_lookup["deleted_text"].append(bracket_text)
         contributions_lookup["speech_id"].append(identity)
 
@@ -846,7 +801,7 @@ def extract(speech_text, session, identity, text_position=0):
         speech_text = (
             speech_text[: deletion_span[0]]
             + "{"
-            + str(reversed_text_position)
+            + str(reversed_text_position if text_position_reversed else text_position)
             + "}"
             + speech_text[deletion_span[1] :]
         )
@@ -869,24 +824,14 @@ def extract(speech_text, session, identity, text_position=0):
                 electoral_term,
                 session,
                 identity,
-                reversed_text_position,
+                reversed_text_position if text_position_reversed else text_position,
                 frame,
             )
-
-        miscellaneous_frame, speech_text_no_newline = extract_miscellaneous(
-            speech_text_no_newline,
-            electoral_term,
-            session,
-            identity,
-            reversed_text_position,
-            frame,
-        )
 
         text_position += 1
 
     return (
         pd.DataFrame(frame),
-        pd.DataFrame(miscellaneous_frame),
         speech_text,
         pd.DataFrame(contributions_lookup),
         text_position,
