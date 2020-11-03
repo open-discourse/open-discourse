@@ -1,5 +1,5 @@
 import queryString from "query-string";
-import { Stack, Input, Button, Flex } from "@chakra-ui/core";
+import { Stack, Input, Button } from "@chakra-ui/core";
 import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/router";
 import { useGetPoliticians } from "../components/hooks/use-get-politicians";

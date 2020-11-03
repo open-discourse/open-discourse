@@ -40,9 +40,9 @@ app.get("/", async function (req, res) {
       positionShortQuery,
     },
   } = req;
-  const variables = `"variables":{"first":50,"contentQuery":"${
-    contentQuery || ""
-  }${
+  const variables = `"variables":{"first":${
+    process.env.QUERY_LIMIT || "50"
+  },"contentQuery":"${contentQuery || ""}${
     factionIdQuery
       ? `","factionIdQuery":"${(factionIdQuery as unknown) as number}`
       : ""
