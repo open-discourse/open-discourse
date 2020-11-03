@@ -195,7 +195,7 @@ if "factions" in sys.argv or "all" in sys.argv:
                 "BHE",
                 "BP",
                 "Grüne",
-                "CDU/SCU",
+                "CDU/CSU",
                 "DA",
                 "DIE LINKE.",
                 "DP",
