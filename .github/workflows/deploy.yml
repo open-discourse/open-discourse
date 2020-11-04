@@ -12,18 +12,17 @@ jobs:
       - name: Update package on digitalocean
         uses: appleboy/ssh-action@master
         env:
-          GITHUB_USERNAME: ${{ secrets.USERNAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.HOST }}
           username: root
           password: ${{ secrets.PASSWORD }}
           port: 22
-          envs: GITHUB_USERNAME, GITHUB_TOKEN
+          envs: GITHUB_TOKEN
           script: |
             cd open-discourse-graphql-proxy
             docker-compose down
-            docker login docker.pkg.github.com -u $GITHUB_USERNAME -p $GITHUB_TOKEN
+            docker login docker.pkg.github.com -u open-discourse -p $GITHUB_TOKEN
             docker pull docker.pkg.github.com/open-discourse/open-discourse/database:latest
             docker pull docker.pkg.github.com/open-discourse/open-discourse/graphql:latest
             docker pull docker.pkg.github.com/open-discourse/open-discourse/proxy:latest
