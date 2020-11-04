@@ -1,0 +1,30 @@
+name: update
+
+on:
+  push:
+    branches:
+      - OD-19-setup-actions
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update package on digitalocean
+        uses: appleboy/ssh-action@master
+        env:
+          GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          host: ${{ secrets.HOST }}
+          username: root
+          password: ${{ secrets.PASSWORD }}
+          port: 22
+          envs: GITHUB_USERNAME, GITHUB_TOKEN
+          script: |
+            cd open-discourse-graphql-proxy
+            docker-compose down
+            docker login docker.pkg.github.com -u $GITHUB_USERNAME -p $GITHUB_TOKEN
+            docker pull docker.pkg.github.com/open-discourse/open-discourse/database:latest
+            docker pull docker.pkg.github.com/open-discourse/open-discourse/graphql:latest
+            docker pull docker.pkg.github.com/open-discourse/open-discourse/proxy:latest
+            docker-compose up -d
