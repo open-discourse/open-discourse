@@ -1,0 +1,29 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy packages on digitalocean
+        uses: appleboy/ssh-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          host: ${{ secrets.HOST }}
+          username: root
+          password: ${{ secrets.PASSWORD }}
+          port: 22
+          envs: GITHUB_TOKEN
+          script: |
+            cd open-discourse-graphql-proxy
+            docker-compose down
+            docker login docker.pkg.github.com -u open-discourse -p $GITHUB_TOKEN
+            docker pull docker.pkg.github.com/open-discourse/open-discourse/database:latest
+            docker pull docker.pkg.github.com/open-discourse/open-discourse/graphql:latest
+            docker pull docker.pkg.github.com/open-discourse/open-discourse/proxy:latest
+            docker-compose up -d
