@@ -1,4 +1,4 @@
-name: update
+name: deploy
 
 on:
   push:
@@ -6,10 +6,10 @@ on:
       - OD-19-setup-actions
 
 jobs:
-  update:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Update package on digitalocean
+      - name: Deploy packages on digitalocean
         uses: appleboy/ssh-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
