@@ -24,3 +24,4 @@ jobs:
             docker-compose down
             docker login docker.pkg.github.com -u open-discourse -p $GITHUB_TOKEN
             docker pull docker.pkg.github.com/open-discourse/open-discourse/database:latest
+            docker pull docker.pkg.github.com/open-discourse/open-discourse/graphql:latest
