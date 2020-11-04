@@ -11,13 +11,13 @@
     "@bit/limebit.chakra-ui-recipes.error-toast": "^0.0.1",
     "@bit/limebit.chakra-ui-recipes.loading-spinner": "^0.0.1",
     "@bit/limebit.chakra-ui-recipes.react-table": "^0.0.2",
+    "@bit/limebit.chakra-ui-recipes.select-input": "^0.0.5",
     "@chakra-ui/core": "1.0.0-rc.3",
     "@chakra-ui/icons": "1.0.0-rc.3",
     "next": "9.4.4",
     "query-string": "6.13.1",
     "react": "16.13.1",
-    "react-dom": "16.13.1",
-    "react-select": "^3.1.0"
+    "react-dom": "16.13.1"
   },
   "devDependencies": {
     "@types/node": "14.0.24",

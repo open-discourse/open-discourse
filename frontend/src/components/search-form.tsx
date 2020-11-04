@@ -4,20 +4,19 @@ import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/router";
 import { useGetPoliticians } from "../components/hooks/use-get-politicians";
 import { useGetFactions } from "../components/hooks/use-get-factions";
-import AsyncSelect from "react-select/async";
-import Select from "react-select";
+import { SelectInput } from "@bit/limebit.chakra-ui-recipes.select-input";
 
 export interface FormParams {
   contentQuery?: string | null;
-  factionIdQuery?: number | null;
-  politicianIdQuery?: number | null;
+  factionIdQuery?: string | null;
+  politicianIdQuery?: string | null;
   positionShortQuery?: string | null;
   fromDate?: string | null;
   toDate?: string | null;
 }
 
 export interface Faction {
-  id: number;
+  id: string;
   fullName: string;
   abbreviation: string;
 }
@@ -53,8 +52,8 @@ export const SearchForm: React.FC<FormParams> = () => {
     } = router.query;
     setFormParams({
       contentQuery: contentQuery as string,
-      factionIdQuery: (factionIdQuery as unknown) as number,
-      politicianIdQuery: (politicianIdQuery as unknown) as number,
+      factionIdQuery: factionIdQuery as string,
+      politicianIdQuery: politicianIdQuery as string,
       positionShortQuery: positionShortQuery as string,
       fromDate: fromDate as string,
       toDate: toDate as string,
@@ -63,39 +62,26 @@ export const SearchForm: React.FC<FormParams> = () => {
 
   const convertedPoliticians = politicians
     ? politicians.map((politician) => ({
-        value: politician.id,
+        key: (politician.id as unknown) as string,
         label: `${politician.firstName} ${politician.lastName}`,
       }))
     : [];
 
   const convertedFactions = factions
     ? factions.map((faction) => ({
-        value: faction.id,
+        key: (faction.id as unknown) as string,
         label: faction.fullName,
       }))
     : [];
 
-  const filterPoliticians = (inputValue: string) => {
-    return convertedPoliticians.filter((politician) =>
-      politician.label.toLowerCase().includes(inputValue.toLowerCase())
-    );
-  };
-
-  // Timeout for performance. jeez...
-  const loadOptionsPoliticians = (inputValue: string, callback: any) => {
-    setTimeout(() => {
-      callback(filterPoliticians(inputValue));
-    }, 1000);
-  };
-
   const positions = [
-    { value: "Member of Parliament", label: "Member of Parliament" },
-    { value: "Presidium of Parliament", label: "Presidium of Parliament" },
-    { value: "Guest", label: "Guest" },
-    { value: "Chancellor", label: "Chancellor" },
-    { value: "Minister", label: "Minister" },
-    { value: "Secretary of State", label: "Secretary of State" },
-    { value: "Not found", label: "Not found" },
+    { key: "Member of Parliament", label: "Member of Parliament" },
+    { key: "Presidium of Parliament", label: "Presidium of Parliament" },
+    { key: "Guest", label: "Guest" },
+    { key: "Chancellor", label: "Chancellor" },
+    { key: "Minister", label: "Minister" },
+    { key: "Secretary of State", label: "Secretary of State" },
+    { key: "Not found", label: "Not found" },
   ];
 
   if (politicians && factions) {
@@ -103,60 +89,71 @@ export const SearchForm: React.FC<FormParams> = () => {
       <>
         <form onSubmit={handleSubmit}>
           <Stack spacing={3}>
-            <AsyncSelect
-              cacheOptions
-              defaultOptions
-              loadOptions={loadOptionsPoliticians}
-              onChange={(event) => {
+            <SelectInput
+              placeholder="Select Politician"
+              rawData={convertedPoliticians}
+              onSelect={(element) => {
                 setFormParams({
                   ...formParams,
-                  // event type is not correct
-                  politicianIdQuery: (event as any)["value"] as number,
+                  politicianIdQuery: element?.key,
                 });
               }}
-              {...(formParams.politicianIdQuery
-                ? {
-                    value: convertedPoliticians.find(
+              width="100%"
+              boxHoverColor="gray.200"
+              boxColor="gray.100"
+              iconHoverColor="gray.200"
+              iconColor="gray.500"
+              initialValue={
+                formParams.politicianIdQuery
+                  ? convertedPoliticians.find(
                       (politician) =>
-                        politician.value == formParams.politicianIdQuery
-                    ),
-                  }
-                : {})}
+                        politician.key == formParams.politicianIdQuery
+                    )
+                  : undefined
+              }
             />
-            <Select
-              options={convertedFactions}
-              onChange={(event) => {
+            <SelectInput
+              placeholder="Select Faction"
+              rawData={convertedFactions}
+              onSelect={(element) => {
                 setFormParams({
                   ...formParams,
-                  // event type is not correct
-                  factionIdQuery: (event as any)["value"] as number,
+                  factionIdQuery: element?.key,
                 });
               }}
-              {...(formParams.factionIdQuery
-                ? {
-                    value: convertedFactions.find(
-                      (faction) => faction.value == formParams.factionIdQuery
-                    ),
-                  }
-                : {})}
+              boxHoverColor="gray.200"
+              boxColor="gray.100"
+              iconHoverColor="gray.200"
+              iconColor="gray.500"
+              initialValue={
+                formParams.factionIdQuery
+                  ? convertedFactions.find(
+                      (faction) => faction.key == formParams.factionIdQuery
+                    )
+                  : undefined
+              }
             />
-            <Select
-              options={positions}
-              onChange={(event) => {
+            <SelectInput
+              placeholder="Select Position"
+              rawData={positions}
+              onSelect={(element) => {
                 setFormParams({
                   ...formParams,
-                  // event type is not correct
-                  positionShortQuery: (event as any)["value"] as string,
+                  positionShortQuery: element?.key,
                 });
               }}
-              {...(formParams.positionShortQuery
-                ? {
-                    value: positions.find(
+              boxHoverColor="gray.200"
+              boxColor="gray.100"
+              iconHoverColor="gray.200"
+              iconColor="gray.500"
+              initialValue={
+                formParams.positionShortQuery
+                  ? positions.find(
                       (position) =>
-                        position.value == formParams.positionShortQuery
-                    ),
-                  }
-                : {})}
+                        position.key == formParams.positionShortQuery
+                    )
+                  : undefined
+              }
             />
             <Input
               value={formParams?.contentQuery || ""}
