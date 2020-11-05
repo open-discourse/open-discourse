@@ -22,8 +22,11 @@ jobs:
           script: |
             cd open-discourse-graphql-proxy
             docker-compose down
+            docker system prune -a -f
+            docker image prune -f
             docker login docker.pkg.github.com -u open-discourse -p $GITHUB_TOKEN
             docker pull docker.pkg.github.com/open-discourse/open-discourse/database:latest
             docker pull docker.pkg.github.com/open-discourse/open-discourse/graphql:latest
             docker pull docker.pkg.github.com/open-discourse/open-discourse/proxy:latest
+            docker pull docker.pkg.github.com/open-discourse/open-discourse/frontend:latest
             docker-compose up -d
