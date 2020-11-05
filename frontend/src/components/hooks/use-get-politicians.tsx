@@ -11,7 +11,9 @@ export const useGetPoliticians = (): [Politician[], () => void] => {
   const fetchQuery = () => {
     (async () => {
       const searchResult = await fetch(
-        "http://167.99.244.228:5300/politicians",
+        `${
+          process.env.PROXY_ENDPOINT || "http://167.99.244.228:5300"
+        }/politicians`,
         {
           mode: "cors",
         }

@@ -10,9 +10,14 @@ export const useGetFactions = (): [Faction[], () => void] => {
   const [factions, setPoliticians] = useState<Faction[]>([]);
   const fetchQuery = () => {
     (async () => {
-      const searchResult = await fetch("http://167.99.244.228:5300/factions", {
-        mode: "cors",
-      }).then((response) => response.json());
+      const searchResult = await fetch(
+        `${
+          process.env.PROXY_ENDPOINT || "http://167.99.244.228:5300"
+        }/factions`,
+        {
+          mode: "cors",
+        }
+      ).then((response) => response.json());
       const factionsResult = searchResult.data.factions;
       if (factionsResult) {
         setPoliticians(factionsResult);
