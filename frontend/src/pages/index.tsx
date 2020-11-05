@@ -1,5 +1,5 @@
 import { BaseTemplate } from "../templates/base-template";
-import { Heading, Flex } from "@chakra-ui/core";
+import { Heading, Flex, Stack } from "@chakra-ui/core";
 import { SearchForm } from "../components/search-form";
 import { SearchResult } from "../components/search-result";
 export interface QueryParams {
@@ -16,11 +16,10 @@ const Search: React.FC = () => {
     <BaseTemplate>
       <Flex direction="column">
         <Heading>Full Text Search</Heading>
-
-        <Flex flex={1} p={4}>
+        <Stack>
           <SearchForm />
-        </Flex>
-        <SearchResult />
+          <SearchResult />
+        </Stack>
       </Flex>
     </BaseTemplate>
   );
