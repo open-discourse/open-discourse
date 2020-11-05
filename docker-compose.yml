@@ -51,4 +51,4 @@ services:
       graphql:
         condition: service_started
     ports:
-      - "80:80"
+      - "5300:5300"

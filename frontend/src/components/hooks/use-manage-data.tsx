@@ -27,7 +27,7 @@ export const useManageData = () => {
       setData(undefined);
       setLoading(true);
       setError(undefined);
-      const searchApiEndpoint = `http://167.99.244.228/${window.location.search}`;
+      const searchApiEndpoint = `http://167.99.244.228:5300/${window.location.search}`;
 
       const searchResult = await fetch(searchApiEndpoint, {
         mode: "cors",

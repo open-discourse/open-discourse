@@ -10,9 +10,12 @@ export const useGetPoliticians = (): [Politician[], () => void] => {
   const [politicians, setPoliticians] = useState<Politician[]>([]);
   const fetchQuery = () => {
     (async () => {
-      const searchResult = await fetch("http://167.99.244.228/politicians", {
-        mode: "cors",
-      }).then((response) => response.json());
+      const searchResult = await fetch(
+        "http://167.99.244.228:5300/politicians",
+        {
+          mode: "cors",
+        }
+      ).then((response) => response.json());
       const politiciansResult = searchResult.data.politicians;
       if (politiciansResult) {
         setPoliticians(politiciansResult);
