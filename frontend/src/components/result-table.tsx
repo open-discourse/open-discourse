@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/core";
 import { ReactTable } from "@bit/limebit.chakra-ui-recipes.react-table";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import React, { useState } from "react";
+import React, { useState, useReducer } from "react";
 import { SearchResultRow } from "./hooks/use-manage-data";
 import { DownloadButton } from "./download-button";
 
@@ -27,11 +27,24 @@ interface Row {
   values: SearchResultRow;
 }
 
+type SelectedState = { [id: number]: boolean };
+type SelectedAction = {
+  action: "toggleSingle";
+  id: number;
+};
+
 export const ResultTable = ({ data }: ResultTableProps) => {
-  const [selected, setSelected] = useState(
-    data.map((element) => {
-      return { id: element.downloadId, state: false };
-    })
+  const [selected, dispatchSelected] = useReducer(
+    (currentState: SelectedState, action: SelectedAction): SelectedState => {
+      switch (action.action) {
+        case "toggleSingle":
+          return {
+            ...currentState,
+            [action.id]: !currentState[action.id],
+          };
+      }
+    },
+    Object.fromEntries(data.map((element) => [element.downloadId, false]))
   );
 
   const columns = [
@@ -42,19 +55,12 @@ export const ResultTable = ({ data }: ResultTableProps) => {
         if (row.values.downloadId) {
           return (
             <Checkbox
-              isChecked={
-                selected.find((element) => element.id == row.values.downloadId)
-                  ?.state
-              }
-              onChange={(e) => {
-                const newselected = selected.filter(
-                  (element) => element.id != row.values.downloadId
-                );
-                newselected.push({
+              isChecked={selected[row.values.downloadId]}
+              onChange={() => {
+                dispatchSelected({
+                  action: "toggleSingle",
                   id: row.values.downloadId,
-                  state: e.target.checked,
                 });
-                setSelected(newselected);
               }}
             />
           );
@@ -151,14 +157,9 @@ export const ResultTable = ({ data }: ResultTableProps) => {
       <ReactTable columns={columns} data={data} pageSize={10} />
       <Flex>
         <DownloadButton data={data} text={"Download All"} />
-        {selected.filter((element) => element.state == true).length > 0 ? (
+        {Object.entries(selected).some(([_id, state]) => state) ? (
           <DownloadButton
-            data={data.filter(
-              (element) =>
-                selected.find(
-                  (selectedElement) => selectedElement.id == element.downloadId
-                )?.state == true
-            )}
+            data={data.filter((element) => selected[element.downloadId])}
             text={"Download Selected"}
           />
         ) : null}
