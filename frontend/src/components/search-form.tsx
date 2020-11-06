@@ -29,11 +29,11 @@ export interface Politician {
 export const SearchForm: React.FC<FormParams> = () => {
   const [formParams, setFormParams] = useState<FormParams>({});
   const [politicians] = useGetData<Politician[]>(
-    `${process.env.PROXY_ENDPOINT || "http://167.99.244.228:5300"}/politicians`,
+    `${process.env.PROXY_ENDPOINT || "http://67.207.79.172:5300"}/politicians`,
     (response) => response.politicians
   );
   const [factions] = useGetData<Faction[]>(
-    `${process.env.PROXY_ENDPOINT || "http://167.99.244.228:5300"}/factions`,
+    `${process.env.PROXY_ENDPOINT || "http://67.207.79.172:5300"}/factions`,
     (response) => response.factions
   );
 
