@@ -33,6 +33,25 @@ type SelectedAction = {
   id: number;
 };
 
+const convertPosition = (position: string) => {
+  switch (position) {
+    case "Member of Parliament":
+      return "Mitglied des Bundestages";
+    case "Presidium of Parliament":
+      return "Mitglied des Präsidiums";
+    case "Guest":
+      return "Gast";
+    case "Chancellor":
+      return "Kanzerl_in";
+    case "Minister":
+      return "Minister_in";
+    case "Secretary of State":
+      return "Staatssekretär_in";
+    default:
+      return "Nicht gefunden";
+  }
+};
+
 export const ResultTable = ({ data }: ResultTableProps) => {
   const [selected, dispatchSelected] = useReducer(
     (currentState: SelectedState, action: SelectedAction): SelectedState => {
@@ -49,7 +68,7 @@ export const ResultTable = ({ data }: ResultTableProps) => {
 
   const columns = [
     {
-      Header: "Download",
+      Header: "Herunterladen",
       accessor: "downloadId",
       Cell: ({ row }: { row: Row }) => {
         if (row.values.downloadId) {
@@ -72,9 +91,9 @@ export const ResultTable = ({ data }: ResultTableProps) => {
       Header: "ID",
       accessor: "id",
     },
-    { Header: "First Name", accessor: "firstName" },
-    { Header: "Last Name", accessor: "lastName" },
-    { Header: "Faction", accessor: "abbreviation" },
+    { Header: "Vorname", accessor: "firstName" },
+    { Header: "Nachname", accessor: "lastName" },
+    { Header: "Fraktion", accessor: "abbreviation" },
     { Header: "Position", accessor: "positionShort" },
     {
       Header: "Date",
@@ -154,13 +173,22 @@ export const ResultTable = ({ data }: ResultTableProps) => {
   ];
   return (
     <>
-      <ReactTable columns={columns} data={data} pageSize={10} />
+      <ReactTable
+        columns={columns}
+        data={data.map((element) => {
+          return {
+            ...element,
+            positionShort: convertPosition(element.positionShort),
+          };
+        })}
+        pageSize={10}
+      />
       <Flex>
-        <DownloadButton data={data} text={"Download All"} />
+        <DownloadButton data={data} text={"Alles Herunterladen"} />
         {Object.entries(selected).some(([_id, state]) => state) ? (
           <DownloadButton
             data={data.filter((element) => selected[element.downloadId])}
-            text={"Download Selected"}
+            text={"Ausgewählte Herunterladen"}
           />
         ) : null}
       </Flex>

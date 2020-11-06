@@ -15,7 +15,7 @@ const Search: React.FC = () => {
   return (
     <BaseTemplate>
       <Flex direction="column">
-        <Heading>Full Text Search</Heading>
+        <Heading>Volltextsuche</Heading>
         <Stack>
           <SearchForm />
           <SearchResult />

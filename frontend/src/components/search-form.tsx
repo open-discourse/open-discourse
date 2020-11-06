@@ -86,13 +86,13 @@ export const SearchForm: React.FC<FormParams> = () => {
     : [];
 
   const positions = [
-    { key: "Member of Parliament", label: "Member of Parliament" },
-    { key: "Presidium of Parliament", label: "Presidium of Parliament" },
-    { key: "Guest", label: "Guest" },
-    { key: "Chancellor", label: "Chancellor" },
-    { key: "Minister", label: "Minister" },
-    { key: "Secretary of State", label: "Secretary of State" },
-    { key: "Not found", label: "Not found" },
+    { key: "Member of Parliament", label: "Mitglied des Bundestages" },
+    { key: "Presidium of Parliament", label: "Mitglied des Präsidiums" },
+    { key: "Guest", label: "Gast" },
+    { key: "Chancellor", label: "Kanzler_in" },
+    { key: "Minister", label: "Minister_in" },
+    { key: "Secretary of State", label: "Staatssekretär_in" },
+    { key: "Not found", label: "Nicht gefunden" },
   ];
 
   if (politicians && factions) {
@@ -101,7 +101,7 @@ export const SearchForm: React.FC<FormParams> = () => {
         <form onSubmit={handleSubmit}>
           <Stack spacing={3}>
             <SelectInput
-              placeholder="Select Politician"
+              placeholder="Nach Politiker Filtern"
               rawData={convertedPoliticians}
               onSelect={(element) => {
                 setFormParams({
@@ -124,7 +124,7 @@ export const SearchForm: React.FC<FormParams> = () => {
               }
             />
             <SelectInput
-              placeholder="Select Faction"
+              placeholder="Nach Fraktion Filtern"
               rawData={convertedFactions}
               onSelect={(element) => {
                 setFormParams({
@@ -145,7 +145,7 @@ export const SearchForm: React.FC<FormParams> = () => {
               }
             />
             <SelectInput
-              placeholder="Select Position"
+              placeholder="Nach Position Filtern"
               rawData={positions}
               onSelect={(element) => {
                 setFormParams({
@@ -168,7 +168,7 @@ export const SearchForm: React.FC<FormParams> = () => {
             />
             <Input
               value={formParams?.contentQuery || ""}
-              placeholder="Redebeitrag"
+              placeholder="Redeinhalt Durchsuchen"
               onChange={(event: React.ChangeEvent<HTMLInputElement>): void =>
                 setFormParams({
                   ...formParams,
