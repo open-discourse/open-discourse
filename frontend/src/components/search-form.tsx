@@ -2,8 +2,7 @@ import queryString from "query-string";
 import { Stack, Input, Button } from "@chakra-ui/core";
 import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/router";
-import { useGetPoliticians } from "../components/hooks/use-get-politicians";
-import { useGetFactions } from "../components/hooks/use-get-factions";
+import { useGetData } from "../components/hooks/use-get-data";
 import { SelectInput } from "@bit/limebit.chakra-ui-recipes.select-input";
 
 export interface FormParams {
@@ -21,10 +20,22 @@ export interface Faction {
   abbreviation: string;
 }
 
+export interface Politician {
+  id: number;
+  firstName: string;
+  lastName: string;
+}
+
 export const SearchForm: React.FC<FormParams> = () => {
   const [formParams, setFormParams] = useState<FormParams>({});
-  const [politicians] = useGetPoliticians();
-  const [factions] = useGetFactions();
+  const [politicians] = useGetData<Politician[]>(
+    `${process.env.PROXY_ENDPOINT || "http://167.99.244.228:5300"}/politicians`,
+    (response) => response.politicians
+  );
+  const [factions] = useGetData<Faction[]>(
+    `${process.env.PROXY_ENDPOINT || "http://167.99.244.228:5300"}/factions`,
+    (response) => response.factions
+  );
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     // do not refresh entire page

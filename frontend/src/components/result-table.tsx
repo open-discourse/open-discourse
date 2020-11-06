@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/core";
 import { ReactTable } from "@bit/limebit.chakra-ui-recipes.react-table";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import React, { useState, useReducer } from "react";
+import React, { useReducer } from "react";
 import { SearchResultRow } from "./hooks/use-manage-data";
 import { DownloadButton } from "./download-button";
 
