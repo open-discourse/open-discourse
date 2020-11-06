@@ -366,7 +366,7 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
                         )
                 elif tag == "p":
                     try:
-                        speech_text += content.text
+                        speech_text += "\n\n" + content.text
                     except TypeError:
                         pass
                 elif tag == "kommentar":
@@ -382,7 +382,7 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
                         text_position,
                         False,
                     )
-                    speech_text += speech_replaced
+                    speech_text += "\n\n" + speech_replaced
                     contributions = pd.concat(
                         [contributions, contribtuions_frame], sort=False
                     )
