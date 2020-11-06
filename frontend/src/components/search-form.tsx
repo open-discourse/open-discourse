@@ -21,7 +21,7 @@ export interface Faction {
 }
 
 export interface Politician {
-  id: number;
+  id: string;
   firstName: string;
   lastName: string;
 }
@@ -73,14 +73,14 @@ export const SearchForm: React.FC<FormParams> = () => {
 
   const convertedPoliticians = politicians
     ? politicians.map((politician) => ({
-        key: (politician.id as unknown) as string,
+        key: politician.id,
         label: `${politician.firstName} ${politician.lastName}`,
       }))
     : [];
 
   const convertedFactions = factions
     ? factions.map((faction) => ({
-        key: (faction.id as unknown) as string,
+        key: faction.id,
         label: faction.fullName,
       }))
     : [];
