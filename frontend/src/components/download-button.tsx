@@ -9,7 +9,7 @@ export interface DownloadButtonProps {
 export const DownloadButton = ({ data, text }: DownloadButtonProps) => (
   <a
     style={{ margin: "5px" }}
-    download={"test.csv"}
+    download={"OpenDiscourseData.csv"}
     href={`data:text/csv;base64,${btoa(
       unescape(
         encodeURIComponent(
@@ -18,7 +18,7 @@ export const DownloadButton = ({ data, text }: DownloadButtonProps) => (
               .map(
                 (element) =>
                   `${JSON.stringify(element.id)},${JSON.stringify(
-                    JSON.stringify(element.firstName)
+                    element.firstName
                   )},${JSON.stringify(element.lastName)},${JSON.stringify(
                     element.abbreviation
                   )},${JSON.stringify(element.positionShort)},${JSON.stringify(
