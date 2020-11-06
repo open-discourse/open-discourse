@@ -16,7 +16,6 @@ DECLARE
   DECLARE has_faction_id boolean = faction_id_query > -2;
   DECLARE has_content boolean = length(TRIM(content_query)) > 0;
   DECLARE has_position_short boolean = length(TRIM(position_short_query)) > 0;
-  DECLARE position_short_tsquery tsquery = websearch_to_tsquery ('simple', position_short_query);
   DECLARE content_tsquery tsquery = websearch_to_tsquery ('german', content_query);
 BEGIN
   RETURN QUERY
@@ -26,7 +25,7 @@ BEGIN
     s.date,
     s.speech_content,
     s.document_url,
-    ts_rank(search_speech_content, content_tsquery) + ts_rank(search_position_short, position_short_tsquery) AS rank,
+    ts_rank(search_speech_content, content_tsquery) AS rank,
     p.first_name,
     p.last_name,
     f.abbreviation
@@ -38,7 +37,7 @@ BEGIN
         ((NOT has_politician_id) OR politician_id = politician_id_query)
     AND ((NOT has_faction_id) OR faction_id = faction_id_query)
     AND ((NOT has_content) OR search_speech_content @@ content_tsquery)
-    AND ((NOT has_position_short) OR search_position_short @@ position_short_tsquery)
+    AND ((NOT has_position_short) OR position_short = position_short_query)
 
     AND ((from_date IS NULL) OR s.date > from_date)
     AND ((to_date IS NULL) OR s.date < to_date)
