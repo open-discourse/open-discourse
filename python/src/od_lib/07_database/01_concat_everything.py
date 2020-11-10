@@ -77,7 +77,9 @@ speech_content_01_18["first_name"] = speech_content_01_18["first_name"].apply(" 
 
 speech_content_01_18["id"] = list(range(len(speech_content_01_18)))
 
-speech_content_01_18["session"] = speech_content_01_18["session"].str.replace(r"\.pkl", "")
+speech_content_01_18["session"] = speech_content_01_18["session"].str.replace(
+    r"\.pkl", ""
+)
 
 
 meta_data = {}
@@ -129,7 +131,8 @@ speech_content_01_18["session"] = speech_content_01_18["session"].apply(
 speech_content_01_18["document_url"] = speech_content_01_18.apply(
     lambda row: "https://dip21.bundestag.de/dip21/btp/{0}/{0}{1}.pdf".format(
         row["electoral_term"], row["session"]
-    ), axis=1
+    ),
+    axis=1,
 )
 
 speech_content_01_18["session"] = speech_content_01_18["session"].astype("int32")
@@ -164,17 +167,18 @@ speech_content.insert(2, "document_url", "")
 speech_content_19["electoral_term"] = speech_content_19["session"].apply(
     lambda x: str(x)[:2]
 )
-speech_content_19["session"] = speech_content_19["session"].apply(
-    lambda x: str(x)[-3:]
-)
+speech_content_19["session"] = speech_content_19["session"].apply(lambda x: str(x)[-3:])
 
 speech_content_19["document_url"] = speech_content_19.apply(
     lambda row: "https://dip21.bundestag.de/dip21/btp/{0}/{0}{1}.pdf".format(
         row["electoral_term"], row["session"]
-    ), axis=1
+    ),
+    axis=1,
 )
 
-speech_content_19["electoral_term"] = speech_content_19["electoral_term"].astype("int32")
+speech_content_19["electoral_term"] = speech_content_19["electoral_term"].astype(
+    "int32"
+)
 speech_content_19["session"] = speech_content_19["session"].astype("int32")
 
 speech_content = pd.concat([speech_content_01_18, speech_content_19])

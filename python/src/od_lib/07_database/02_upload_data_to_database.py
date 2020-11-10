@@ -3,7 +3,6 @@ import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import os
 import datetime
-import sys
 
 
 engine = create_engine("postgresql://postgres:postgres@localhost:5432/next")
@@ -22,7 +21,7 @@ CONTRIBUTIONS_LOOKUP_WP19 = os.path.join(
 )
 ELECTORAL_TERMS = os.path.join(path_definitions.ELECTORAL_TERMS, "electoral_terms.csv")
 
-# Load data______
+# Load data
 electoral_terms = pd.read_csv(ELECTORAL_TERMS)
 
 politicians = pd.read_csv(PEOPLE)
@@ -130,183 +129,180 @@ def check_politicians(row):
     return speaker_id
 
 
-if "electoral_terms" in sys.argv or "all" in sys.argv:
-    print("starting electoral_terms..")
-    electoral_terms.to_sql(
-        "electoral_terms", engine, if_exists="append", schema="app_public", index=False
-    )
+print("starting electoral_terms..")
+electoral_terms.to_sql(
+    "electoral_terms", engine, if_exists="append", schema="app_public", index=False
+)
 
 
-if "politicians" in sys.argv or "all" in sys.argv:
-    print("starting politicians..")
+print("starting politicians..")
 
-    politicians = politicians.where((pd.notnull(politicians)), None)
+politicians = politicians.where((pd.notnull(politicians)), None)
 
-    politicians.birth_year = politicians.birth_year.apply(convert_date_politicians)
-    politicians.death_year = politicians.death_year.apply(convert_date_politicians)
-    politicians.mp_from = politicians.mp_from.apply(convert_date_politicians)
-    politicians.mp_until = politicians.mp_until.apply(convert_date_politicians)
-    politicians.history_from = politicians.history_from.apply(convert_date_politicians)
-    politicians.history_until = politicians.history_until.apply(convert_date_politicians)
-    politicians.function_from = politicians.function_from.apply(convert_date_politicians)
-    politicians.function_until = politicians.function_until.apply(convert_date_politicians)
+politicians.birth_year = politicians.birth_year.apply(convert_date_politicians)
+politicians.death_year = politicians.death_year.apply(convert_date_politicians)
+politicians.mp_from = politicians.mp_from.apply(convert_date_politicians)
+politicians.mp_until = politicians.mp_until.apply(convert_date_politicians)
+politicians.history_from = politicians.history_from.apply(convert_date_politicians)
+politicians.history_until = politicians.history_until.apply(convert_date_politicians)
+politicians.function_from = politicians.function_from.apply(convert_date_politicians)
+politicians.function_until = politicians.function_until.apply(convert_date_politicians)
 
-    politicians.to_sql(
-        "politicians", engine, if_exists="append", schema="app_public", index=False
-    )
-
-if "factions" in sys.argv or "all" in sys.argv:
-    print("starting factions..")
-    factions = pd.DataFrame(
-        {
-            "id": [
-                -1,
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10,
-                11,
-                12,
-                13,
-                14,
-                15,
-                16,
-                17,
-                18,
-                19,
-                20,
-                21,
-                22,
-                23,
-                24,
-                25,
-                26,
-            ],
-            "abbreviation": [
-                "not found",
-                "AfD",
-                "BHE",
-                "BP",
-                "Grüne",
-                "CDU/CSU",
-                "DA",
-                "DIE LINKE.",
-                "DP",
-                "DP/DBP",
-                "DP/FVP",
-                "DPB",
-                "DRP",
-                "DRP/NR",
-                "FDP",
-                "FU",
-                "FVP",
-                "Fraktionslos",
-                "GB/BHE",
-                "Gast",
-                "KO",
-                "KPD",
-                "NR",
-                "PDS",
-                "SPD",
-                "SSW",
-                "WAV",
-                "Z",
-            ],
-            "full_name": [
-                "not found",
-                "Alternative für Deutschland",
-                "Block der Heimatvertriebenen und Entrechteten",
-                "Bayernpartei",
-                "Bündnis 90/Die Grünen",
-                "Christlich Demokratische Union Deutschlands/Christlich-Soziale Union in Bayern",
-                "Demokratische Arbeitsgemeinschaft",
-                "DIE LINKE.",
-                "Deutsche Partei",
-                "Deutsche Partei/Deutsche Partei Bayern",
-                "Deutsche Partei/Freie Volkspartei",
-                "Deutsche Partei Bayern",
-                "Deutsche Reformpartei",
-                "Deutsche Reichspartei/Nationale Rechte",
-                "Freie Demokratische Partei",
-                "Föderalistische Union",
-                "Freie Volkspartei",
-                "Fraktionslos",
-                "Gesamtdeutscher Block/Bund der Heimatvertriebenen und Entrechteten",
-                "Gast",
-                "Kraft/Oberländer-Gruppe",
-                "Kommunistische Partei Deutschlands",
-                "Nationale Rechte",
-                "Partei des Demokratischen Sozialismus",
-                "Sozialdemokratische Partei Deutschlands",
-                "Südschleswigscher Wählerverband",
-                "Wirtschaftliche Aufbau-Vereinigung",
-                "Deutsche Zentrumspartei",
-            ],
-        }
-    )
-
-    factions.id = factions.id.astype(int)
-
-    factions.to_sql(
-        "factions", engine, if_exists="append", schema="app_public", index=False
-    )
-
-if "spoken" in sys.argv or "all" in sys.argv:
-    print("starting speeches..")
-
-    speeches = pd.read_pickle(SPOKEN_CONTENT)
-
-    speeches["date"] = speeches["date"].apply(convert_date_speeches)
-
-    speeches = speeches.where((pd.notnull(speeches)), None)
-    speeches.politician_id = speeches.apply(check_politicians, axis=1)
-
-    speeches.to_sql(
-        "speeches", engine, if_exists="append", schema="app_public", index=False
-    )
+politicians.to_sql(
+    "politicians", engine, if_exists="append", schema="app_public", index=False
+)
 
 
-if "contributions" in sys.argv or "all" in sys.argv:
-    print("starting contributions..")
+print("starting factions..")
+factions = pd.DataFrame(
+    {
+        "id": [
+            -1,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+        ],
+        "abbreviation": [
+            "not found",
+            "AfD",
+            "BHE",
+            "BP",
+            "Grüne",
+            "CDU/CSU",
+            "DA",
+            "DIE LINKE.",
+            "DP",
+            "DP/DBP",
+            "DP/FVP",
+            "DPB",
+            "DRP",
+            "DRP/NR",
+            "FDP",
+            "FU",
+            "FVP",
+            "Fraktionslos",
+            "GB/BHE",
+            "Gast",
+            "KO",
+            "KPD",
+            "NR",
+            "PDS",
+            "SPD",
+            "SSW",
+            "WAV",
+            "Z",
+        ],
+        "full_name": [
+            "not found",
+            "Alternative für Deutschland",
+            "Block der Heimatvertriebenen und Entrechteten",
+            "Bayernpartei",
+            "Bündnis 90/Die Grünen",
+            "Christlich Demokratische Union Deutschlands/Christlich-Soziale Union in Bayern",
+            "Demokratische Arbeitsgemeinschaft",
+            "DIE LINKE.",
+            "Deutsche Partei",
+            "Deutsche Partei/Deutsche Partei Bayern",
+            "Deutsche Partei/Freie Volkspartei",
+            "Deutsche Partei Bayern",
+            "Deutsche Reformpartei",
+            "Deutsche Reichspartei/Nationale Rechte",
+            "Freie Demokratische Partei",
+            "Föderalistische Union",
+            "Freie Volkspartei",
+            "Fraktionslos",
+            "Gesamtdeutscher Block/Bund der Heimatvertriebenen und Entrechteten",
+            "Gast",
+            "Kraft/Oberländer-Gruppe",
+            "Kommunistische Partei Deutschlands",
+            "Nationale Rechte",
+            "Partei des Demokratischen Sozialismus",
+            "Sozialdemokratische Partei Deutschlands",
+            "Südschleswigscher Wählerverband",
+            "Wirtschaftliche Aufbau-Vereinigung",
+            "Deutsche Zentrumspartei",
+        ],
+    }
+)
 
-    contributions = pd.read_pickle(CONTRIBUTIONS)
+factions.id = factions.id.astype(int)
 
-    contributions = contributions.where((pd.notnull(contributions)), None)
+factions.to_sql(
+    "factions", engine, if_exists="append", schema="app_public", index=False
+)
 
-    contributions.to_sql(
-        "contributions", engine, if_exists="append", schema="app_public", index=False
-    )
 
-if "contributions_lookup" in sys.argv or "all" in sys.argv:
-    print("starting contributions_lookup..")
+print("starting speeches..")
 
-    contributions_lookup = pd.read_pickle(CONTRIBUTIONS_LOOKUP)
+speeches = pd.read_pickle(SPOKEN_CONTENT)
 
-    contributions_lookup_electoral_term_19 = pd.read_pickle(CONTRIBUTIONS_LOOKUP_WP19)
+speeches["date"] = speeches["date"].apply(convert_date_speeches)
 
-    contributions_lookup = pd.concat(
-        [contributions_lookup, contributions_lookup_electoral_term_19], sort=False
-    )
+speeches = speeches.where((pd.notnull(speeches)), None)
+speeches.politician_id = speeches.apply(check_politicians, axis=1)
 
-    contributions_lookup = contributions_lookup.where(
-        (pd.notnull(contributions_lookup)), None
-    )
+speeches.to_sql(
+    "speeches", engine, if_exists="append", schema="app_public", index=False
+)
 
-    contributions_lookup["id"] = range(len(contributions_lookup.deleted_text))
 
-    contributions_lookup.to_sql(
-        "contributions_lookup",
-        engine,
-        if_exists="append",
-        schema="app_public",
-        index=False,
-    )
+print("starting contributions..")
+
+contributions = pd.read_pickle(CONTRIBUTIONS)
+
+contributions = contributions.where((pd.notnull(contributions)), None)
+
+contributions.to_sql(
+    "contributions", engine, if_exists="append", schema="app_public", index=False
+)
+
+
+print("starting contributions_lookup..")
+
+contributions_lookup = pd.read_pickle(CONTRIBUTIONS_LOOKUP)
+
+contributions_lookup_electoral_term_19 = pd.read_pickle(CONTRIBUTIONS_LOOKUP_WP19)
+
+contributions_lookup = pd.concat(
+    [contributions_lookup, contributions_lookup_electoral_term_19], sort=False
+)
+
+contributions_lookup = contributions_lookup.where(
+    (pd.notnull(contributions_lookup)), None
+)
+
+contributions_lookup["id"] = range(len(contributions_lookup.deleted_text))
+
+contributions_lookup.to_sql(
+    "contributions_lookup",
+    engine,
+    if_exists="append",
+    schema="app_public",
+    index=False,
+)
 
 print("finished")

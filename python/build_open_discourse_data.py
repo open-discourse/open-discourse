@@ -72,7 +72,7 @@ scripts = {
     "01_concat_everything": os.path.join(database, "01_concat_everything.py"),
     # Upload Data to the Database
     "02_upload_data_to_database.py": os.path.join(
-        database, "02_upload_data_to_database.py all"
+        database, "02_upload_data_to_database.py"
     ),
 }
 
@@ -81,7 +81,7 @@ time.sleep(5)
 os.system("docker-compose up -d database")
 time.sleep(20)
 os.system(
-    "cd database && yarn run db:update:local && cd .. && docker-compose up -d graphql"
+    "cd ../database && yarn run db:update:local && cd .. && docker-compose up -d graphql"
 )
 
 for key in scripts.keys():

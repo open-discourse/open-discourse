@@ -87,12 +87,7 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
             # call the extract method which returns the cleaned speech and a
             # dataframe with all contributions in that particular speech
 
-            (
-                contribution,
-                speech_text,
-                contributions_lookup_frame,
-                _,
-            ) = extract(
+            (contribution, speech_text, contributions_lookup_frame, _,) = extract(
                 speech, int(speech_content_file.replace(".pkl", "")), speech_id,
             )
 
