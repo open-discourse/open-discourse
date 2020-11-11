@@ -79,8 +79,8 @@ Generate the OpenDiscourse-Database from the ground up. The Database has to be s
 This script is just a pipeline executing all scripts in `src`. You can also manually run every script seperatly. For Documentation on this, please visit the [README in src](./src/README.md)
 
 ```Shell
-// run from repository root
-python build_open_discourse_data.py
+// run from python folder
+sh build.sh
 ```
 
 ## Further Documentation
