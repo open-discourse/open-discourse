@@ -37,7 +37,7 @@ BEGIN
         ((NOT has_politician_id) OR politician_id = politician_id_query)
     AND ((NOT has_faction_id) OR faction_id = faction_id_query)
     AND ((NOT has_content) OR search_speech_content @@ content_tsquery)
-    AND ((NOT has_position_short) OR position_short = position_short_query)
+    AND ((NOT has_position_short) OR s.position_short = position_short_query)
 
     AND ((from_date IS NULL) OR s.date > from_date)
     AND ((to_date IS NULL) OR s.date < to_date)
