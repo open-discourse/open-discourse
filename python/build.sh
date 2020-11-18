@@ -9,7 +9,7 @@ yarn run db:update:local
 cd ..
 docker-compose up -d graphql
 cd ./python
-source .venv/bin/activate
+. .venv/bin/activate
 mkdir -p logs
 
 src_path=src/od_lib
