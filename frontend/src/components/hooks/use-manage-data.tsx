@@ -28,7 +28,7 @@ export const useManageData = () => {
       setLoading(true);
       setError(undefined);
       const searchApiEndpoint = `${
-        process.env.PROXY_ENDPOINT || "http://67.207.79.172:5300"
+        process.env.PROXY_ENDPOINT || "https://api.opendiscourse.de:5300"
       }/${window.location.search}`;
 
       const searchResult = await fetch(searchApiEndpoint, {
