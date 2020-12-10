@@ -26,8 +26,8 @@ mgs = {
     "position": [],
     "position_from": [],
     "position_until": [],
-    "birth_year": [],
-    "death_year": [],
+    "birth_date": [],
+    "death_date": [],
     "faction": [],
     "additional_faction": [],
 }
@@ -69,11 +69,11 @@ for div in main_section.find_all("div", recursive=False):
 
             match_years = regex.findall(r"(\d{4})", birth_death)
             if len(match_years) == 1:
-                birth_year = int(match_years[0])
-                death_year = -1
+                birth_date = int(match_years[0])
+                death_date = -1
             elif len(match_years) == 2:
-                birth_year = int(match_years[0])
-                death_year = int(match_years[1])
+                birth_date = int(match_years[0])
+                death_date = int(match_years[1])
             else:
                 raise ValueError("Something is wrong heregex.")
 
@@ -121,8 +121,8 @@ for div in main_section.find_all("div", recursive=False):
                     mgs["position"].append(position)
                     mgs["position_from"].append(position_from)
                     mgs["position_until"].append(position_until)
-                    mgs["birth_year"].append(birth_year)
-                    mgs["death_year"].append(death_year)
+                    mgs["birth_date"].append(birth_date)
+                    mgs["death_date"].append(death_date)
                     mgs["faction"].append(faction)
                     mgs["additional_faction"].append(additional_faction)
 
@@ -138,8 +138,8 @@ for div in main_section.find_all("div", recursive=False):
                 mgs["position"].append(position)
                 mgs["position_from"].append(position_from)
                 mgs["position_until"].append(position_until)
-                mgs["birth_year"].append(birth_year)
-                mgs["death_year"].append(death_year)
+                mgs["birth_date"].append(birth_date)
+                mgs["death_date"].append(death_date)
                 mgs["faction"].append(faction)
                 mgs["additional_faction"].append(additional_faction)
 

@@ -140,8 +140,8 @@ print("Started merging...")
 for (
     last_name,
     first_name,
-    birth_year,
-    death_year,
+    birth_date,
+    death_date,
     position,
     position_from,
     position_until,
@@ -149,8 +149,8 @@ for (
 ) in zip(
     mgs.last_name,
     mgs.first_name,
-    mgs.birth_year,
-    mgs.death_year,
+    mgs.birth_date,
+    mgs.death_date,
     mgs.position,
     mgs.position_from,
     mgs.position_until,
@@ -191,7 +191,7 @@ for (
     possible_matches = politicians.loc[
         (politicians.last_name == last_name)
         & (politicians.first_name.str.contains(first_name[0]))
-        & (politicians.birth_year.str.contains(str(birth_year)))
+        & (politicians.birth_date.str.contains(str(birth_date)))
     ]
 
     possible_matches = possible_matches.drop_duplicates(subset="ui", keep="first")
@@ -206,33 +206,15 @@ for (
                 "last_name": possible_matches.last_name.iloc[0],
                 "birth_place": possible_matches.birth_place.iloc[0],
                 "birth_country": possible_matches.birth_country.iloc[0],
-                "birth_year": possible_matches.birth_year.iloc[0],
-                "death_year": possible_matches.death_year.iloc[0],
+                "birth_date": possible_matches.birth_date.iloc[0],
+                "death_date": possible_matches.death_date.iloc[0],
                 "gender": possible_matches.gender.iloc[0],
                 "profession": possible_matches.profession.iloc[0],
                 "constituency": possible_matches.constituency.iloc[0],
                 "aristocracy": possible_matches.aristocracy.iloc[0],
-                "prefix": possible_matches.prefix.iloc[0],
                 "academic_title": possible_matches.academic_title.iloc[0],
-                "salutation": possible_matches.salutation.iloc[0],
-                "vita_short": possible_matches.vita_short.iloc[0],
-                "disclosure_requirement": possible_matches.disclosure_requirement.iloc[
-                    0
-                ],
-                "constituency_number": possible_matches.constituency_number.iloc[0],
-                "constituency_name": possible_matches.constituency_name.iloc[0],
-                "electoral_list": possible_matches.electoral_list.iloc[0],
-                "mp_from": possible_matches.mp_from.iloc[0],
-                "mp_until": possible_matches.mp_until.iloc[0],
-                "history_from": possible_matches.history_from.iloc[0],
-                "history_until": possible_matches.history_until.iloc[0],
                 "institution_type": "Regierungsmitglied",
                 "institution_name": position,
-                "institution_member_from": position_from,
-                "institution_member_until": position_until,
-                "function_long": position,
-                "function_from": "",
-                "function_until": "",
             }
             politicians = politicians.append(pd.Series(series), ignore_index=True)
             # success_counter += 1
@@ -244,7 +226,7 @@ for (
             possible_matches = politicians.loc[
                 (politicians.last_name == last_name)
                 & (politicians.first_name == (" ".join([first_name[0], first_name[1]])))
-                & (politicians.birth_year.str.contains(str(birth_year)))
+                & (politicians.birth_date.str.contains(str(birth_date)))
             ]
 
             possible_matches = possible_matches.drop_duplicates(
@@ -261,33 +243,15 @@ for (
                     "last_name": possible_matches.last_name.iloc[0],
                     "birth_place": possible_matches.birth_place.iloc[0],
                     "birth_country": possible_matches.birth_country.iloc[0],
-                    "birth_year": possible_matches.birth_year.iloc[0],
-                    "death_year": possible_matches.death_year.iloc[0],
+                    "birth_date": possible_matches.birth_date.iloc[0],
+                    "death_date": possible_matches.death_date.iloc[0],
                     "gender": possible_matches.gender.iloc[0],
                     "profession": possible_matches.profession.iloc[0],
                     "constituency": possible_matches.constituency.iloc[0],
                     "aristocracy": possible_matches.aristocracy.iloc[0],
-                    "prefix": possible_matches.prefix.iloc[0],
                     "academic_title": possible_matches.academic_title.iloc[0],
-                    "salutation": possible_matches.salutation.iloc[0],
-                    "vita_short": possible_matches.vita_short.iloc[0],
-                    "disclosure_requirement": possible_matches.disclosure_requirement.iloc[
-                        0
-                    ],
-                    "constituency_number": possible_matches.constituency_number.iloc[0],
-                    "constituency_name": possible_matches.constituency_name.iloc[0],
-                    "electoral_list": possible_matches.electoral_list.iloc[0],
-                    "mp_from": possible_matches.mp_from.iloc[0],
-                    "mp_until": possible_matches.mp_until.iloc[0],
-                    "history_from": possible_matches.history_from.iloc[0],
-                    "history_until": possible_matches.history_until.iloc[0],
                     "institution_type": "Regierungsmitglied",
                     "institution_name": position,
-                    "institution_member_from": position_from,
-                    "institution_member_until": position_until,
-                    "function_long": position,
-                    "function_from": "",
-                    "function_until": "",
                 }
                 politicians = politicians.append(pd.Series(series), ignore_index=True)
         elif len(possible_matches) > 1:
@@ -304,31 +268,15 @@ for (
                     "last_name": last_name,
                     "birth_place": "",
                     "birth_country": "",
-                    "birth_year": str(birth_year),
-                    "death_year": str(death_year),
+                    "birth_date": str(birth_date),
+                    "death_date": str(death_date),
                     "gender": "",
                     "profession": "",
                     "constituency": "",
                     "aristocracy": "",
-                    "prefix": "",
                     "academic_title": "",
-                    "salutation": "",
-                    "vita_short": "",
-                    "disclosure_requirement": "",
-                    "constituency_number": "",
-                    "constituency_name": "",
-                    "electoral_list": "",
-                    "mp_from": "",
-                    "mp_until": "",
-                    "history_from": "",
-                    "history_until": "",
                     "institution_type": "Regierungsmitglied",
                     "institution_name": position,
-                    "institution_member_from": position_from,
-                    "institution_member_until": position_until,
-                    "function_long": position,
-                    "function_from": "",
-                    "function_until": "",
                 }
                 politicians = politicians.append(pd.Series(series), ignore_index=True)
 
