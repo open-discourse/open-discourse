@@ -92,6 +92,7 @@ def get_position_short_and_long(position_raw):
         return "Presidium of Parliament", position_raw
     elif (
         regex.match(r"^[Bb]undespräsident(in)?(\s|$|,|.)", position_raw)
+        or regex.match(r"^[Mm]inisterpräsident(in)?(\s|$|,|.)", position_raw)
         or regex.match(r"^[Ss]taatsminister(in)?(\s|$|,|.)", position_raw)
         or regex.match(r"^[Ss]enator(in)?(\s|$|,|.)", position_raw)
         or regex.match(r"^[Pp]räsident(in)?(\s|$|,|.)", position_raw)
