@@ -32,8 +32,7 @@ politicians = politicians.drop(
         "faction_id",
         "institution_type",
         "institution_name",
-        "institution_member_from",
-        "institution_member_until",
+        "constituency",
     ],
     axis=1,
 )
@@ -44,29 +43,12 @@ politicians.columns = [
     "last_name",
     "birth_place",
     "birth_country",
-    "birth_year",
-    "death_year",
+    "birth_date",
+    "death_date",
     "gender",
     "profession",
-    "constituency",
     "aristocracy",
-    "prefix",
     "academic_title",
-    "salutation",
-    "vita_short",
-    "disclosure_requirement",
-    "constituency_number",
-    "constituency_name",
-    "constituency_region",
-    "electoral_list",
-    "type_of_mandate",
-    "mp_from",
-    "mp_until",
-    "history_from",
-    "history_until",
-    "function_long",
-    "function_from",
-    "function_until",
 ]
 
 series = {
@@ -75,27 +57,12 @@ series = {
     "last_name": "",
     "birth_place": None,
     "birth_country": None,
-    "birth_year": None,
-    "death_year": None,
+    "birth_date": None,
+    "death_date": None,
     "gender": None,
     "profession": None,
-    "constituency": None,
     "aristocracy": None,
-    "prefix": None,
     "academic_title": None,
-    "salutation": None,
-    "vita_short": None,
-    "disclosure_requirement": None,
-    "constituency_number": None,
-    "constituency_name": None,
-    "electoral_list": None,
-    "mp_from": None,
-    "mp_until": None,
-    "history_from": None,
-    "history_until": None,
-    "function_long": None,
-    "function_from": None,
-    "function_until": None,
 }
 
 politicians = politicians.append(pd.Series(series), ignore_index=True)
@@ -129,14 +96,8 @@ print("starting politicians..")
 
 politicians = politicians.where((pd.notnull(politicians)), None)
 
-politicians.birth_year = politicians.birth_year.apply(convert_date)
-politicians.death_year = politicians.death_year.apply(convert_date)
-politicians.mp_from = politicians.mp_from.apply(convert_date)
-politicians.mp_until = politicians.mp_until.apply(convert_date)
-politicians.history_from = politicians.history_from.apply(convert_date)
-politicians.history_until = politicians.history_until.apply(convert_date)
-politicians.function_from = politicians.function_from.apply(convert_date)
-politicians.function_until = politicians.function_until.apply(convert_date)
+politicians.birth_date = politicians.birth_date.apply(convert_date)
+politicians.death_date = politicians.death_date.apply(convert_date)
 
 politicians.to_sql(
     "politicians", engine, if_exists="append", schema="app_public", index=False
