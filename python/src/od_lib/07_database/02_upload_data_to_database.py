@@ -32,7 +32,6 @@ politicians = politicians.drop(
         "faction_id",
         "institution_type",
         "institution_name",
-        "institution_member_until",
         "constituency",
     ],
     axis=1,
