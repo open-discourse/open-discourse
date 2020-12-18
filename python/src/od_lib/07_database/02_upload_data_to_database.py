@@ -214,6 +214,7 @@ print("starting speeches..")
 speeches = pd.read_pickle(SPOKEN_CONTENT)
 
 speeches = speeches.where((pd.notnull(speeches)), None)
+speeches.position_long.replace([r'^\s*$'], [None], regex=True, inplace=True)
 speeches.politician_id = speeches.apply(check_politicians, axis=1)
 
 speeches.to_sql(
