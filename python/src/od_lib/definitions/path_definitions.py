@@ -26,14 +26,14 @@ SPEECH_CONTENT_STAGE_03 = os.path.join(SPEECH_CONTENT, "stage_03")
 SPEECH_CONTENT_STAGE_04 = os.path.join(SPEECH_CONTENT, "stage_04")
 SPEECH_CONTENT_FINAL = os.path.join(SPEECH_CONTENT, "final")
 
-# CONTRIBUTIONS ____________________________________________________________________________________
-CONTRIBUTIONS = os.path.join(DATA_CACHE, "contributions")
-CONTRIBUTIONS_STAGE_01 = os.path.join(CONTRIBUTIONS, "stage_01")
-CONTRIBUTIONS_STAGE_02 = os.path.join(CONTRIBUTIONS, "stage_02")
-CONTRIBUTIONS_STAGE_03 = os.path.join(CONTRIBUTIONS, "stage_03")
-CONTRIBUTIONS_STAGE_04 = os.path.join(CONTRIBUTIONS, "stage_04")
+# CONTRIBUTIONS_EXTENDED ___________________________________________________________________________
+CONTRIBUTIONS_EXTENDED = os.path.join(DATA_CACHE, "contributions_extended")
+CONTRIBUTIONS_EXTENDED_STAGE_01 = os.path.join(CONTRIBUTIONS_EXTENDED, "stage_01")
+CONTRIBUTIONS_EXTENDED_STAGE_02 = os.path.join(CONTRIBUTIONS_EXTENDED, "stage_02")
+CONTRIBUTIONS_EXTENDED_STAGE_03 = os.path.join(CONTRIBUTIONS_EXTENDED, "stage_03")
+CONTRIBUTIONS_EXTENDED_STAGE_04 = os.path.join(CONTRIBUTIONS_EXTENDED, "stage_04")
 
-CONTRIBUTIONS_FINAL = os.path.join(CONTRIBUTIONS, "final")
+CONTRIBUTIONS_EXTENDED_FINAL = os.path.join(CONTRIBUTIONS_EXTENDED, "final")
 
 
 # POLITICIANS ______________________________________________________________________________________
@@ -49,8 +49,8 @@ FACTIONS = os.path.join(FACTIONS, "stage_02")
 
 FACTIONS_FINAL = os.path.join(FACTIONS, "final")
 
-# CONTRIBUTIONS_LOOKUP _____________________________________________________________________________
-CONTRIBUTIONS_LOOKUP = os.path.join(FINAL)
+# CONTRIBUTIONS_SIMPLIFIED _________________________________________________________________________
+CONTRIBUTIONS_SIMPLIFIED = os.path.join(FINAL)
 
 # ELECTORAL_TERMS __________________________________________________________________________________
 ELECTORAL_TERMS = os.path.join(FINAL)

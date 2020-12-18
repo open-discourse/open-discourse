@@ -15,26 +15,26 @@ politicians = path_definitions.DATA_FINAL
 
 # output directory
 ELECTORAL_TERM_19_OUTPUT = path_definitions.ELECTORAL_TERM_19_STAGE_03
-CONTRIBUTIONS_OUTPUT = os.path.join(
-    path_definitions.CONTRIBUTIONS_STAGE_01, "electoral_term_19"
+CONTRIBUTIONS_EXTENDED_OUTPUT = os.path.join(
+    path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_01, "electoral_term_19"
 )
 ELECTORAL_TERM_19_SPOKEN_CONTENT = os.path.join(
     ELECTORAL_TERM_19_OUTPUT, "speech_content"
 )
-CONTRIBUTIONS_LOOKUP = path_definitions.CONTRIBUTIONS_LOOKUP
+CONTRIBUTIONS_SIMPLIFIED = path_definitions.CONTRIBUTIONS_SIMPLIFIED
 
 if not os.path.exists(ELECTORAL_TERM_19_OUTPUT):
     os.makedirs(ELECTORAL_TERM_19_SPOKEN_CONTENT)
 
-# Contributions are saved to the normale contributions folder not the seperate electoral_term_19 folders  # noqa: E501
-if not os.path.exists(CONTRIBUTIONS_OUTPUT):
-    os.makedirs(CONTRIBUTIONS_OUTPUT)
+# Contributions are saved to the contributions_extended folder not the seperate electoral_term_19 folders  # noqa: E501
+if not os.path.exists(CONTRIBUTIONS_EXTENDED_OUTPUT):
+    os.makedirs(CONTRIBUTIONS_EXTENDED_OUTPUT)
 
-if not os.path.exists(CONTRIBUTIONS_LOOKUP):
-    os.makedirs(CONTRIBUTIONS_LOOKUP)
+if not os.path.exists(CONTRIBUTIONS_SIMPLIFIED):
+    os.makedirs(CONTRIBUTIONS_SIMPLIFIED)
 
-contributions_lookup = pd.DataFrame(
-    {"text_position": [], "deleted_text": [], "speech_id": []}
+contributions_simplified = pd.DataFrame(
+    {"text_position": [], "content": [], "speech_id": []}
 )
 
 faction_patterns = {
@@ -177,7 +177,7 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
     if session == ".DS_Store":
         continue
 
-    contributions = pd.DataFrame(
+    contributions_extended = pd.DataFrame(
         {
             "id": [],
             "type": [],
@@ -372,9 +372,9 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
                         pass
                 elif tag == "kommentar":
                     (
-                        contribtuions_frame,
+                        contributions_extended_frame,
                         speech_replaced,
-                        contributions_lookup_frame,
+                        contributions_simplified_frame,
                         text_position,
                     ) = extract(
                         content.text,
@@ -384,11 +384,13 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
                         False,
                     )
                     speech_text += "\n\n" + speech_replaced
-                    contributions = pd.concat(
-                        [contributions, contribtuions_frame], sort=False
+                    contributions_extended = pd.concat(
+                        [contributions_extended, contributions_extended_frame],
+                        sort=False,
                     )
-                    contributions_lookup = pd.concat(
-                        [contributions_lookup, contributions_lookup_frame], sort=False
+                    contributions_simplified = pd.concat(
+                        [contributions_simplified, contributions_simplified_frame],
+                        sort=False,
                     )
 
             speech_series = pd.Series(
@@ -408,12 +410,16 @@ for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
             speech_content = speech_content.append(speech_series, ignore_index=True)
             speech_content_id += 1
 
-    contributions.to_pickle(os.path.join(CONTRIBUTIONS_OUTPUT, session + ".pkl"))
+    contributions_extended.to_pickle(
+        os.path.join(CONTRIBUTIONS_EXTENDED_OUTPUT, session + ".pkl")
+    )
 
 speech_content.to_pickle(
     os.path.join(ELECTORAL_TERM_19_SPOKEN_CONTENT, "speech_content.pkl")
 )
 
-contributions_lookup.to_pickle(
-    os.path.join(CONTRIBUTIONS_LOOKUP, "contributions_lookup_electoral_term_19.pkl")
+contributions_simplified.to_pickle(
+    os.path.join(
+        CONTRIBUTIONS_SIMPLIFIED, "contributions_simplified_electoral_term_19.pkl"
+    )
 )

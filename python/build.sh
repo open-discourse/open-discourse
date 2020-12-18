@@ -39,7 +39,7 @@ python $speech_content_path/02_clean_speeches.py 2>&1 | tee logs/02_clean_speech
 python $speech_content_path/03_match_names_speeches.py 2>&1 | tee logs/03_match_names_speeches_log.log
 python $election_period_19_path/01_extract_speeches_and_contributions_electoral_term_19.py 2>&1 | tee logs/01_extract_speeches_and_contributions_electoral_term_19_log.log
 python $contributions_path/01_extract_contributions.py 2>&1 | tee logs/01_extract_contributions_log.log
-python $contributions_path/02_clean_contributions.py 2>&1 | tee logs/02_clean_contributions_log.log
-python $contributions_path/03_match_contributions.py 2>&1 | tee logs/03_match_contributions_log.log
+python $contributions_path/02_clean_contributions_extended.py 2>&1 | tee logs/02_clean_contributions_extended_log.log
+python $contributions_path/03_match_contributions_extended.py 2>&1 | tee logs/03_match_contributions_extended_log.log
 python $database_path/01_concat_everything.py 2>&1 | tee logs/01_concat_everything_log.log
 python $database_path/02_upload_data_to_database.py 2>&1 | tee logs/02_upload_data_to_database_log.log

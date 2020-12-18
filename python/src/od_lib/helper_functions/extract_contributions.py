@@ -777,7 +777,7 @@ def extract(
         "text_position": [],
     }
 
-    contributions_lookup = {"text_position": [], "deleted_text": [], "speech_id": []}
+    contributions_simplified = {"text_position": [], "content": [], "speech_id": []}
 
     # Iterate over all brackets
     for bracket in reversed(brackets):
@@ -789,11 +789,11 @@ def extract(
         # Save the bracket text
         bracket_text = bracket.group()
         # Save deleted text to DataFrame
-        contributions_lookup["text_position"].append(
+        contributions_simplified["text_position"].append(
             reversed_text_position if text_position_reversed else text_position
         )
-        contributions_lookup["deleted_text"].append(bracket_text)
-        contributions_lookup["speech_id"].append(identity)
+        contributions_simplified["content"].append(bracket_text)
+        contributions_simplified["speech_id"].append(identity)
 
         deletion_span = bracket.span(1)
 
@@ -833,7 +833,7 @@ def extract(
     return (
         pd.DataFrame(frame),
         speech_text,
-        pd.DataFrame(contributions_lookup),
+        pd.DataFrame(contributions_simplified),
         text_position,
     )
 
