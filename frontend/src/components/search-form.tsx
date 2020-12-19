@@ -36,16 +36,20 @@ export const SearchForm: React.FC<FormParams> = () => {
   const [formParams, setFormParams] = useState<FormParams>({});
   const [politicians] = useGetData<Politician[]>(
     `${
-      process.env.PROXY_ENDPOINT || "https://api.opendiscourse.de:5300"
+      process.env.NEXT_PUBLIC_PROXY_ENDPOINT ||
+      "https://api.opendiscourse.de:5300"
     }/politicians`,
     (response) => response.politicians
   );
   const [factions] = useGetData<Faction[]>(
     `${
-      process.env.PROXY_ENDPOINT || "https://api.opendiscourse.de:5300"
+      process.env.NEXT_PUBLIC_PROXY_ENDPOINT ||
+      "https://api.opendiscourse.de:5300"
     }/factions`,
     (response) => response.factions
   );
+  console.log(process.env.PROXY_ENDPOINT);
+  console.log(process.env.NEXT_PUBLIC_PROXY_ENDPOINT);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     // do not refresh entire page
