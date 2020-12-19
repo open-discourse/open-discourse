@@ -1,5 +1,6 @@
-import { SearchResultRow } from "./hooks/use-manage-data";
-import { Button } from "@chakra-ui/core";
+import { SearchResultRow } from "../hooks/use-manage-data";
+import { DownloadIcon } from "@chakra-ui/icons";
+import { DefaultButton } from "@bit/limebit.limebit-ui.default-button";
 
 export interface DownloadButtonProps {
   data: SearchResultRow[];
@@ -8,7 +9,6 @@ export interface DownloadButtonProps {
 
 export const DownloadButton = ({ data, text }: DownloadButtonProps) => (
   <a
-    style={{ margin: "5px" }}
     download={"OpenDiscourseData.csv"}
     href={`data:text/csv;base64,${btoa(
       unescape(
@@ -32,6 +32,8 @@ export const DownloadButton = ({ data, text }: DownloadButtonProps) => (
       )
     )}`}
   >
-    <Button colorScheme="teal">{text}</Button>
+    <DefaultButton rightIcon={<DownloadIcon />} colorScheme="pink">
+      {text}
+    </DefaultButton>
   </a>
 );

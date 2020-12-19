@@ -1,18 +1,14 @@
 import queryString from "query-string";
-import { Stack, Input, Button } from "@chakra-ui/core";
+import { Stack, Input } from "@chakra-ui/react";
 import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/router";
-import { useGetData } from "../components/hooks/use-get-data";
-import { SelectInput } from "@bit/limebit.chakra-ui-recipes.select-input";
-
-export interface FormParams {
-  contentQuery?: string | null;
-  factionIdQuery?: string | null;
-  politicianIdQuery?: string | null;
-  positionShortQuery?: string | null;
-  fromDate?: string | null;
-  toDate?: string | null;
-}
+import { useGetData } from "./hooks/use-get-data";
+import {
+  DefaultDateInput,
+  FormParams,
+  DefaultSelectInput,
+} from "./custom-inputs";
+import { DefaultButton } from "@bit/limebit.limebit-ui.default-button";
 
 export interface Faction {
   id: string;
@@ -25,6 +21,16 @@ export interface Politician {
   firstName: string;
   lastName: string;
 }
+
+export const positions = [
+  { key: "Member of Parliament", label: "Mitglied des Bundestages" },
+  { key: "Presidium of Parliament", label: "Mitglied des Präsidiums" },
+  { key: "Guest", label: "Gast" },
+  { key: "Chancellor", label: "Kanzler_in" },
+  { key: "Minister", label: "Minister_in" },
+  { key: "Secretary of State", label: "Staatssekretär_in" },
+  { key: "Not found", label: "Unbekannt" },
+];
 
 export const SearchForm: React.FC<FormParams> = () => {
   const [formParams, setFormParams] = useState<FormParams>({});
@@ -51,7 +57,9 @@ export const SearchForm: React.FC<FormParams> = () => {
         searchValues[key] === (undefined || "") && delete searchValues[key]
     );
     router.push(
-      `/?${queryString.stringify(JSON.parse(JSON.stringify(searchValues)))}`
+      `tools-und-daten/?${queryString.stringify(
+        JSON.parse(JSON.stringify(searchValues))
+      )}`
     );
   };
 
@@ -83,131 +91,112 @@ export const SearchForm: React.FC<FormParams> = () => {
     : [];
 
   const convertedFactions = factions
-    ? factions.map((faction) => ({
-        key: faction.id,
-        label: faction.fullName,
-      }))
+    ? factions
+        .filter(
+          (faction) => !["1", "8", "9", "10", "12", "19"].includes(faction.id)
+        )
+        .map((faction) => ({
+          key: faction.id,
+          label: faction.id == "-1" ? "Ohne Zuordnung" : faction.fullName,
+        }))
     : [];
-
-  const positions = [
-    { key: "Member of Parliament", label: "Mitglied des Bundestages" },
-    { key: "Presidium of Parliament", label: "Mitglied des Präsidiums" },
-    { key: "Guest", label: "Gast" },
-    { key: "Chancellor", label: "Kanzler_in" },
-    { key: "Minister", label: "Minister_in" },
-    { key: "Secretary of State", label: "Staatssekretär_in" },
-    { key: "Not found", label: "Nicht gefunden" },
-  ];
 
   if (politicians && factions) {
     return (
       <>
         <form onSubmit={handleSubmit}>
-          <Stack spacing={3}>
-            <SelectInput
-              placeholder="Nach Politiker Filtern"
-              rawData={convertedPoliticians}
-              onSelect={(element) => {
-                setFormParams({
-                  ...formParams,
-                  politicianIdQuery: element?.key,
-                });
-              }}
-              width="100%"
-              boxHoverColor="gray.200"
-              boxColor="gray.100"
-              iconHoverColor="gray.200"
-              iconColor="gray.500"
-              initialValue={
-                formParams.politicianIdQuery
-                  ? convertedPoliticians.find(
-                      (politician) =>
-                        politician.key == formParams.politicianIdQuery
-                    )
-                  : undefined
-              }
-            />
-            <SelectInput
-              placeholder="Nach Fraktion Filtern"
-              rawData={convertedFactions}
-              onSelect={(element) => {
-                setFormParams({
-                  ...formParams,
-                  factionIdQuery: element?.key,
-                });
-              }}
-              boxHoverColor="gray.200"
-              boxColor="gray.100"
-              iconHoverColor="gray.200"
-              iconColor="gray.500"
-              initialValue={
-                formParams.factionIdQuery
-                  ? convertedFactions.find(
-                      (faction) => faction.key == formParams.factionIdQuery
-                    )
-                  : undefined
-              }
-            />
-            <SelectInput
-              placeholder="Nach Position Filtern"
-              rawData={positions}
-              onSelect={(element) => {
-                setFormParams({
-                  ...formParams,
-                  positionShortQuery: element?.key,
-                });
-              }}
-              boxHoverColor="gray.200"
-              boxColor="gray.100"
-              iconHoverColor="gray.200"
-              iconColor="gray.500"
-              initialValue={
-                formParams.positionShortQuery
-                  ? positions.find(
-                      (position) =>
-                        position.key == formParams.positionShortQuery
-                    )
-                  : undefined
-              }
-            />
+          <Stack spacing={{ base: 2, md: 3 }}>
             <Input
               value={formParams?.contentQuery || ""}
               placeholder="Redeinhalt Durchsuchen"
+              focusBorderColor="pink.500"
               onChange={(event: React.ChangeEvent<HTMLInputElement>): void =>
                 setFormParams({
                   ...formParams,
                   contentQuery: event.target.value,
                 })
               }
+              type="text"
             />
-            <Stack isInline>
-              <Input
-                value={formParams?.fromDate || ""}
-                placeholder="Von"
-                type="date"
-                onChange={(event: React.ChangeEvent<HTMLInputElement>): void =>
+            <Stack direction={{ base: "column", md: "row" }}>
+              <DefaultSelectInput
+                rawData={convertedPoliticians}
+                onSelect={(element) => {
                   setFormParams({
                     ...formParams,
-                    fromDate: event.target.value,
-                  })
+                    politicianIdQuery: element?.key,
+                  });
+                }}
+                initialValue={
+                  formParams.politicianIdQuery
+                    ? convertedPoliticians.find(
+                        (politician) =>
+                          politician.key == formParams.politicianIdQuery
+                      )
+                    : undefined
                 }
+                placeholder="Nach Politiker_Innen Filtern"
               />
-              <Input
-                value={formParams?.toDate || ""}
-                placeholder="Bis"
-                type="date"
-                onChange={(event: React.ChangeEvent<HTMLInputElement>): void =>
+              <DefaultSelectInput
+                rawData={convertedFactions}
+                onSelect={(element) => {
                   setFormParams({
                     ...formParams,
-                    toDate: event.target.value,
-                  })
+                    factionIdQuery: element?.key,
+                  });
+                }}
+                initialValue={
+                  formParams.factionIdQuery
+                    ? convertedFactions.find(
+                        (faction) => faction.key == formParams.factionIdQuery
+                      )
+                    : undefined
                 }
+                placeholder="Nach Fraktion Filtern"
+              />
+              <DefaultSelectInput
+                rawData={positions}
+                onSelect={(element) => {
+                  setFormParams({
+                    ...formParams,
+                    positionShortQuery: element?.key,
+                  });
+                }}
+                initialValue={
+                  formParams.positionShortQuery
+                    ? positions.find(
+                        (position) =>
+                          position.key == formParams.positionShortQuery
+                      )
+                    : undefined
+                }
+                placeholder="Nach Position Filtern"
+              />
+            </Stack>
+            <Stack direction={{ base: "column", md: "row" }}>
+              <DefaultDateInput
+                prefix="Von:"
+                formParams={formParams}
+                setFormParams={setFormParams}
+                value={formParams?.fromDate || ""}
+              />
+              <DefaultDateInput
+                prefix="Bis:"
+                formParams={formParams}
+                setFormParams={setFormParams}
+                value={formParams?.toDate || ""}
               />
             </Stack>
           </Stack>
-          <Button mt={3} colorScheme="teal" type="submit">
+          <DefaultButton
+            rightIcon={undefined}
+            mt={3}
+            colorScheme="pink"
+            type="submit"
+            marginY="30px"
+          >
             Suchen
-          </Button>
+          </DefaultButton>
         </form>
       </>
     );

@@ -19,5 +19,3 @@ export const useGetData = <T,>(
   useEffect(() => fetchQuery(), []);
   return [data, fetchQuery];
 };
-
-export default useGetData;

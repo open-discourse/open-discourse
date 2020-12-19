@@ -1,7 +1,8 @@
 import { BaseTemplate } from "../templates/base-template";
-import { Heading, Flex, Stack } from "@chakra-ui/core";
+import { Heading, Flex } from "@chakra-ui/react";
 import { SearchForm } from "../components/search-form";
 import { SearchResult } from "../components/search-result";
+import { DefaultContainer } from "@bit/limebit.limebit-ui.default-container";
 export interface QueryParams {
   first?: number;
   contentQuery?: string;
@@ -15,11 +16,10 @@ const Search: React.FC = () => {
   return (
     <BaseTemplate>
       <Flex direction="column">
-        <Heading>Volltextsuche</Heading>
-        <Stack>
+        <DefaultContainer size="l">
           <SearchForm />
           <SearchResult />
-        </Stack>
+        </DefaultContainer>
       </Flex>
     </BaseTemplate>
   );
