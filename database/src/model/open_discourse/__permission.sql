@@ -1,0 +1,1 @@
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA open_discourse TO visitor;

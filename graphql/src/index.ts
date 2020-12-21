@@ -2,7 +2,7 @@ import express = require("express");
 import PgSimplifyInflectorPlugin from "@graphile-contrib/pg-simplify-inflector";
 import { postgraphile } from "postgraphile";
 
-import { SCHEMA_PUBLIC } from "./constants";
+import { schemas } from "./constants";
 const ConnectionFilterPlugin = require("postgraphile-plugin-connection-filter");
 
 const app = express();
@@ -16,7 +16,7 @@ app.use([
       host: process.env.POSTGRES_DB_HOST,
       port: parseInt(process.env.POSTGRES_DB_PORT || "5432", 10),
     },
-    SCHEMA_PUBLIC,
+    schemas,
     {
       appendPlugins: [PgSimplifyInflectorPlugin, ConnectionFilterPlugin],
       graphileBuildOptions: {

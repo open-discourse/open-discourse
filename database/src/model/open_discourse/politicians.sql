@@ -1,4 +1,4 @@
-CREATE TABLE app_public.politicians (
+CREATE TABLE open_discourse.politicians (
 	id int8 NOT NULL,
 	first_name varchar NOT NULL,
 	last_name varchar NOT NULL,
@@ -30,4 +30,4 @@ CREATE TABLE app_public.politicians (
 	CONSTRAINT mdbs_pk PRIMARY KEY (id)
 );
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE app_public.politicians TO visitor;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE open_discourse.politicians TO visitor;
