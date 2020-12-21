@@ -9,11 +9,11 @@ import regex
 pd.options.mode.chained_assignment = None
 
 # input directory
-CONTRIBUTIONS_INPUT = path_definitions.CONTRIBUTIONS_STAGE_01
+CONTRIBUTIONS_EXTENDED_INPUT = path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_01
 FACTIONS = path_definitions.DATA_FINAL
 
 # output directory
-CONTRIBUTIONS_OUTPUT = path_definitions.CONTRIBUTIONS_STAGE_02
+CONTRIBUTIONS_EXTENDED_OUTPUT = path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_02
 
 factions = pd.read_pickle(os.path.join(FACTIONS, "factions.pkl"))
 
@@ -56,7 +56,7 @@ def get_faction_abbrev(faction, faction_patterns):
 
 
 # iterate over all electoral_term_folders
-for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
+for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_EXTENDED_INPUT)):
 
     if "electoral_term" not in electoral_term_folder:
         continue
@@ -67,39 +67,39 @@ for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
         ):
             continue
     electoral_term_folder_path = os.path.join(
-        CONTRIBUTIONS_INPUT, electoral_term_folder
+        CONTRIBUTIONS_EXTENDED_INPUT, electoral_term_folder
     )
 
     print(electoral_term_folder)
 
-    save_path = os.path.join(CONTRIBUTIONS_OUTPUT, electoral_term_folder)
+    save_path = os.path.join(CONTRIBUTIONS_EXTENDED_OUTPUT, electoral_term_folder)
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    # iterate over every contributions file
-    for contributions_file in sorted(os.listdir(electoral_term_folder_path)):
+    # iterate over every contributions_extended file
+    for contributions_extended_file in sorted(os.listdir(electoral_term_folder_path)):
         # checks if the file is a .pkl file
-        if ".pkl" not in contributions_file:
+        if ".pkl" not in contributions_extended_file:
             continue
 
-        print(contributions_file)
+        print(contributions_extended_file)
 
-        filepath = os.path.join(electoral_term_folder_path, contributions_file)
+        filepath = os.path.join(electoral_term_folder_path, contributions_extended_file)
 
         # read the spoken content csv
-        contributions = pd.read_pickle(filepath)
+        contributions_extended = pd.read_pickle(filepath)
 
         # Insert acad_title column and extract plain name and titles.
         # ADD DOCUMENTATION HERE
-        contributions.insert(3, "faction_id", -1)
-        contributions.insert(5, "last_name", "")
-        contributions.insert(6, "first_name", "")
-        contributions.insert(7, "acad_title", "")
+        contributions_extended.insert(3, "faction_id", -1)
+        contributions_extended.insert(5, "last_name", "")
+        contributions_extended.insert(6, "first_name", "")
+        contributions_extended.insert(7, "acad_title", "")
 
         # Current workaround, because some speeches seem to not be matched
         # correctly. If second stage works without mistakes, this should not be
         # necessary anymoregex.
-        contributions = contributions.fillna("")
+        contributions_extended = contributions_extended.fillna("")
 
         # Clean all the names still remaining from PDF Header.
         # KEEP IN MIND THIS ALSO DELETES NAMES IN VOTING LISTS!!!
@@ -107,24 +107,24 @@ for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
         # "Max Mustermann, Bundeskanzler"
         # THIS PART IS IMPORTANT AND SHOULD WORK PROPERLY, AS REOCCURING NAMES
         # CAN INTRODUCE A LARGE BIAS IN TEXT ANALYSIS
-        names = contributions.name_raw.to_list()
-        contributions.content = contributions.content.apply(
+        names = contributions_extended.name_raw.to_list()
+        contributions_extended.content = contributions_extended.content.apply(
             clean_name_headers, args=(names, True,)
         )
 
-        contributions.reset_index(inplace=True, drop=True)
+        contributions_extended.reset_index(inplace=True, drop=True)
 
         # Delete all not alphabetical chars, keep "-" as it occurs often in
         # names.
         # Question: Is any other character deleted, which could be in a name?
         # Answer: I don't think so.
-        contributions.name_raw = contributions.name_raw.astype(str)
-        contributions.name_raw = contributions.name_raw.str.replace(
+        contributions_extended.name_raw = contributions_extended.name_raw.astype(str)
+        contributions_extended.name_raw = contributions_extended.name_raw.str.replace(
             r"[^a-zA-ZÖÄÜäöüß\-]", " ", regex=True
         )
 
         # Replace more than two whitespaces with one.
-        contributions.name_raw = contributions.name_raw.str.replace(
+        contributions_extended.name_raw = contributions_extended.name_raw.str.replace(
             r"  +", " ", regex=True
         )
 
@@ -149,10 +149,10 @@ for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
         ]
 
         # Split the name_raw column into it's components at space character.
-        first_last_titles = contributions.name_raw.apply(str.split)
+        first_last_titles = contributions_extended.name_raw.apply(str.split)
 
         # Extract acad_title, if it is in the titles list.
-        contributions.acad_title = [
+        contributions_extended.acad_title = [
             [acad_title for acad_title in title_list if acad_title in titles]
             for title_list in first_last_titles
         ]
@@ -166,34 +166,38 @@ for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
         # Get the first and last name based on the amount of elements.
         for index, first_last in zip(range(len(first_last_titles)), first_last_titles):
             if len(first_last) == 1:
-                contributions.first_name.iloc[index] = []
-                contributions.last_name.iloc[index] = first_last[0]
+                contributions_extended.first_name.iloc[index] = []
+                contributions_extended.last_name.iloc[index] = first_last[0]
             # elif len(first_last) == 2:
             elif len(first_last) >= 2:
-                contributions.first_name.iloc[index] = first_last[:-1]
-                contributions.last_name.iloc[index] = first_last[-1]
+                contributions_extended.first_name.iloc[index] = first_last[:-1]
+                contributions_extended.last_name.iloc[index] = first_last[-1]
             else:
-                contributions.first_name.iloc[index] = []
-                contributions.last_name.iloc[index] = ""
+                contributions_extended.first_name.iloc[index] = []
+                contributions_extended.last_name.iloc[index] = ""
 
         # look for parties in the faction column and replace them with a
         # standardized faction name
-        for index, faction in zip(contributions.index, contributions.faction):
+        for index, faction in zip(
+            contributions_extended.index, contributions_extended.faction
+        ):
             if faction:
                 faction_abbrev = get_faction_abbrev(
                     str(faction), faction_patterns=faction_patterns
                 )
 
                 if faction_abbrev:
-                    contributions.faction.at[index] = faction_abbrev
+                    contributions_extended.faction.at[index] = faction_abbrev
                     try:
-                        contributions.faction_id.at[index] = int(
+                        contributions_extended.faction_id.at[index] = int(
                             factions.id.loc[
                                 factions.abbreviation == faction_abbrev
                             ].iloc[0]
                         )
                     except IndexError:
-                        contributions.faction_id.at[index] = -1
+                        contributions_extended.faction_id.at[index] = -1
 
-        contributions.drop(columns=["name_raw"])
-        contributions.to_pickle(os.path.join(save_path, contributions_file))
+        contributions_extended.drop(columns=["name_raw"])
+        contributions_extended.to_pickle(
+            os.path.join(save_path, contributions_extended_file)
+        )

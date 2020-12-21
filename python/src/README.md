@@ -217,15 +217,15 @@ The Input and Output paths start at the project root
   - Input: `./data/02_cached/electoral_term_19/stage_02/*`
   - Output:
     - `./data/02_cached/electoral_term_19/stage_03/speech_content/speech_content.pkl`
-    - `./data/02_cached/contributions/stage_01/*`
-    - `./data/03_final/contributions_lookup.pkl`
+    - `./data/02_cached/contributions_extended/stage_01/*`
+    - `./data/03_final/contributions_simplified.pkl`
   - File Format:
     - speech_content:
       | speech_id |session | position_short | position_long | politician_id | last_name | first_name | acad_title | faction_id | constituency | speech_content | span_begin | span_end |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
       | 18245 | Member of Parliament | | 1109312 | Schmidt | ['Peter'] | [] | 4 | | Sehr geehrter ({0})... | 0.0 | 255.0 |
       | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
-    - contributions:
+    - contributions_extended:
       | id |  type | name | faction | constituency | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- |
       | 0 | Beifall | | SPD | | | 0 |
@@ -248,7 +248,7 @@ The Input and Output paths start at the project root
   - Output:
     - `./data/02_cached/speech_content/stage_04/*`
     - `./data/02_cached/contributions/stage_01/*`
-    - `./data/03_final/contributions_lookup.pkl`
+    - `./data/03_final/contributions_simplified.pkl`
   - File Format:
     - speech_content:
       | speech_id | session | top | additional_tops | faction_id | politician_id |name | last_name | first_name | title | position_short | position_long | speech_content | span_begin | span_end |

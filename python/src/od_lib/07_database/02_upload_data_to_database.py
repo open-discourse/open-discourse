@@ -9,15 +9,18 @@ engine = create_engine("postgresql://postgres:postgres@localhost:5432/next")
 
 # Load Final Data
 
-CONTRIBUTIONS = os.path.join(path_definitions.DATA_FINAL, "contributions.pkl")
+CONTRIBUTIONS_EXTENDED = os.path.join(
+    path_definitions.DATA_FINAL, "contributions_extended.pkl"
+)
 SPOKEN_CONTENT = os.path.join(path_definitions.DATA_FINAL, "speech_content.pkl")
 FACTIONS = os.path.join(path_definitions.DATA_FINAL, "factions.pkl")
 PEOPLE = os.path.join(path_definitions.DATA_FINAL, "politicians.csv")
-CONTRIBUTIONS_LOOKUP = os.path.join(
-    path_definitions.CONTRIBUTIONS_LOOKUP, "contributions_lookup.pkl"
+CONTRIBUTIONS_SIMPLIFIED = os.path.join(
+    path_definitions.CONTRIBUTIONS_SIMPLIFIED, "contributions_simplified.pkl"
 )
-CONTRIBUTIONS_LOOKUP_WP19 = os.path.join(
-    path_definitions.CONTRIBUTIONS_LOOKUP, "contributions_lookup_electoral_term_19.pkl"
+CONTRIBUTIONS_SIMPLIFIED_WP19 = os.path.join(
+    path_definitions.CONTRIBUTIONS_SIMPLIFIED,
+    "contributions_simplified_electoral_term_19.pkl",
 )
 ELECTORAL_TERMS = os.path.join(path_definitions.ELECTORAL_TERMS, "electoral_terms.csv")
 
@@ -219,35 +222,43 @@ speeches.to_sql(
 )
 
 
-print("starting contributions..")
+print("starting contributions_extended..")
 
-contributions = pd.read_pickle(CONTRIBUTIONS)
+contributions_extended = pd.read_pickle(CONTRIBUTIONS_EXTENDED)
 
-contributions = contributions.where((pd.notnull(contributions)), None)
+contributions_extended = contributions_extended.where(
+    (pd.notnull(contributions_extended)), None
+)
 
-contributions.to_sql(
-    "contributions", engine, if_exists="append", schema="app_public", index=False
+contributions_extended.to_sql(
+    "contributions_extended",
+    engine,
+    if_exists="append",
+    schema="app_public",
+    index=False,
 )
 
 
-print("starting contributions_lookup..")
+print("starting contributions_simplified..")
 
-contributions_lookup = pd.read_pickle(CONTRIBUTIONS_LOOKUP)
+contributions_simplified = pd.read_pickle(CONTRIBUTIONS_SIMPLIFIED)
 
-contributions_lookup_electoral_term_19 = pd.read_pickle(CONTRIBUTIONS_LOOKUP_WP19)
-
-contributions_lookup = pd.concat(
-    [contributions_lookup, contributions_lookup_electoral_term_19], sort=False
+contributions_simplified_electoral_term_19 = pd.read_pickle(
+    CONTRIBUTIONS_SIMPLIFIED_WP19
 )
 
-contributions_lookup = contributions_lookup.where(
-    (pd.notnull(contributions_lookup)), None
+contributions_simplified = pd.concat(
+    [contributions_simplified, contributions_simplified_electoral_term_19], sort=False
 )
 
-contributions_lookup["id"] = range(len(contributions_lookup.deleted_text))
+contributions_simplified = contributions_simplified.where(
+    (pd.notnull(contributions_simplified)), None
+)
 
-contributions_lookup.to_sql(
-    "contributions_lookup",
+contributions_simplified["id"] = range(len(contributions_simplified.content))
+
+contributions_simplified.to_sql(
+    "contributions_simplified",
     engine,
     if_exists="append",
     schema="app_public",
