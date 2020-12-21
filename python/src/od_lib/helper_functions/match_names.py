@@ -451,7 +451,7 @@ def insert_politician_id_into_speech_content(
     return df, problem_df
 
 
-def insert_politician_id_into_contributions(
+def insert_politician_id_into_contributions_extended(
     df, politicians_electoral_term, mgs_electoral_term
 ):
     "Appends a politician id column with matched IDs"

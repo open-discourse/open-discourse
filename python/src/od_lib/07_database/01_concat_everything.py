@@ -11,17 +11,17 @@ import sys
 RAW_XML = path_definitions.RAW_XML
 SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_04
 SPEECH_CONTENT_INPUT_2 = path_definitions.ELECTORAL_TERM_19_STAGE_03
-CONTRIBUTIONS_INPUT = path_definitions.CONTRIBUTIONS_STAGE_03
+CONTRIBUTIONS_EXTENDED_INPUT = path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_03
 
 # output directory
 SPEECH_CONTENT_OUTPUT = path_definitions.FINAL
-CONTRIBUTIONS_OUTPUT = path_definitions.FINAL
+CONTRIBUTIONS_EXTENDED_OUTPUT = path_definitions.FINAL
 
 if not os.path.exists(SPEECH_CONTENT_OUTPUT):
     os.makedirs(SPEECH_CONTENT_OUTPUT)
 
-if not os.path.exists(CONTRIBUTIONS_OUTPUT):
-    os.makedirs(CONTRIBUTIONS_OUTPUT)
+if not os.path.exists(CONTRIBUTIONS_EXTENDED_OUTPUT):
+    os.makedirs(CONTRIBUTIONS_EXTENDED_OUTPUT)
 
 # spoken content
 
@@ -187,13 +187,13 @@ speech_content = pd.concat([speech_content_01_18, speech_content_19])
 
 speech_content.to_pickle(os.path.join(SPEECH_CONTENT_OUTPUT, "speech_content.pkl"))
 
-# Placeholder for concating contributions DF of all sessions.
-concat_contributions_df = pd.DataFrame()
+# Placeholder for concating contributions_extended DF of all sessions.
+concat_contributions_extended_df = pd.DataFrame()
 
-# Walk over all legislature periods.
-for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
+# Walk over all legislature periods. ___________________________________________
+for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_EXTENDED_INPUT)):
     electoral_term_folder_path = os.path.join(
-        CONTRIBUTIONS_INPUT, electoral_term_folder
+        CONTRIBUTIONS_EXTENDED_INPUT, electoral_term_folder
     )
 
     if not os.path.isdir(electoral_term_folder_path):
@@ -201,22 +201,22 @@ for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_INPUT)):
     elif electoral_term_folder == ".DS_Store":
         continue
 
-    for contributions_file in sorted(os.listdir(electoral_term_folder_path)):
-        if ".pkl" not in contributions_file:
+    for contributions_extended_file in sorted(os.listdir(electoral_term_folder_path)):
+        if ".pkl" not in contributions_extended_file:
             continue
 
-        print(contributions_file)
+        print(contributions_extended_file)
 
-        contributions = pd.read_pickle(
-            os.path.join(electoral_term_folder_path, contributions_file)
+        contributions_extended = pd.read_pickle(
+            os.path.join(electoral_term_folder_path, contributions_extended_file)
         )
 
-        concat_contributions_df = pd.concat(
-            [concat_contributions_df, contributions], sort=False
+        concat_contributions_extended_df = pd.concat(
+            [concat_contributions_extended_df, contributions_extended], sort=False
         )
 
 
-concat_contributions_df = concat_contributions_df.loc[
+concat_contributions_extended_df = concat_contributions_extended_df.loc[
     :,
     [
         "type",
@@ -230,15 +230,19 @@ concat_contributions_df = concat_contributions_df.loc[
     ],
 ]
 
-concat_contributions_df = concat_contributions_df.rename(
+concat_contributions_extended_df = concat_contributions_extended_df.rename(
     columns={"id": "speech_id", "politician_id": "politician_id"}
 )
 
-concat_contributions_df.insert(0, "id", list(range(len(concat_contributions_df))))
+concat_contributions_extended_df.insert(
+    0, "id", list(range(len(concat_contributions_extended_df)))
+)
 
-concat_contributions_df.first_name = concat_contributions_df.first_name.apply(" ".join)
+concat_contributions_extended_df.first_name = concat_contributions_extended_df.first_name.apply(
+    " ".join
+)
 
-concat_contributions_df = concat_contributions_df.astype(
+concat_contributions_extended_df = concat_contributions_extended_df.astype(
     {
         "id": "int64",
         "type": "object",
@@ -252,6 +256,6 @@ concat_contributions_df = concat_contributions_df.astype(
     }
 )
 
-concat_contributions_df.to_pickle(
-    os.path.join(CONTRIBUTIONS_OUTPUT, "contributions.pkl")
+concat_contributions_extended_df.to_pickle(
+    os.path.join(CONTRIBUTIONS_EXTENDED_OUTPUT, "contributions_extended.pkl")
 )

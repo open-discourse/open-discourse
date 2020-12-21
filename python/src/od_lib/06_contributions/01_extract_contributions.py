@@ -10,8 +10,8 @@ SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_03
 
 # output directory
 SPEECH_CONTENT_OUTPUT = path_definitions.SPEECH_CONTENT_STAGE_04
-CONTRIBUTIONS_OUTPUT = path_definitions.CONTRIBUTIONS_STAGE_01
-CONTRIBUTIONS_LOOKUP = path_definitions.CONTRIBUTIONS_LOOKUP
+CONTRIBUTIONS_EXTENDED_OUTPUT = path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_01
+CONTRIBUTIONS_SIMPLIFIED = path_definitions.CONTRIBUTIONS_SIMPLIFIED
 
 
 class Incrementor(object):
@@ -27,11 +27,11 @@ class Incrementor(object):
 
 speech_id = 0
 
-if not os.path.exists(CONTRIBUTIONS_LOOKUP):
-    os.makedirs(CONTRIBUTIONS_LOOKUP)
+if not os.path.exists(CONTRIBUTIONS_SIMPLIFIED):
+    os.makedirs(CONTRIBUTIONS_SIMPLIFIED)
 
-contributions_lookup = pd.DataFrame(
-    {"text_position": [], "deleted_text": [], "speech_id": []}
+contributions_simplified = pd.DataFrame(
+    {"text_position": [], "content": [], "speech_id": []}
 )
 
 # Go through all electoral_term folders
@@ -53,8 +53,10 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
     if not os.path.exists(os.path.join(SPEECH_CONTENT_OUTPUT, electoral_term_folder)):
         os.makedirs(os.path.join(SPEECH_CONTENT_OUTPUT, electoral_term_folder))
 
-    if not os.path.exists(os.path.join(CONTRIBUTIONS_OUTPUT, electoral_term_folder)):
-        os.makedirs(os.path.join(CONTRIBUTIONS_OUTPUT, electoral_term_folder))
+    if not os.path.exists(
+        os.path.join(CONTRIBUTIONS_EXTENDED_OUTPUT, electoral_term_folder)
+    ):
+        os.makedirs(os.path.join(CONTRIBUTIONS_EXTENDED_OUTPUT, electoral_term_folder))
 
     # iterate over every speech_content file
     for speech_content_file in sorted(os.listdir(electoral_term_folder_path)):
@@ -78,7 +80,7 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
             "text_position": [],
         }
 
-        contributions = pd.DataFrame(frame)
+        contributions_extended = pd.DataFrame(frame)
 
         speech_content.insert(0, "speech_id", 0)
 
@@ -87,7 +89,12 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
             # call the extract method which returns the cleaned speech and a
             # dataframe with all contributions in that particular speech
 
-            (contribution, speech_text, contributions_lookup_frame, _,) = extract(
+            (
+                contribution_extended,
+                speech_text,
+                contributions_simplified_frame,
+                _,
+            ) = extract(
                 speech, int(speech_content_file.replace(".pkl", "")), speech_id,
             )
 
@@ -97,15 +104,19 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
             speech_id += 1
 
             # combine the dataframes
-            contributions = pd.concat([contributions, contribution], sort=False)
-            contributions_lookup = pd.concat(
-                [contributions_lookup, contributions_lookup_frame], sort=False
+            contributions_extended = pd.concat(
+                [contributions_extended, contribution_extended], sort=False
+            )
+            contributions_simplified = pd.concat(
+                [contributions_simplified, contributions_simplified_frame], sort=False
             )
 
-        # save the contributions to pickle
-        contributions.to_pickle(
+        # save the contributions_extended to pickle
+        contributions_extended.to_pickle(
             os.path.join(
-                CONTRIBUTIONS_OUTPUT, electoral_term_folder, speech_content_file
+                CONTRIBUTIONS_EXTENDED_OUTPUT,
+                electoral_term_folder,
+                speech_content_file,
             )
         )
 
@@ -116,6 +127,6 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
             )
         )
 
-contributions_lookup.to_pickle(
-    os.path.join(CONTRIBUTIONS_LOOKUP, "contributions_lookup.pkl")
+contributions_simplified.to_pickle(
+    os.path.join(CONTRIBUTIONS_SIMPLIFIED, "contributions_simplified.pkl")
 )
