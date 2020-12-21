@@ -1,10 +1,35 @@
-# This is the official Readme of Open Discourse
+<!-- markdownlint-disable MD033 -->
+<p align="center">
+  <a href="https://opendiscourse.de/">
+    <img
+      alt="Open Discourse"
+      src="images/open-discourse_full_black_transparent.png"
+      width="400"
+    />
+  </a>
+</p>
 
-## Project Info: TODO
+# Table of Content
 
-## Roadmap?: TODO
+- [Project Info](#project-info)
+- [Repository Structure](#repository-structure)
+- [How to Setup](#how-to-setup)
+  - [Start the Database](#start-the-database)
+    - [Database: Normal Start](#database-normal-start)
+    - [Database: Initial Start / Reset](#database-initial-start--reset)
+  - [Start the GraphQL Endpoint](#start-the-graphql-endpoint)
+    - [GraphQL: Normal Start](#graphql-normal-start)
+  - [Generate Data](#generate-data)
+- [Further Documentation](#further-documentation)
+- [Notes](#notes)
 
-### ...
+## Project Info
+
+The platform is our contribution to democratizing access to political debates and issues.
+
+Open Discourse is a non-profit project of the employees of Limebit GmbH. The idea emerged from the skills and motivations of the employees, in break conversations and from the common ideas of democracy.
+
+We hope that through our preliminary work, data-based journalism, science and civil society will benefit and that the facilitated access to data will encourage to analyze the political history of the Bundestag based on the language used by politicians.
 
 ## Repository Structure
 
@@ -23,7 +48,7 @@ This Repo is structured in three different parts.
 
   - Includes every python script in different subsections, sorted by execution order
 
-## How to setup
+## How to Setup
 
 Required software:
 [python3](https://www.python.org/downloads/),
@@ -39,6 +64,8 @@ Required software:
 Most of the following steps require you to have activated the virtual environment via `source .venv/bin/activate`.
 
 ### Start the Database
+
+These steps will guide you through starting the Database
 
 #### Database: Normal Start
 
