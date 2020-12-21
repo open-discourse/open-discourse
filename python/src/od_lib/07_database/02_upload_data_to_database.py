@@ -98,7 +98,7 @@ def check_politicians(row):
 
 print("starting electoral_terms..")
 electoral_terms.to_sql(
-    "electoral_terms", engine, if_exists="append", schema="app_public", index=False
+    "electoral_terms", engine, if_exists="append", schema="open_discourse", index=False
 )
 
 
@@ -110,7 +110,7 @@ politicians.birth_date = politicians.birth_date.apply(convert_date)
 politicians.death_date = politicians.death_date.apply(convert_date)
 
 politicians.to_sql(
-    "politicians", engine, if_exists="append", schema="app_public", index=False
+    "politicians", engine, if_exists="append", schema="open_discourse", index=False
 )
 
 
@@ -213,7 +213,7 @@ factions = pd.DataFrame(
 factions.id = factions.id.astype(int)
 
 factions.to_sql(
-    "factions", engine, if_exists="append", schema="app_public", index=False
+    "factions", engine, if_exists="append", schema="open_discourse", index=False
 )
 
 
@@ -228,7 +228,7 @@ speeches.position_long.replace([r'^\s*$'], [None], regex=True, inplace=True)
 speeches.politician_id = speeches.apply(check_politicians, axis=1)
 
 speeches.to_sql(
-    "speeches", engine, if_exists="append", schema="app_public", index=False
+    "speeches", engine, if_exists="append", schema="open_discourse", index=False
 )
 
 
@@ -239,7 +239,7 @@ contributions = pd.read_pickle(CONTRIBUTIONS)
 contributions = contributions.where((pd.notnull(contributions)), None)
 
 contributions.to_sql(
-    "contributions", engine, if_exists="append", schema="app_public", index=False
+    "contributions", engine, if_exists="append", schema="open_discourse", index=False
 )
 
 
@@ -263,7 +263,7 @@ contributions_lookup.to_sql(
     "contributions_lookup",
     engine,
     if_exists="append",
-    schema="app_public",
+    schema="open_discourse",
     index=False,
 )
 

@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION app_public.search_speeches (politician_id_query int8 DEFAULT -2, faction_id_query int8 DEFAULT -2, "position_short_query" text DEFAULT '', content_query text DEFAULT '', from_date date DEFAULT NULL, to_date date DEFAULT NULL)
+CREATE OR REPLACE FUNCTION open_discourse.search_speeches (politician_id_query int8 DEFAULT -2, faction_id_query int8 DEFAULT -2, "position_short_query" text DEFAULT '', content_query text DEFAULT '', from_date date DEFAULT NULL, to_date date DEFAULT NULL)
   RETURNS TABLE (
     id int8,
     "position_short" varchar,
@@ -30,9 +30,9 @@ BEGIN
     p.last_name,
     f.abbreviation
   FROM
-    app_public.speeches s
-  LEFT JOIN app_public.politicians p ON p.id=s.politician_id
-  LEFT JOIN app_public.factions f ON f.id=s.faction_id
+    open_discourse.speeches s
+  LEFT JOIN open_discourse.politicians p ON p.id=s.politician_id
+  LEFT JOIN open_discourse.factions f ON f.id=s.faction_id
   WHERE (
         ((NOT has_politician_id) OR politician_id = politician_id_query)
     AND ((NOT has_faction_id) OR faction_id = faction_id_query)
