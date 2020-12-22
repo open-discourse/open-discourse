@@ -247,7 +247,7 @@ contributions_extended.to_sql(
     "contributions_extended",
     engine,
     if_exists="append",
-    schema="app_public",
+    schema="open_discourse",
     index=False,
 )
 
