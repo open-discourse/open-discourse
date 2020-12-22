@@ -1,1 +1,1 @@
-export const SCHEMA_PUBLIC = "app_public";
+export const schemas = ["open_discourse", "misc"];

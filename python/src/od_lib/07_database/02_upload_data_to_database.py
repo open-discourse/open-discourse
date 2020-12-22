@@ -24,7 +24,7 @@ CONTRIBUTIONS_SIMPLIFIED_WP19 = os.path.join(
 )
 ELECTORAL_TERMS = os.path.join(path_definitions.ELECTORAL_TERMS, "electoral_terms.csv")
 
-# Load data______
+# Load data
 electoral_terms = pd.read_csv(ELECTORAL_TERMS)
 
 politicians = pd.read_csv(PEOPLE)
@@ -71,12 +71,22 @@ series = {
 politicians = politicians.append(pd.Series(series), ignore_index=True)
 
 
-def convert_date(date):
+def convert_date_politicians(date):
     try:
         date = datetime.datetime.strptime(date, "%d.%m.%Y")
         date = date.strftime("%Y-%m-%d %H:%M:%S")
         return date
     except (ValueError, TypeError):
+        return None
+
+
+def convert_date_speeches(date):
+    try:
+        date = datetime.datetime.fromtimestamp(date)
+        date = date.strftime("%Y-%m-%d %H:%M:%S")
+        return date
+    except (ValueError, TypeError) as e:
+        print(e)
         return None
 
 
@@ -91,7 +101,7 @@ def check_politicians(row):
 
 print("starting electoral_terms..")
 electoral_terms.to_sql(
-    "electoral_terms", engine, if_exists="append", schema="app_public", index=False
+    "electoral_terms", engine, if_exists="append", schema="open_discourse", index=False
 )
 
 
@@ -99,11 +109,11 @@ print("starting politicians..")
 
 politicians = politicians.where((pd.notnull(politicians)), None)
 
-politicians.birth_date = politicians.birth_date.apply(convert_date)
-politicians.death_date = politicians.death_date.apply(convert_date)
+politicians.birth_date = politicians.birth_date.apply(convert_date_politicians)
+politicians.death_date = politicians.death_date.apply(convert_date_politicians)
 
 politicians.to_sql(
-    "politicians", engine, if_exists="append", schema="app_public", index=False
+    "politicians", engine, if_exists="append", schema="open_discourse", index=False
 )
 
 
@@ -206,19 +216,22 @@ factions = pd.DataFrame(
 factions.id = factions.id.astype(int)
 
 factions.to_sql(
-    "factions", engine, if_exists="append", schema="app_public", index=False
+    "factions", engine, if_exists="append", schema="open_discourse", index=False
 )
+
 
 print("starting speeches..")
 
 speeches = pd.read_pickle(SPOKEN_CONTENT)
+
+speeches["date"] = speeches["date"].apply(convert_date_speeches)
 
 speeches = speeches.where((pd.notnull(speeches)), None)
 speeches.position_long.replace([r'^\s*$'], [None], regex=True, inplace=True)
 speeches.politician_id = speeches.apply(check_politicians, axis=1)
 
 speeches.to_sql(
-    "speeches", engine, if_exists="append", schema="app_public", index=False
+    "speeches", engine, if_exists="append", schema="open_discourse", index=False
 )
 
 
@@ -234,7 +247,7 @@ contributions_extended.to_sql(
     "contributions_extended",
     engine,
     if_exists="append",
-    schema="app_public",
+    schema="open_discourse",
     index=False,
 )
 
@@ -261,7 +274,7 @@ contributions_simplified.to_sql(
     "contributions_simplified",
     engine,
     if_exists="append",
-    schema="app_public",
+    schema="open_discourse",
     index=False,
 )
 
