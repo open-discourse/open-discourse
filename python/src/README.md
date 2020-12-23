@@ -221,10 +221,10 @@ The Input and Output paths start at the project root
     - `./data/03_final/contributions_simplified.pkl`
   - File Format:
     - speech_content:
-      | speech_id |session | position_short | position_long | politician_id | last_name | first_name | acad_title | faction_id | constituency | speech_content | span_begin | span_end |
-      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-      | 18245 | Member of Parliament | | 1109312 | Schmidt | ['Peter'] | [] | 4 | | Sehr geehrter ({0})... | 0.0 | 255.0 |
-      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+      | id | session | position_short | position_long | politician_id | last_name | first_name | faction_id | speech_content | date |
+      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+      | 1052836 | 18245 | Member of Parliament | | 1109312 | Schmidt | ['Peter'] | 4 | Sehr geehrter ({0})... | 1.608163e+09 |
+      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
     - contributions_extended:
       | id |  type | name | faction | constituency | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- |

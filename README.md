@@ -35,17 +35,16 @@ We hope that through our preliminary work, data-based journalism, science and ci
 
 This Repo is structured in three different parts.
 
-- database:
-
+- [database](./database):
   - Docker-Container for the Postgres Database
   - Contains Scripts that update the Database
-
-- graphql:
-
+- [frontend](./frontend):
+  - Frontend for the Full Text Search
+- [graphql](./grahpql):
   - Docker-Container for the GraphQL Endpoint
-
-- src:
-
+- [proxy](./proxy):
+  - Docker-Container for the Proxy, which protects the graphql Endpoint
+- [python](./python):
   - Includes every python script in different subsections, sorted by execution order
 
 ## How to Setup
@@ -57,11 +56,10 @@ Required software:
 [node version 12](https://nodejs.org/dist/latest-v12.x/docs/api/) - ideally installed via node version manager (nvm)
 
 - run `yarn` in following directories:
-  - `graphql`
   - `database`
-- in project root run `sh setup.sh` and `docker-compose build`
-
-Most of the following steps require you to have activated the virtual environment via `source .venv/bin/activate`.
+  - `frontend`
+- run `sh setup.sh` in the `python` directory
+- run `docker-compose build` in the `root` folder
 
 ### Start the Database
 
@@ -110,9 +108,18 @@ This script is just a pipeline executing all scripts in `src`. You can also manu
 sh build.sh
 ```
 
+### Start the Full Text Search
+
+If you want to setup the Full Text Search, follow these steps:
+
+- run `yarn` in following directories:
+  - `frontend`
+  - `proxy`
+- run `docker-compose up -d` in the `root` folder
+
 ## Further Documentation
 
-- Documentation of every python-script can be found in the [README in src](./src/README.md)
+- Documentation of every python-script can be found in the [README in python/src](./python/src/README.md)
 - Documentation of Database commands can be found in the [README in database](./database/README.md)
 
 ## Notes
