@@ -21,14 +21,18 @@ const pool = new Pool({
 // FIXME: order matters. Create dependency handling
 const FILES = [
   ["__init.sql"],
-  ["app_public", "__init.sql"],
-  ["app_public", "electoral_terms.sql"],
-  ["app_public", "factions.sql"],
-  ["app_public", "politicians.sql"],
-  ["app_public", "speeches.sql"],
-  ["app_public", "contributions_extended.sql"],
-  ["app_public", "contributions_simplified.sql"],
-  ["app_public", "__permission.sql"],
+  ["open_discourse", "__init.sql"],
+  ["open_discourse", "electoral_terms.sql"],
+  ["open_discourse", "factions.sql"],
+  ["open_discourse", "politicians.sql"],
+  ["open_discourse", "speeches.sql"],
+  ["open_discourse", "search_speeches.sql"],
+  ["open_discourse", "contributions_extended.sql"],
+  ["open_discourse", "contributions_simplified.sql"],
+  ["open_discourse", "__permission.sql"],
+  ["misc", "__init.sql"],
+  ["misc", "__permission.sql"],
+  ["misc", "fts_tracking.sql"],
 ];
 
 export const closeAllOtherConnections = async (

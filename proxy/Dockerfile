@@ -6,6 +6,6 @@ WORKDIR /srv/
 
 RUN yarn
 
-EXPOSE 5000
+EXPOSE 5300
 
 CMD ["yarn", "dev"]
