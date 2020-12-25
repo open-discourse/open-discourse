@@ -5,7 +5,7 @@ import {
   InputRightElement,
 } from "@chakra-ui/react";
 import { CalendarIcon } from "@chakra-ui/icons";
-import { SetStateAction } from "react";
+import { ChangeEvent } from "react";
 import {
   DataProps,
   SelectInput,
@@ -21,15 +21,13 @@ export interface FormParams {
 }
 
 export interface DefaultDateInputProps {
-  formParams: FormParams;
-  setFormParams: (value: SetStateAction<FormParams>) => void;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   value: string;
   prefix: string;
 }
 
 export const DefaultDateInput = ({
-  formParams,
-  setFormParams,
+  onChange,
   value,
   prefix,
 }: DefaultDateInputProps) => {
@@ -41,12 +39,7 @@ export const DefaultDateInput = ({
         placeholder="YYYY-MM-DD"
         type="text"
         focusBorderColor="pink.500"
-        onChange={(event: React.ChangeEvent<HTMLInputElement>): void =>
-          setFormParams({
-            ...formParams,
-            toDate: event.target.value,
-          })
-        }
+        onChange={onChange}
       />
       <InputRightElement children={<CalendarIcon color="pink.500" />} />
     </InputGroup>
