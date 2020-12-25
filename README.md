@@ -13,13 +13,15 @@
 
 - [Project Info](#project-info)
 - [Repository Structure](#repository-structure)
-- [How to Setup](#how-to-setup)
+- [Docker Setup](#docker-setup)
+- [Manual Setup](#manual-setup)
   - [Start the Database](#start-the-database)
     - [Database: Normal Start](#database-normal-start)
     - [Database: Initial Start / Reset](#database-initial-start--reset)
   - [Start the GraphQL Endpoint](#start-the-graphql-endpoint)
     - [GraphQL: Normal Start](#graphql-normal-start)
   - [Generate Data](#generate-data)
+  - [Start the Full Text Search](#start-the-full-text-search)
 - [Further Documentation](#further-documentation)
 - [Notes](#notes)
 
@@ -47,7 +49,11 @@ This Repo is structured in three different parts.
 - [python](./python):
   - Includes every python script in different subsections, sorted by execution order
 
-## How to Setup
+## Docker Setup
+
+For a quick setup using Docker, please read the [DOCKER_SETUP](./DOCKER_SETUP.md)
+
+## Manual Setup
 
 Required software:
 [python3](https://www.python.org/downloads/),
@@ -110,6 +116,8 @@ sh build.sh
 
 ### Start the Full Text Search
 
+_Note:_ All of the previous steps have to be completed at least once for the Full Text Search to work properly.
+
 If you want to setup the Full Text Search, follow these steps:
 
 - run `yarn` in following directories:
@@ -119,8 +127,11 @@ If you want to setup the Full Text Search, follow these steps:
 
 ## Further Documentation
 
+- Documentation of the database can be found in the [README in database](./database/README.md)
+- Documentation of the frontend can be found in the [README in frontend](./frontend/README.md)
+- Documentation of graphql can be found in the [README in graphql](./graphql/README.md)
+- Documentation of the proxy can be found in the [README in proxy](./proxy/README.md)
 - Documentation of every python-script can be found in the [README in python/src](./python/src/README.md)
-- Documentation of Database commands can be found in the [README in database](./database/README.md)
 
 ## Notes
 
