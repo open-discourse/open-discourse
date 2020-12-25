@@ -4,7 +4,7 @@ The frontend service contains the Full Text Search, which can be used to search 
 
 ## Folders
 
-- The `public` folder contains static files, e.g images
+- The `public` folder contains static files, e.g. images
 - The `src` folder contains the source code for the frontend
 
 ## Commands

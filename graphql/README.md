@@ -8,6 +8,6 @@ The graphql service acts as an interface between the users / frontend and the da
 
 ## Commands
 
-- To start the proxy in development mode, please run `yarn run dev`
-- To build the proxy for production mode, please run `yarn run build`
-- To start the proxy in production mode, please run `yarn run start`
+- To start graphql in development mode, please run `yarn run dev`
+- To build graphql for production mode, please run `yarn run build`
+- To start graphql in production mode, please run `yarn run start`

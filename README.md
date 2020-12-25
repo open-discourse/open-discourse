@@ -14,7 +14,7 @@
 - [Project Info](#project-info)
 - [Repository Structure](#repository-structure)
 - [Docker Setup](#docker-setup)
-- [Manual Setup](#manual-setup)
+- [Local Setup](#local-setup)
   - [Start the Database](#start-the-database)
     - [Database: Normal Start](#database-normal-start)
     - [Database: Initial Start / Reset](#database-initial-start--reset)
@@ -53,7 +53,7 @@ This Repo is structured in three different parts.
 
 For a quick setup using Docker, please read the [DOCKER_SETUP](./DOCKER_SETUP.md)
 
-## Manual Setup
+## Local Setup
 
 Required software:
 [python3](https://www.python.org/downloads/),
@@ -107,7 +107,7 @@ docker-compose up -d database
 
 Generate the OpenDiscourse-Database from the ground up. The Database has to be started for this script to finish.
 
-This script is just a pipeline executing all scripts in `src`. You can also manually run every script seperatly. For Documentation on this, please visit the [README in src](./src/README.md)
+This script is just a pipeline executing all scripts in `src`. You can also manually run every script seperatly. For Documentation on this, please visit the [README in src](./python/src/README.md)
 
 ```Shell
 // run from python folder
@@ -131,6 +131,7 @@ If you want to setup the Full Text Search, follow these steps:
 - Documentation of the frontend can be found in the [README in frontend](./frontend/README.md)
 - Documentation of graphql can be found in the [README in graphql](./graphql/README.md)
 - Documentation of the proxy can be found in the [README in proxy](./proxy/README.md)
+- Documentation of the python service can be found in the [README in python](./python/README.md)
 - Documentation of every python-script can be found in the [README in python/src](./python/src/README.md)
 
 ## Notes
