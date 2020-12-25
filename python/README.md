@@ -10,6 +10,5 @@ The python service processes and creates all of the open-discourse data
 
 ## Commands
 
-- To start graphql in development mode, please run `yarn run dev`
-- To build graphql for production mode, please run `yarn run build`
-- To start graphql in production mode, please run `yarn run start`
+- To setup the python environment, please run `sh setup.sh`
+- To build the open-discourse data, please run `sh build.sh`
