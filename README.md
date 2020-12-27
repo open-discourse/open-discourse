@@ -3,7 +3,7 @@
   <a href="https://opendiscourse.de/">
     <img
       alt="Open Discourse"
-      src="images/open-discourse_full_black_transparent.png"
+      src="https://opendiscourse.de/images/github/open-discourse_full_black_transparent.png"
       width="400"
     />
   </a>
