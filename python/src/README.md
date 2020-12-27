@@ -247,22 +247,22 @@ The Input and Output paths start at the project root
   - Input: `./data/02_cached/speech_content/stage_03/*`
   - Output:
     - `./data/02_cached/speech_content/stage_04/*`
-    - `./data/02_cached/contributions/stage_01/*`
+    - `./data/02_cached/contributions_extended/stage_01/*`
     - `./data/03_final/contributions_simplified.pkl`
   - File Format:
     - speech_content:
-      | speech_id | session | top | additional_tops | faction_id | politician_id |name | last_name | first_name | title | position_short | position_long | speech_content | span_begin | span_end |
-      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-      | 0 | 18245.pkl | intro | | 4 | 1109312 | Peter Schmidt | Schmidt | ['Peter'] | [] | | Member of Parliament | Sehr geehrter ({0})... | 0.0 | 255.0 |
-      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
-    - contributions:
+      | speech_id | session | position_short | position_long | politician_id | last_name | first_name | acad_title | faction_id | constituency | speech_content | span_begin | span_end |
+      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+      | 1052836 | 18245 | Member of Parliament | | 1109312 | Schmidt | ['Peter'] | | 4 | | Sehr geehrter ({0})... | 0.0 | 255.0 |
+      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+    - contributions_extended:
       | id |  type | name_raw | faction | constituency | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- |
       | 0 | Beifall | | SPD | | | 0 |
       | 1 | Personen-Einruf | Hans Müller | AfD | | Fisch! | 0 |
       | ... | ... | ... | ... | ... | ... | ... |
 
-### 2. [Clean Contributions](./od_lib/05_contributions/02_clean_contributions.py)
+### 2. [Clean Contributions Extended](./od_lib/05_contributions/02_clean_contributions_extended.py)
 
 - Function:
 
@@ -271,18 +271,18 @@ The Input and Output paths start at the project root
 
 - Attributes:
   - Input:
-    - `./data/02_cached/contributions/stage_01/*`
+    - `./data/02_cached/contributions_extended/stage_01/*`
     - `./data/03_final/politicians.csv`
-  - Output: `./data/02_cached/contributions/stage_02/*`
+  - Output: `./data/02_cached/contributions_extended/stage_02/*`
   - File Format:
-    - contributions:
-      | id | type | faction_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
+    - contributions_extended:
+      | id | type | name_raw | faction_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-      | 0 | Beifall | 23 | SPD | | [] | [] | | 0 |
-      | 1 | Personen-Einruf | 0 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
-      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+      | 0 | Beifall | | 23 | SPD | | [] | [] | | | 0 |
+      | 1 | Personen-Einruf | Hans Müller | 0 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
+      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
-### 3. [Match Contributions](./od_lib/05_contributions/03_match_contributions.py)
+### 3. [Match Contributions](./od_lib/05_contributions/03_match_contributions_extended.py)
 
 - Function:
 
@@ -290,16 +290,16 @@ The Input and Output paths start at the project root
 
 - Attributes:
   - Input:
-    - `./data/02_cached/contributions/stage_01/*`
+    - `./data/02_cached/contributions_extended/stage_01/*`
     - `./data/03_final/politicians.csv`
-  - Output: `./data/02_cached/contributions/stage_02/*`
+  - Output: `./data/02_cached/contributions_extended/stage_02/*`
   - File Format:
-    - contributions:
-      | id | type | faction_id | politician_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
-      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-      | 0 | Beifall | 23 | -1 | SPD | | [] | [] | | | 0 |
-      | 1 | Personen-Einruf | 0 | 1109373 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
-      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+    - contributions_extended:
+      | id | type | name_raw | faction_id | politician_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
+      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+      | 0 | Beifall | | 23 | -1 | SPD | | [] | [] | | | 0 |
+      | 1 | Personen-Einruf | Hans Müller | 0 | 1109373 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
+      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
 ## Database
 
@@ -308,6 +308,8 @@ The Input and Output paths start at the project root
 - Function:
 
   - Concats every speech_content DataFrame into one single DataFrame. Does this for contributions as well
+  - Removes unnecessary columns from DataFrames
+  - Generates new columns, e.g. id
 
 - Attributes:
 
@@ -315,10 +317,23 @@ The Input and Output paths start at the project root
     - `./data/01_raw/xml/*`
     - `./data/02_cached/speech_content/stage_04/*`
     - `./data/02_cached/electoral_term_19/stage_03/speech_content/speech_content.pkl`
-    - `./data/02_cached/contributions/stage_03/*`
+    - `./data/02_cached/contributions_extended/stage_03/*`
   - Output:
     - `./data/03_final/speech_content.pkl`
-    - `./data/03_final/contributions.pkl`
+    - `./data/03_final/contributions_extended.pkl`
+  - File Format:
+
+    - speech_content:
+      | id | electoral_term | session | position_short | position_long | politician_id | last_name | first_name | faction_id | speech_content | document_url | date |
+      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+      | 1052836 | 18 | 245 | Member of Parliament | | 1109312 | Schmidt | Peter | 4 | Sehr geehrter ({0})... | <https://dip21.bundestag.de/dip21/btp/18/18245.pdf> | 1.608163e+09 |
+      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+    - contributions_extended:
+      | id | type | faction_id | speech_id | politician_id | last_name | first_name | content | text_position |
+      | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+      | 0 | Beifall | 23 | 1052836 | -1 | | | | 0 |
+      | 1 | Personen-Einruf | 0 | 1052836 | 1109373 | Müller | Hans | Fisch! | 0 |
+      | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
 ### 2. [Upload Data to Database](./od_lib/07_database/02_upload_data_to_database.py)
 
