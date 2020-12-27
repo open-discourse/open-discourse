@@ -23,7 +23,7 @@ The Input and Output paths start at the project root
   - Input: `None`
   - Output: `./data/01_raw/xml/*`
 
-### 2. [Download Raw Data WP 19](./od_lib/01_preprocessing/02_download_raw_data_electoral_term_19.py)
+### 2. [Download Raw Data ET 19](./od_lib/01_preprocessing/02_download_raw_data_electoral_term_19.py)
 
 - Function:
 
@@ -45,7 +45,7 @@ The Input and Output paths start at the project root
   - Input: `./data/01_raw/xml/*`
   - Output: `./data/01_raw/txt/*`
 
-### 4. [Split XML of period 1 and 2](./od_lib/01_preprocessing/04_split_xml_of_period_1_and_2.py)
+### 4. [Split XML ET 1 and 2](./od_lib/01_preprocessing/04_split_xml_electoral_term_1_and_2.py)
 
 - Function:
 
@@ -56,7 +56,7 @@ The Input and Output paths start at the project root
   - Input: `./data/01_raw/xml/*`
   - Output: `./data/01_raw/txt/*`
 
-### 5. [Split XML of period 19](./od_lib/01_preprocessing/05_split_xml_of_period_19.py)
+### 5. [Split XML ET 19](./od_lib/01_preprocessing/05_split_xml_electoral_term_19.py)
 
 - Function:
 
@@ -66,21 +66,21 @@ The Input and Output paths start at the project root
   - Input: `./data/02_cached/electoral_term_19/stage_01/*`
   - Output: `./data/02_cached/electoral_term_19/stage_02/*`
 
-### 6. [Extract MDBs from personal details](./od_lib/01_preprocessing/06_extract_mdbs_from_STAMMDATEN_XML.py)
+### 6. [Extract MPs from personal details](./od_lib/01_preprocessing/06_extract_mps_from_mp_base_data.py)
 
 - Function:
 
   - Parses the personal details into a Dataframe
 
 - Attributes:
-  - Input: `./data/01_raw/mdb_stammdaten/MDB_STAMMDATEN.XML`
-  - Output: `./data/02_cached/politicians/stage_01/mdbs.pkl`
+  - Input: `./data/01_raw/MP_BASE_DATA/MDB_STAMMDATEN.XML`
+  - Output: `./data/02_cached/politicians/stage_01/mps.pkl`
 
-### 7. [Create Election Periods](./od_lib/01_preprocessing/07_create_electoral_terms.py)
+### 7. [Create Electoral Terms](./od_lib/01_preprocessing/07_create_electoral_terms.py)
 
 - Function:
 
-  - Creates the Election Period Dataframe
+  - Creates the Electoral Terms Dataframe
 
 - Attributes:
   - Input: `None`
@@ -92,10 +92,10 @@ The Input and Output paths start at the project root
 
 - Function:
 
-  - Uses the `mdbs` Dataframe to extract unique factions and manually adds factions that show up in the speeches but not in the Dataframe
+  - Uses the `mps` Dataframe to extract unique factions and manually adds factions that show up in the speeches but not in the Dataframe
 
 - Attributes:
-  - Input: `./data/02_cached/politicians/stage_01/mdbs.pkl`
+  - Input: `./data/02_cached/politicians/stage_01/mps.pkl`
   - Output: `./data/02_cached/factions/stage_01/factions.pkl`
 
 ### 2. [Add Abbreviations](./od_lib/02_factions/02_add_abbreviations_and_ids.py)
@@ -110,7 +110,7 @@ The Input and Output paths start at the project root
 
 ## Politicians
 
-### 1. [Add Faction IDs to MDBs](./od_lib/03_politicians/01_add_faction_id_to_mdbs.py)
+### 1. [Add Faction IDs to MPs](./od_lib/03_politicians/01_add_faction_id_to_mps.py)
 
 - Function:
 
@@ -118,11 +118,11 @@ The Input and Output paths start at the project root
 
 - Attributes:
   - Input:
-    - `./data/02_cached/politicians/stage_01/mdbs.pkl`
+    - `./data/02_cached/politicians/stage_01/mps.pkl`
     - `./data/03_final/factions.pkl`
-  - Output: `./data/02_cached/politicians/stage_02/mdbs.pkl`
+  - Output: `./data/02_cached/politicians/stage_02/mps.pkl`
 
-### 2. [Scrape the Government Members](./od_lib/03_politicians/02_scrape_government_members.py)
+### 2. [Scrape the Government Members](./od_lib/03_politicians/02_scrape_mgs.py)
 
 - Function:
 
@@ -130,24 +130,24 @@ The Input and Output paths start at the project root
 
 - Attributes:
   - Input: `None`
-  - Output: `./data/02_cached/politicians/stage_01/government_members.pkl`
+  - Output: `./data/02_cached/politicians/stage_01/mgs.pkl`
 
-### 3. [Merge People](./od_lib/03_politicians/03_merge_politicians.py)
+### 3. [Merge Politicians](./od_lib/03_politicians/03_merge_politicians.py)
 
 - Function:
 
-  - Merges the `mdbs.pkl`and `government_members.pkl` Dataframe
+  - Merges the `mps.pkl`and `mgs.pkl` Dataframe
 
 - Attributes:
   - Input:
-    - `./data/02_cached/politicians/stage_02/mdbs.pkl`
-    - `./data/02_cached/politicians/stage_01/government_members.pkl`
+    - `./data/02_cached/politicians/stage_02/mps.pkl`
+    - `./data/02_cached/politicians/stage_01/mgs.pkl`
     - `./data/03_final/factions.pkl`
   - Output: `./data/03_final/politicians.csv`
 
 ## Spoken Content
 
-### 1. [Extract Speech Parts](./od_lib/04_speech_content/01_extract_speech_parts.py)
+### 1. [Extract Speeches](./od_lib/04_speech_content/01_extract_speeches.py)
 
 - Function:
 
@@ -183,7 +183,7 @@ The Input and Output paths start at the project root
       | 18245 | Member of Parliament | | Schmidt | ['Peter'] | [] | 4 | | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
       | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
-### 3. [Match Names](./od_lib/04_speech_content/03_match_names_speech_content.py)
+### 3. [Match Names](./od_lib/04_speech_content/03_match_names_speeches.py)
 
 - Function:
 
@@ -203,7 +203,7 @@ The Input and Output paths start at the project root
 
 ## Election Period 19
 
-### 1. [Extract Speeches and Contributions Period 19](./od_lib/06_election_period_19/01_extract_speeches_and_contributions_period_19.py)
+### 1. [Extract Speeches and Contributions Period 19](./od_lib/05_election_period_19/01_extract_speeches_and_contributions_electoral_term_19.py)
 
 - Function:
 
@@ -234,7 +234,7 @@ The Input and Output paths start at the project root
 
 ## Contributions
 
-### 1. [Extract Contributions](./od_lib/05_contributions/01_extract_contributions.py)
+### 1. [Extract Contributions](./od_lib/06_contributions/01_extract_contributions.py)
 
 - Function:
 
@@ -262,7 +262,7 @@ The Input and Output paths start at the project root
       | 1 | Personen-Einruf | Hans Müller | AfD | | Fisch! | 0 |
       | ... | ... | ... | ... | ... | ... | ... |
 
-### 2. [Clean Contributions Extended](./od_lib/05_contributions/02_clean_contributions_extended.py)
+### 2. [Clean Contributions Extended](./od_lib/06_contributions/02_clean_contributions_extended.py)
 
 - Function:
 
@@ -282,7 +282,7 @@ The Input and Output paths start at the project root
       | 1 | Personen-Einruf | Hans Müller | 0 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
       | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
-### 3. [Match Contributions](./od_lib/05_contributions/03_match_contributions_extended.py)
+### 3. [Match Contributions](./od_lib/06_contributions/03_match_contributions_extended.py)
 
 - Function:
 
