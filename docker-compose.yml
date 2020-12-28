@@ -2,6 +2,7 @@ version: "2.1"
 
 services:
   database:
+    container_name: od-database
     build: database
     volumes:
       - ./database/data:/var/lib/postgresql/data
@@ -39,6 +40,7 @@ services:
       - "5000:5000"
 
   proxy:
+    container_name: od-proxy
     build: proxy
     volumes:
       - ./proxy/package.json:/srv/package.json
@@ -52,3 +54,19 @@ services:
         condition: service_started
     ports:
       - "5300:5300"
+
+  frontend:
+    container_name: od-frontend
+    build: frontend
+    volumes:
+      - ./frontend/package.json:/srv/package.json
+      - ./frontend/yarn.lock:/srv/yarn.lock
+      - ./frontend/src/:/srv/src/
+      - ./frontend/public/:/srv/public/
+    environment:
+      - PROXY_ENDPOINT=http://od-proxy:5300
+    depends_on:
+      proxy:
+        condition: service_started
+    ports:
+      - "3000:3000"
