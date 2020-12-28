@@ -203,7 +203,7 @@ The Input and Output paths start at the project root
 
 ## Election Period 19
 
-### 1. [Extract Speeches and Contributions Period 19](./od_lib/05_election_period_19/01_extract_speeches_and_contributions_electoral_term_19.py)
+### 1. [Extract Speeches and Contributions Period 19](./od_lib/05_electoral_term_19/01_extract_speeches_and_contributions_electoral_term_19.py)
 
 - Function:
 

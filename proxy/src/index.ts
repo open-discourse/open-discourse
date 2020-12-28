@@ -14,7 +14,6 @@ const cache = (duration: number) => {
     next: express.NextFunction
   ) => {
     const key = "__express__" + req.originalUrl || req.url;
-    console.log(`abc${req.originalUrl || req.url}abc`);
     if ((req.originalUrl || req.url).startsWith("/?")) {
       fetch(
         (process.env.GRAPHQL_ENDPOINT ||

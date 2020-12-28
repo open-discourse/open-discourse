@@ -48,8 +48,6 @@ export const SearchForm: React.FC<FormParams> = () => {
     }/factions`,
     (response) => response.factions
   );
-  console.log(process.env.PROXY_ENDPOINT);
-  console.log(process.env.NEXT_PUBLIC_PROXY_ENDPOINT);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     // do not refresh entire page

@@ -68,7 +68,6 @@ for electoral_term_folder in sorted(os.listdir(RAW_TXT)):
     ]:
         open_brackets = r"[({\[]"
         close_brackets = r"[)}\]]"
-        # prefix = r"(?:(?<=\-\s)|(?<=\n))"
         prefix = r"(?<=\n)"
     elif electoral_term_folder in [
         "electoral_term_11",
@@ -98,7 +97,6 @@ for electoral_term_folder in sorted(os.listdir(RAW_TXT)):
             open_brackets, close_brackets, "|".join(parties), prefix
         )
     )
-    # faction_speaker_pattern = regex.compile(faction_speaker_pattern_str.format(open_brackets, close_brackets, "[^(){{}}[\]\n]{1,25}"))
     president_pattern = regex.compile(president_pattern_str)
     minister_pattern = regex.compile(
         minister_pattern_str.format(prefix, open_brackets, close_brackets)

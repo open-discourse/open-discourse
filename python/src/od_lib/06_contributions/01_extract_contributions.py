@@ -13,18 +13,6 @@ SPEECH_CONTENT_OUTPUT = path_definitions.SPEECH_CONTENT_STAGE_04
 CONTRIBUTIONS_EXTENDED_OUTPUT = path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_01
 CONTRIBUTIONS_SIMPLIFIED = path_definitions.CONTRIBUTIONS_SIMPLIFIED
 
-
-class Incrementor(object):
-    """Incrementor class for iterative regex deletion"""
-
-    def __init__(self):
-        self.count = -1
-
-    def increment(self, matchObject):
-        self.count += 1
-        return "{->" + str(self.count) + "}"
-
-
 speech_id = 0
 
 if not os.path.exists(CONTRIBUTIONS_SIMPLIFIED):
