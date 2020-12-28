@@ -22,6 +22,8 @@
     - [GraphQL: Normal Start](#graphql-normal-start)
   - [Generate Data](#generate-data)
   - [Start the Full Text Search](#start-the-full-text-search)
+    - [Run Frontend with Docker](#run-frontend-with-docker)
+    - [Run Frontend locally](#run-frontend-locally)
 - [Further Documentation](#further-documentation)
 - [Notes](#notes)
 
@@ -123,7 +125,19 @@ If you want to setup the Full Text Search, follow these steps:
 - run `yarn` in following directories:
   - `frontend`
   - `proxy`
+
+Choose one of the following ways to start the Frontend:
+
+#### Run Frontend with Docker
+
+#### Note: The frontend container is work in progress and might not work until [this issue](https://github.com/open-discourse/open-discourse/issues/41) is fixed
+
 - run `docker-compose up -d` in the `root` folder
+
+#### Run Frontend locally
+
+- run `docker-compose up -d database graphql proxy`in the `root` folder
+- run `yarn dev` in the `frontend` folder
 
 ## Further Documentation
 
