@@ -1,0 +1,74 @@
+# Docker Setup
+
+You can easily setup the Database and other Services using these Docker Images:
+
+- [Database Image](https://github.com/open-discourse/open-discourse/packages/471468)
+- [GraphQL Image](https://github.com/open-discourse/open-discourse/packages/471466)
+- [Proxy Image](https://github.com/open-discourse/open-discourse/packages/474204)
+- [Frontend Image](https://github.com/open-discourse/open-discourse/packages/490931)
+
+## Note: The frontend container is work in progress until [this issue](https://github.com/open-discourse/open-discourse/issues/41) is fixed
+
+To connect all of the Images, you can use `docker-compose`.
+
+Sample `docker-compose.yml`:
+
+```yaml
+version: "2.1"
+
+services:
+  database:
+    container_name: od-database
+    image: docker.pkg.github.com/open-discourse/open-discourse/database:latest
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  graphql:
+    container_name: od-graphql
+    image: docker.pkg.github.com/open-discourse/open-discourse/graphql:latest
+    environment:
+      - POSTGRES_DB_NAME=next
+      - POSTGRES_DB_USER=postgres
+      - POSTGRES_DB_PASSWORD=postgres
+      - POSTGRES_DB_HOST=database
+      - POSTGRES_DB_PORT=5432
+      - ENABLE_GRAPHIQL=true
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+
+  proxy:
+    container_name: od-proxy
+    image: docker.pkg.github.com/open-discourse/open-discourse/proxy:latest
+    depends_on:
+      graphql:
+        condition: service_started
+    environment:
+      - GRAPHQL_ENDPOINT=http://od-graphql:5000/graphql
+      - CACHE_EXPIRATION=100000
+      - QUERY_LIMIT=500
+    ports:
+      - "5300:5300"
+
+  frontend:
+    container_name: od-frontend
+    image: docker.pkg.github.com/open-discourse/open-discourse/frontend:latest
+    depends_on:
+      proxy:
+        condition: service_started
+    environment:
+      - PROXY_ENDPOINT=http://od-proxy:5300
+    ports:
+      - "80:80"
+```
