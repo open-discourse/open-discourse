@@ -200,10 +200,10 @@ for electoral_term_folder in sorted(os.listdir(RAW_XML)):
             if len(find_beginnings) != 1:
                 continue
 
-            begin_of_session = find_beginnings[0].span()[1]
+            beginning_of_session = find_beginnings[0].span()[1]
 
-            toc = text_corpus[:begin_of_session]
-            session_content = text_corpus[begin_of_session:]
+            toc = text_corpus[:beginning_of_session]
+            session_content = text_corpus[beginning_of_session:]
 
             # At this point the document has a unique beginning. The spoken
             # content begins after the matched phrase.
