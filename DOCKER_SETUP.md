@@ -67,8 +67,6 @@ services:
     depends_on:
       proxy:
         condition: service_started
-    environment:
-      - PROXY_ENDPOINT=http://od-proxy:5300
     ports:
       - "80:80"
 ```

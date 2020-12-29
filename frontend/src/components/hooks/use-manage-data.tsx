@@ -28,7 +28,6 @@ export const useManageData = () => {
       setLoading(true);
       setError(undefined);
       const searchApiEndpoint = `${
-        process.env.PROXY_ENDPOINT ||
         process.env.NEXT_PUBLIC_PROXY_ENDPOINT ||
         "https://api.opendiscourse.de:5300"
       }/${window.location.search}`;

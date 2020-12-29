@@ -63,8 +63,6 @@ services:
       - ./frontend/yarn.lock:/srv/yarn.lock
       - ./frontend/src/:/srv/src/
       - ./frontend/public/:/srv/public/
-    environment:
-      - PROXY_ENDPOINT=http://od-proxy:5300
     depends_on:
       proxy:
         condition: service_started
