@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 
 export const useGetData = <T,>(
-  queryUrl: string,
+  path: string,
   responseCallback: (response: any) => T
 ): [T | undefined, () => void] => {
   const [data, setData] = useState<T>();
   const fetchQuery = () => {
     (async () => {
-      const searchResult = await fetch(queryUrl, {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_PROXY_ENDPOINT ||
+        (await fetch("/proxy-host").then((r) => r.text()));
+
+      const searchResult = await fetch(baseUrl + "/" + path, {
         mode: "cors",
       }).then((response) => response.json());
       const dataResult = responseCallback(searchResult.data);
