@@ -130,8 +130,6 @@ Choose one of the following ways to start the Frontend:
 
 #### Run Frontend with Docker
 
-#### Note: The frontend container is work in progress and might not work until [this issue](https://github.com/open-discourse/open-discourse/issues/41) is fixed
-
 - run `docker-compose up -d` in the `root` folder
 
 #### Run Frontend locally
