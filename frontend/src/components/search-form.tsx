@@ -35,17 +35,11 @@ export const positions = [
 export const SearchForm: React.FC<FormParams> = () => {
   const [formParams, setFormParams] = useState<FormParams>({});
   const [politicians] = useGetData<Politician[]>(
-    `${
-      process.env.NEXT_PUBLIC_PROXY_ENDPOINT ||
-      "https://api.opendiscourse.de:5300"
-    }/politicians`,
+    `politicians`,
     (response) => response.politicians
   );
   const [factions] = useGetData<Faction[]>(
-    `${
-      process.env.NEXT_PUBLIC_PROXY_ENDPOINT ||
-      "https://api.opendiscourse.de:5300"
-    }/factions`,
+    `factions`,
     (response) => response.factions
   );
 

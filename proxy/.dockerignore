@@ -3,3 +3,6 @@ node_modules
 yarn-debug.log*
 yarn-error.log*
 dist
+
+# dockerfiles
+Dockerfile*

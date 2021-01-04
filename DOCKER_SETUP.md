@@ -7,8 +7,6 @@ You can easily setup the Database and other Services using these Docker Images:
 - [Proxy Image](https://github.com/open-discourse/open-discourse/packages/474204)
 - [Frontend Image](https://github.com/open-discourse/open-discourse/packages/490931)
 
-## Note: The frontend container is work in progress and might not work until [this issue](https://github.com/open-discourse/open-discourse/issues/41) is fixed
-
 To connect all of the Images, you can use `docker-compose`.
 
 Sample `docker-compose.yml`:
@@ -68,7 +66,7 @@ services:
       proxy:
         condition: service_started
     environment:
-      - PROXY_ENDPOINT=http://od-proxy:5300
+      - PROXY_ENDPOINT=http://localhost:5300
     ports:
       - "80:80"
 ```

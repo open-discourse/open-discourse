@@ -27,12 +27,12 @@ export const useManageData = () => {
       setData(undefined);
       setLoading(true);
       setError(undefined);
-      const searchApiEndpoint = `${
-        process.env.NEXT_PUBLIC_PROXY_ENDPOINT ||
-        "https://api.opendiscourse.de:5300"
-      }/${window.location.search}`;
 
-      const searchResult = await fetch(searchApiEndpoint, {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_PROXY_ENDPOINT ||
+        (await fetch("/proxy-host").then((r) => r.text()));
+
+      const searchResult = await fetch(baseUrl + "/" + window.location.search, {
         mode: "cors",
         headers: { "Content-Type": "application/json" },
       }).then((response) => response.json());
