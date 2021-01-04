@@ -4,3 +4,6 @@ schema.graphql
 yarn-debug.log*
 yarn-error.log*
 dist
+
+# dockerfiles
+Dockerfile*
