@@ -44,7 +44,7 @@ export const ResultTable = ({ data }: ResultTableProps) => {
       Header: "Herunterladen",
       accessor: "downloadId",
       Cell: ({ row }: { row: Row }) => {
-        if (row.values.downloadId) {
+        if (row.values.downloadId || row.values.downloadId === 0) {
           return (
             <Checkbox
               colorScheme="pink"
@@ -103,7 +103,7 @@ export const ResultTable = ({ data }: ResultTableProps) => {
       accessor: "speechContent",
       Cell: ({ row }: { row: Row }) => {
         const { isOpen, onOpen, onClose } = useDisclosure();
-        if (row.values.speechContent) {
+        if (row.values.speechContent || row.values.speechContent === "") {
           return (
             <>
               <Link as="button" onClick={onOpen} fontWeight="bold">
@@ -117,6 +117,7 @@ export const ResultTable = ({ data }: ResultTableProps) => {
             </>
           );
         }
+        return null;
       },
     },
   ];
