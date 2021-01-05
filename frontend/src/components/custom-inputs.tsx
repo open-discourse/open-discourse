@@ -37,7 +37,7 @@ export const DefaultDateInput = ({
       <Input
         value={value}
         placeholder="YYYY-MM-DD"
-        type="text"
+        type="date"
         focusBorderColor="pink.500"
         onChange={onChange}
       />

@@ -215,14 +215,6 @@
     next "10.0.3"
     react "17.0.1"
 
-"@bit/limebit.limebit-ui.section@^0.0.3":
-  version "0.0.3"
-  resolved "https://node.bit.dev/limebit.limebit-ui.section/-/limebit.limebit-ui.section-0.0.3.tgz#571679b1b3f63826eddee7b60a40b10b9d924251"
-  integrity sha1-VxZ5sbP2OCbt3ue2CkCxC52SQlE=
-  dependencies:
-    "@chakra-ui/react" "1.0.3"
-    react "17.0.1"
-
 "@chakra-ui/accordion@1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@chakra-ui/accordion/-/accordion-1.0.2.tgz#efc55327f10dbfcca527c1eec590d44c09e8f14c"
