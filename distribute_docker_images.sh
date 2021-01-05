@@ -2,38 +2,36 @@
 
 echo "Make sure to be logged into the github package registry"
 
-: ${REVISION:="$(git rev-parse --short HEAD)"}
 REGISTRY="docker.pkg.github.com/open-discourse/open-discourse"
 
-if [ -z "$REVISION" ]; then
-  echo "git revision not detected, please make sure to run this build only from git repository"
-  exit
-fi
-
 cd database
-docker build --file Dockerfile.prod --tag "database:$REVISION" --tag "database:latest" --progress plain .
+: ${REVISION_DATABASE:="$(node -p "require('./package.json').version")"}
+docker build --file Dockerfile.prod --tag "database:$REVISION_DATABASE" --tag "database:latest" --progress plain .
 docker tag "database:latest" "$REGISTRY/database:latest"
-docker tag "database:$REVISION" "$REGISTRY/database:$REVISION"
+docker tag "database:$REVISION_DATABASE" "$REGISTRY/database:$REVISION_DATABASE"
 docker push "$REGISTRY/database:latest"
-docker push "$REGISTRY/database:$REVISION"
+docker push "$REGISTRY/database:$REVISION_DATABASE"
 
 cd ../frontend
-docker build --file Dockerfile.prod --tag "frontend:$REVISION" --tag "frontend:latest" --progress plain .
+: ${REVISION_FRONTEND:="$(node -p "require('./package.json').version")"}
+docker build --file Dockerfile.prod --tag "frontend:$REVISION_FRONTEND" --tag "frontend:latest" --progress plain .
 docker tag "frontend:latest" "$REGISTRY/frontend:latest"
-docker tag "frontend:$REVISION" "$REGISTRY/frontend:$REVISION"
+docker tag "frontend:$REVISION_FRONTEND" "$REGISTRY/frontend:$REVISION_FRONTEND"
 docker push "$REGISTRY/frontend:latest"
-docker push "$REGISTRY/frontend:$REVISION"
+docker push "$REGISTRY/frontend:$REVISION_FRONTEND"
 
 cd ../graphql
-docker build --file Dockerfile.prod --tag "graphql:$REVISION" --tag "graphql:latest" --progress plain .
+: ${REVISION_GRAPHQL:="$(node -p "require('./package.json').version")"}
+docker build --file Dockerfile.prod --tag "graphql:$REVISION_GRAPHQL" --tag "graphql:latest" --progress plain .
 docker tag "graphql:latest" "$REGISTRY/graphql:latest"
-docker tag "graphql:$REVISION" "$REGISTRY/graphql:$REVISION"
+docker tag "graphql:$REVISION_GRAPHQL" "$REGISTRY/graphql:$REVISION_GRAPHQL"
 docker push "$REGISTRY/graphql:latest"
-docker push "$REGISTRY/graphql:$REVISION"
+docker push "$REGISTRY/graphql:$REVISION_GRAPHQL"
 
 cd ../proxy
-docker build --file Dockerfile.prod --tag "proxy:$REVISION" --tag "proxy:latest" --progress plain .
+: ${REVISION_PROXY:="$(node -p "require('./package.json').version")"}
+docker build --file Dockerfile.prod --tag "proxy:$REVISION_PROXY" --tag "proxy:latest" --progress plain .
 docker tag "proxy:latest" "$REGISTRY/proxy:latest"
-docker tag "proxy:$REVISION" "$REGISTRY/proxy:$REVISION"
+docker tag "proxy:$REVISION_PROXY" "$REGISTRY/proxy:$REVISION_PROXY"
 docker push "$REGISTRY/proxy:latest"
-docker push "$REGISTRY/proxy:$REVISION"
+docker push "$REGISTRY/proxy:$REVISION_PROXY"

@@ -1,7 +1,7 @@
 {
-  "name": "srv-database",
+  "name": "database",
   "version": "1.0.0",
-  "author": "Limebit GmbH <oliver.franke@limebit.de>",
+  "author": "Limebit GmbH",
   "license": "MIT",
   "scripts": {
     "db:update:local": "ts-node -r dotenv/config ./src/model/dbUpdate.ts dotenv_config_path=./.env.local",
