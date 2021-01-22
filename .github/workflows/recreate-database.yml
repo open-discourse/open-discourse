@@ -13,28 +13,34 @@ jobs:
 
     steps:
       - run: |
-          cd ~/open-discourse/database
+          cd ~/open-discourse
+          git checkout main
+          git pull
+          cd ./database
           yarn
           sudo rm -rf data
           cd ../python
           sudo rm -rf .venv
           chmod +x setup.sh
           ./setup.sh
-  # build:
-  #   name: Build
-  #   runs-on: self-hosted
-  #   needs: setup
-
-  #   steps:
-  #     - run: cd ~/open-discourse/python && chmod +x build.sh && ./build.sh
-  publish:
-    name: publish
+  build:
+    name: Build
     runs-on: self-hosted
-    # needs: [setup, build]
     needs: setup
 
     steps:
       - run: |
-          cd ~/open-discourse/database
-          yarn version patch
-          echo $PWD
+          cd ~/open-discourse/python
+          chmod +x build.sh
+          ./build.sh
+  # publish:
+  #   name: publish
+  #   runs-on: self-hosted
+  #   # needs: [setup, build]
+  #   needs: setup
+
+  #   steps:
+  #     - run: |
+  #         cd ~/open-discourse/database
+  #         yarn version --patch
+  #         echo $PWD
