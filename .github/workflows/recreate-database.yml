@@ -13,6 +13,7 @@ jobs:
 
     steps:
       - run: cd ~/open-discourse/database && yarn
+      - run: echo $PWD
       - run: cd ../python && sudo rm -rf .venv && ./setup.sh
   build:
     name: Build
