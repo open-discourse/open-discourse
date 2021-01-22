@@ -7,10 +7,16 @@ on:
     - cron: "0 0 1 * *"
 
 jobs:
-  analyze:
+  setup:
     name: Setup environment
     runs-on: self-hosted
 
     steps:
       - run: cd ~/open-discourse/database && yarn
       - run: cd ../python && sudo rm -rf .venv && ./setup.sh
+  build:
+    name: Build
+    runs-on: self-hosted
+
+    steps:
+      - run: echo $PWD
