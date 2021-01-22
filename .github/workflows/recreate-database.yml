@@ -28,6 +28,6 @@ jobs:
     needs: setup
 
     steps:
-      - run: cd ~/open-discourse/database
-      - run: echo $PWD
-      # - run: git commit -m "Increased "
+      - run: |
+          cd ~/open-discourse/database
+          echo $PWD
