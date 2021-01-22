@@ -13,11 +13,10 @@ jobs:
 
     steps:
       - run: cd ~/open-discourse/database && yarn
-      - run: echo $PWD
-      - run: cd ../python && sudo rm -rf .venv && ./setup.sh
+      - run: cd ~/open-discourse/python && sudo rm -rf .venv && ./setup.sh
   build:
     name: Build
     runs-on: self-hosted
 
     steps:
-      - run: echo $PWD
+      - run: cd ~/open-discourse/python && ./build.sh
