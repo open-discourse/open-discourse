@@ -1,0 +1,15 @@
+name: "Recreate Database"
+
+on:
+  push:
+    branches: [OD-56-add-custom-runner]
+  schedule:
+    - cron: "0 0 1 * *"
+
+jobs:
+  analyze:
+    name: Setup environment
+    runs-on: self-hosted
+
+    steps:
+      - run: echo Test
