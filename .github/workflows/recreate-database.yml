@@ -12,4 +12,5 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - run: echo $(pwd)
+      - run: cd ~/open-discourse/database && yarn
+      - run: cd ../python && sudo rm -rf .venv && ./setup.sh
