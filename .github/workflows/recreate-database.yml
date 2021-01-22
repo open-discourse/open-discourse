@@ -12,4 +12,4 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - run: echo Test
+      - run: echo $(pwd)
