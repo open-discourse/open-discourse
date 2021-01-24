@@ -2,36 +2,18 @@
 
 echo "Make sure to be logged into the github package registry"
 
-REGISTRY="docker.pkg.github.com/open-discourse/open-discourse"
-
 cd database
-: ${REVISION_DATABASE:="$(node -p "require('./package.json').version")"}
-docker build --file Dockerfile.prod --tag "database:$REVISION_DATABASE" --tag "database:latest" --progress plain .
-docker tag "database:latest" "$REGISTRY/database:latest"
-docker tag "database:$REVISION_DATABASE" "$REGISTRY/database:$REVISION_DATABASE"
-docker push "$REGISTRY/database:latest"
-docker push "$REGISTRY/database:$REVISION_DATABASE"
+chmod +x build_and_push.sh
+./build_and_push.sh
 
 cd ../frontend
-: ${REVISION_FRONTEND:="$(node -p "require('./package.json').version")"}
-docker build --file Dockerfile.prod --tag "frontend:$REVISION_FRONTEND" --tag "frontend:latest" --progress plain .
-docker tag "frontend:latest" "$REGISTRY/frontend:latest"
-docker tag "frontend:$REVISION_FRONTEND" "$REGISTRY/frontend:$REVISION_FRONTEND"
-docker push "$REGISTRY/frontend:latest"
-docker push "$REGISTRY/frontend:$REVISION_FRONTEND"
+chmod +x build_and_push.sh
+./build_and_push.sh
 
 cd ../graphql
-: ${REVISION_GRAPHQL:="$(node -p "require('./package.json').version")"}
-docker build --file Dockerfile.prod --tag "graphql:$REVISION_GRAPHQL" --tag "graphql:latest" --progress plain .
-docker tag "graphql:latest" "$REGISTRY/graphql:latest"
-docker tag "graphql:$REVISION_GRAPHQL" "$REGISTRY/graphql:$REVISION_GRAPHQL"
-docker push "$REGISTRY/graphql:latest"
-docker push "$REGISTRY/graphql:$REVISION_GRAPHQL"
+chmod +x build_and_push.sh
+./build_and_push.sh
 
 cd ../proxy
-: ${REVISION_PROXY:="$(node -p "require('./package.json').version")"}
-docker build --file Dockerfile.prod --tag "proxy:$REVISION_PROXY" --tag "proxy:latest" --progress plain .
-docker tag "proxy:latest" "$REGISTRY/proxy:latest"
-docker tag "proxy:$REVISION_PROXY" "$REGISTRY/proxy:$REVISION_PROXY"
-docker push "$REGISTRY/proxy:latest"
-docker push "$REGISTRY/proxy:$REVISION_PROXY"
+chmod +x build_and_push.sh
+./build_and_push.sh
