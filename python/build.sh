@@ -9,6 +9,7 @@ yarn run db:update:local
 cd ..
 docker-compose up -d graphql
 cd ./python
+rm -rf data
 . .venv/bin/activate
 mkdir -p logs
 
