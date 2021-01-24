@@ -72,7 +72,7 @@ app.get(
     }","positionShortQuery":"${positionShortQuery || ""}"${
       fromDate ? `,"fromDate":"${fromDate}"` : ""
     }${toDate ? `,"toDate":"${toDate}"` : ""}}`;
-    const query = `{"operationName":"Search",${variables},"query":"query Search($contentQuery: String, $factionIdQuery: BigInt, $politicianIdQuery: BigInt, $positionShortQuery: String, $fromDate: Date, $toDate: Date, $first: Int!) {\\n searchSpeeches(first: $first, politicianIdQuery: $politicianIdQuery, positionShortQuery: $positionShortQuery, factionIdQuery: $factionIdQuery, fromDate: $fromDate, toDate: $toDate, contentQuery: $contentQuery) {\\n rank\\n id\\n firstName\\n lastName\\n positionShort\\n date\\n  documentUrl\\n speechContent\\n abbreviation\\n}\\n}\\n"}`;
+    const query = `{"operationName":"Search",${variables},"query":"query Search($contentQuery: String, $factionIdQuery: BigInt, $politicianIdQuery: BigInt, $positionShortQuery: String, $fromDate: Date, $toDate: Date, $first: Int!) {searchSpeeches(first: $first, politicianIdQuery: $politicianIdQuery, positionShortQuery: $positionShortQuery, factionIdQuery: $factionIdQuery, fromDate: $fromDate, toDate: $toDate, contentQuery: $contentQuery) {rank id firstName lastName positionShort date  documentUrl speechContent abbreviation}}"}`;
     const result = await fetch(
       (process.env.GRAPHQL_ENDPOINT ||
         "http://localhost:5000/graphql") as string,
@@ -91,7 +91,7 @@ app.get(
   "/politicians",
   cache(((process.env.CACHE_EXPIRATION as unknown) as number) || 1),
   async (_req, res) => {
-    const query = `{"operationName":"Politicians","query":"query Politicians {\\n politicians {\\n id\\n firstName\\n lastName\\n} \\n}"}`;
+    const query = `{"operationName":"Politicians","query":"query Politicians {politicians {id firstName lastName}}"}`;
     const result = await fetch(
       (process.env.GRAPHQL_ENDPOINT ||
         "http://localhost:5000/graphql") as string,
@@ -110,7 +110,29 @@ app.get(
   "/factions",
   cache(((process.env.CACHE_EXPIRATION as unknown) as number) || 1),
   async (_req, res) => {
-    const query = `{"operationName":"Factions","query":"query Factions {\\n factions {\\n id\\n fullName\\n abbreviation\\n }\\n \\n}"}`;
+    const query = `{"operationName":"Factions","query":"query Factions {factions {id fullName abbreviation}}"}`;
+    const result = await fetch(
+      (process.env.GRAPHQL_ENDPOINT ||
+        "http://localhost:5000/graphql") as string,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: query,
+      }
+    );
+    const searchResult = await result.json();
+    res.send(searchResult);
+  }
+);
+
+app.get(
+  "/contributions",
+  cache(((process.env.CACHE_EXPIRATION as unknown) as number) || 1),
+  async (req, res) => {
+    const {
+      query: { speechId },
+    } = req;
+    const query = `{"operationName":"Contributions","variables":{"speechId": ${speechId}},"query":"query Contributions($speechId: BigInt) {contributionsSimplifieds(condition: {speechId: $speechId}) {content textPosition}}"}`;
     const result = await fetch(
       (process.env.GRAPHQL_ENDPOINT ||
         "http://localhost:5000/graphql") as string,
