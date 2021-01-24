@@ -18,9 +18,9 @@ jobs:
           git pull
           cd ./database
           yarn
-          rm -rf data
+          sudo rm -rf data
           cd ../python
-          rm -rf .venv
+          sudo rm -rf .venv
           chmod +x setup.sh
           ./setup.sh
   build:
