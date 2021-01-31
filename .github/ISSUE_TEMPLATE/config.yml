@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a question
+    url: https://github.com/open-discourse/open-discourse/discussions
+    about: Ask questions and discuss topics with other community members
+  - name: Report a missing or faulty speech
+    url: https://github.com/open-discourse/open-discourse/discussions/61
+    about: Let us know about missing or faulty speeches
