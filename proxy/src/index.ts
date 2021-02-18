@@ -1,6 +1,9 @@
 import express = require("express");
+import puppeteer from "puppeteer";
 import mcache from "memory-cache";
 import fetch from "node-fetch";
+import { v4 } from "uuid";
+import AWS from "aws-sdk";
 import cors from "cors";
 
 const app = express();
@@ -124,5 +127,104 @@ app.get(
     res.send(searchResult);
   }
 );
+
+app.get("/screenshot", async (req, res) => {
+  const {
+    query: { url, selector },
+  } = req;
+  const random_id = v4();
+  res.send(random_id);
+  if (url) {
+    const { host } = new URL(url as string);
+    const split_host = host.split(".");
+    if (
+      split_host.slice(-2).join(".") != "opendiscourse.de" &&
+      split_host.slice(-3).join(".") != "ofranke.vercel.app" &&
+      split_host.slice(-1).join(".") != "localhost"
+    ) {
+      throw Error("Bad URL Name");
+    }
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox"],
+    });
+    const page = await browser.newPage();
+    page.setViewport({ width: 1920, height: 800, deviceScaleFactor: 1 });
+    await page.goto(url as string, {
+      waitUntil: "networkidle2",
+    });
+    const imageBuffer = await screenshotDOMElement({
+      path:
+        !process.env.ACCESS_KEY ||
+        !process.env.SECRET_KEY ||
+        !process.env.ENDPOINT
+          ? `./${random_id}.jpg`
+          : undefined,
+      selector: (selector as string) || "#topic-modelling-line-graph",
+      padding: 16,
+      page: page,
+    });
+    browser.close();
+    if (
+      process.env.ACCESS_KEY &&
+      process.env.SECRET_KEY &&
+      process.env.ENDPOINT
+    ) {
+      const spacesEndpoint = new AWS.Endpoint(process.env.ENDPOINT);
+      const s3 = new AWS.S3({
+        endpoint: spacesEndpoint,
+        accessKeyId: process.env.ACCESS_KEY,
+        secretAccessKey: process.env.SECRET_KEY,
+      });
+
+      s3.putObject(
+        {
+          Body: imageBuffer as Buffer,
+          Bucket: "opendiscourse",
+          Key: `${random_id}.jpg`,
+          ACL: "public-read",
+        },
+        function (err, data) {
+          if (err) console.log(err, err.stack);
+          else console.log(data);
+        }
+      );
+    }
+  }
+});
+
+interface screenshotDOMElementProps {
+  selector: string;
+  padding: number;
+  page: puppeteer.Page;
+  path?: string;
+}
+
+const screenshotDOMElement = async ({
+  selector,
+  padding,
+  page,
+  path,
+}: screenshotDOMElementProps) => {
+  if (!selector) throw Error("Please provide a selector.");
+  const rect = await page.evaluate((selector) => {
+    const element = document.querySelector(selector);
+    if (!element) return null;
+    const { x, y, width, height } = element.getBoundingClientRect();
+    return { left: x, top: y, width, height, id: element.id };
+  }, selector);
+  if (!rect)
+    throw Error(`Could not find element that matches selector: ${selector}.`);
+  return await page.screenshot({
+    path: path,
+    type: "jpeg",
+    quality: 100,
+    clip: {
+      x: rect.left - padding,
+      y: rect.top - padding,
+      width: rect.width + padding * 2,
+      height: rect.height + padding * 2,
+    },
+  });
+};
 
 app.listen(5300, "0.0.0.0");
