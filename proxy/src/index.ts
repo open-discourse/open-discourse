@@ -133,62 +133,64 @@ app.get("/screenshot", async (req, res) => {
     query: { url, selector },
   } = req;
   const random_id = v4();
-  res.send(random_id);
-  if (url) {
-    const { host } = new URL(url as string);
-    const split_host = host.split(".");
-    if (
-      split_host.slice(-2).join(".") != "opendiscourse.de" &&
-      split_host.slice(-3).join(".") != "ofranke.vercel.app" &&
-      split_host.slice(-1).join(".") != "localhost"
-    ) {
-      throw Error("Bad URL Name");
-    }
-    const browser = await puppeteer.launch({
-      args: ["--no-sandbox"],
+  if (!url) {
+    res.status(400).send(JSON.parse(`{"error": "Missing url parameter"}`));
+    return;
+  }
+  res.send(JSON.parse(`{"fileName": "${random_id}.jpg"}`));
+  const { host } = new URL(url as string);
+  const split_host = host.split(".");
+  if (
+    split_host.slice(-2).join(".") != "opendiscourse.de" &&
+    split_host.slice(-3).join(".") != "ofranke.vercel.app" &&
+    split_host.slice(-1).join(".") != "localhost"
+  ) {
+    throw Error("Bad URL Name");
+  }
+  const browser = await puppeteer.launch({
+    args: ["--no-sandbox"],
+  });
+  const page = await browser.newPage();
+  page.setViewport({ width: 1920, height: 800, deviceScaleFactor: 1 });
+  await page.goto(url as string, {
+    waitUntil: "networkidle2",
+  });
+  const imageBuffer = await screenshotDOMElement({
+    path:
+      !process.env.ACCESS_KEY ||
+      !process.env.SECRET_KEY ||
+      !process.env.ENDPOINT
+        ? `./${random_id}.jpg`
+        : undefined,
+    selector: (selector as string) || "#topic-modelling-line-graph",
+    padding: 16,
+    page: page,
+  });
+  browser.close();
+  if (
+    process.env.ACCESS_KEY &&
+    process.env.SECRET_KEY &&
+    process.env.ENDPOINT
+  ) {
+    const spacesEndpoint = new AWS.Endpoint(process.env.ENDPOINT);
+    const s3 = new AWS.S3({
+      endpoint: spacesEndpoint,
+      accessKeyId: process.env.ACCESS_KEY,
+      secretAccessKey: process.env.SECRET_KEY,
     });
-    const page = await browser.newPage();
-    page.setViewport({ width: 1920, height: 800, deviceScaleFactor: 1 });
-    await page.goto(url as string, {
-      waitUntil: "networkidle2",
-    });
-    const imageBuffer = await screenshotDOMElement({
-      path:
-        !process.env.ACCESS_KEY ||
-        !process.env.SECRET_KEY ||
-        !process.env.ENDPOINT
-          ? `./${random_id}.jpg`
-          : undefined,
-      selector: (selector as string) || "#topic-modelling-line-graph",
-      padding: 16,
-      page: page,
-    });
-    browser.close();
-    if (
-      process.env.ACCESS_KEY &&
-      process.env.SECRET_KEY &&
-      process.env.ENDPOINT
-    ) {
-      const spacesEndpoint = new AWS.Endpoint(process.env.ENDPOINT);
-      const s3 = new AWS.S3({
-        endpoint: spacesEndpoint,
-        accessKeyId: process.env.ACCESS_KEY,
-        secretAccessKey: process.env.SECRET_KEY,
-      });
 
-      s3.putObject(
-        {
-          Body: imageBuffer as Buffer,
-          Bucket: "opendiscourse",
-          Key: `${random_id}.jpg`,
-          ACL: "public-read",
-        },
-        function (err, data) {
-          if (err) console.log(err, err.stack);
-          else console.log(data);
-        }
-      );
-    }
+    s3.putObject(
+      {
+        Body: imageBuffer as Buffer,
+        Bucket: "opendiscourse",
+        Key: `${random_id}.jpg`,
+        ACL: "public-read",
+      },
+      function (err, data) {
+        if (err) console.log(err, err.stack);
+        else console.log(data);
+      }
+    );
   }
 });
 
