@@ -216,16 +216,22 @@ const screenshotDOMElement = async ({
   }, selector);
   if (!rect)
     throw Error(`Could not find element that matches selector: ${selector}.`);
-  return await page.screenshot({
-    path: path,
-    type: "jpeg",
-    quality: 100,
-    clip: {
-      x: rect.left - padding,
-      y: rect.top - padding,
-      width: rect.width + padding * 2,
-      height: rect.height + padding * 2,
-    },
+  return new Promise((resolve, _reject) => {
+    setTimeout(() => {
+      resolve(
+        page.screenshot({
+          path: path,
+          type: "jpeg",
+          quality: 100,
+          clip: {
+            x: rect.left - padding,
+            y: rect.top - padding,
+            width: rect.width + padding * 2,
+            height: rect.height + padding * 2,
+          },
+        })
+      );
+    }, 2000);
   });
 };
 

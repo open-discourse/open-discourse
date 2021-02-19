@@ -6,3 +6,4 @@ __pycache__/
 node_modules
 .next
 out
+.DS_Store
