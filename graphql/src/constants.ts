@@ -1,1 +1,1 @@
-export const schemas = ["open_discourse", "misc"];
+export const schemas = ["open_discourse", "misc", "lda"];
