@@ -1,0 +1,5 @@
+psycopg2==2.8.6
+Flask==1.1.2
+python-dotenv==0.15.0
+Flask-Cors==3.0.10
+numpy==1.17.3

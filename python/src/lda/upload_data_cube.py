@@ -45,6 +45,17 @@ conn = psycopg2.connect(
 cur = conn.cursor()
 
 shape = data_cube.shape
+
+cur.execute(
+    "CREATE TABLE lda.dims(id serial NOT NULL, table_name varchar NOT NULL, n int8 NOT NULL, CONSTRAINT dims_pk PRIMARY KEY (id));"  # noqa: E501
+)
+
+for table_name, n in zip(dims, shape):
+    cur.execute(
+        "INSERT INTO lda.dims (table_name, n) VALUES (%s, %s)", (table_name, n),
+    )
+
+
 cur.execute(
     "CREATE TABLE lda.{0}(id int8 NOT NULL, value double precision NULL, n int8 NULL, CONSTRAINT {0}_pk PRIMARY KEY (id));".format(  # noqa: E501
         dims[-1]

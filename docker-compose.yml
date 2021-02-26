@@ -68,3 +68,20 @@ services:
         condition: service_started
     ports:
       - "3000:3000"
+
+  ldaendpoint:
+    container_name: od-ldaendpoint
+    build: python/src/lda/api
+    volumes:
+      - ./python/src/lda/api/api.py:/srv/api.py
+    ports:
+      - "5400:5400"
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      - POSTGRES_DB_NAME=next
+      - POSTGRES_DB_USER=postgres
+      - POSTGRES_DB_PASSWORD=postgres
+      - POSTGRES_DB_HOST=database
+      - POSTGRES_DB_PORT=5432
