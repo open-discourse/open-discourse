@@ -8,7 +8,12 @@ import os
 
 def get_dims():
     dims_query = "SELECT table_name, n FROM lda.dims"
-    cur.execute(dims_query)
+    try:
+        cur.execute(dims_query)
+    except psycopg2.errors.InFailedSqlTransaction:
+        cur.execute("ROLLBACK")
+        connection.commit()
+        cur.execute(dims_query)
     res = cur.fetchall()
     return {x[0]: x[1] for x in res}
 
