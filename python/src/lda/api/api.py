@@ -1,25 +1,32 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, g
 from dotenv import load_dotenv
 from flask_cors import CORS
+from psycopg2 import pool
 import numpy as np
 import psycopg2
 import os
 
 
-def get_dims():
+def get_dims(connection, cursor):
     dims_query = "SELECT table_name, n FROM lda.dims"
     try:
-        cur.execute(dims_query)
+        cursor.execute(dims_query)
     except psycopg2.errors.InFailedSqlTransaction:
-        cur.execute("ROLLBACK")
+        cursor.execute("ROLLBACK")
         connection.commit()
-        cur.execute(dims_query)
-    res = cur.fetchall()
+        cursor.execute(dims_query)
+    res = cursor.fetchall()
     return {x[0]: x[1] for x in res}
 
 
-def query_data(args):
-    dims = get_dims()
+def get_db():
+    if "db" not in g:
+        g.db = app.config["postgreSQL_pool"].getconn()
+    return g.db
+
+
+def query_data(args, connection, cursor):
+    dims = get_dims(connection, cursor)
     keys = list(dims.keys())
     cache = []
     format_string = "INNER JOIN lda.{0} ON {1}"
@@ -45,12 +52,12 @@ def query_data(args):
     )
 
     try:
-        cur.execute(query)
+        cursor.execute(query)
     except psycopg2.errors.InFailedSqlTransaction:
-        cur.execute("ROLLBACK")
+        cursor.execute("ROLLBACK")
         connection.commit()
-        cur.execute(query)
-    data = [(0, x[1]) if np.isnan(x[0]) else (x[0], x[1]) for x in cur.fetchall()]
+        cursor.execute(query)
+    data = [(0, x[1]) if np.isnan(x[0]) else (x[0], x[1]) for x in cursor.fetchall()]
     squashed_data = []
     for data_points in [data[i :: dims[keys[-1]]] for i in range(dims[keys[-1]])]:
         combined_weight = sum([data_point[1] for data_point in data_points])
@@ -61,36 +68,48 @@ def query_data(args):
             / combined_weight
         )
         squashed_data.append(median)
+    cursor.close()
     return squashed_data
 
 
 app = Flask(__name__)
-CORS(app)
 
 load_dotenv()
 
-connection = psycopg2.connect(
+app.config["postgreSQL_pool"] = pool.SimpleConnectionPool(
+    1,
+    20,
     user=os.getenv("POSTGRES_DB_USER"),
     password=os.getenv("POSTGRES_DB_PASSWORD"),
     host=os.getenv("POSTGRES_DB_HOST"),
     port=os.getenv("POSTGRES_DB_PORT"),
-    dbname=os.getenv("POSTGRES_DB_NAME"),
+    database=os.getenv("POSTGRES_DB_NAME"),
 )
 
-cur = connection.cursor()
+CORS(app)
 
 
 @app.route("/topicmodelling", methods=["GET"])
 def topicmodelling():
+    db = get_db()
+    cursor = db.cursor()
     if request.method == "GET":
         return jsonify(
             {
                 "data": [
                     {"x": 1949 + x, "y": y}
-                    for x, y in enumerate(query_data(request.args))
+                    for x, y in enumerate(query_data(request.args, db, cursor))
                 ]
             }
         )
+    cursor.close()
+
+
+@app.teardown_appcontext
+def close_conn(e):
+    db = g.pop('db', None)
+    if db is not None:
+        app.config['postgreSQL_pool'].putconn(db)
 
 
 if __name__ == "__main__":
