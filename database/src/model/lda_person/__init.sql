@@ -1,0 +1,3 @@
+CREATE SCHEMA lda_person;
+GRANT USAGE ON SCHEMA lda_person TO visitor;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA lda_person TO visitor;
