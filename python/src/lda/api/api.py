@@ -8,6 +8,36 @@ import os
 
 constraints = None
 dims = None
+markers = {
+    "topic_37": [
+        {"axis": "x", "value": 1991, "legend": "Pariser Klimaabkommen"},
+        {"axis": "x", "value": 1998, "legend": "Was anderes"},
+    ],
+    "topic_31": [
+        {"axis": "x", "value": 1999, "legend": "Ganz wichtig"},
+        {"axis": "x", "value": 2005, "legend": "Nicht so wichtig"},
+    ],
+    "topic_12": [
+        {"axis": "x", "value": 1950, "legend": "Hier passiert was"},
+    ],
+}
+annotations = [
+    {
+        "constraints": {"topics": "topic_37", "party": "party_2"},
+        "index": 0,
+        "annotation": {"title": "Nein", "description": "Doch", "otherprops": "Oh"},
+    },
+    {
+        "constraints": {"topics": "topic_36", "party": "party_3"},
+        "index": 8,
+        "annotation": {"title": "Halloooo", "description": ":)"},
+    },
+    {
+        "constraints": {"gender": "gender_1"},
+        "index": 12,
+        "annotation": {"title": "Miau", "description": "Wuff", "otherprops": "Grrr"},
+    },
+]
 
 
 def get_constraints(schema, connection, cursor):
@@ -147,14 +177,31 @@ def topicmodelling():
     cursor = db.cursor()
     if request.method == "GET":
         schema = "lda_person" if "politicians" in request.args else "lda_group"
-        return jsonify(
-            {
-                "data": [
-                    {"x": 1949 + x, "y": y}
-                    for x, y in enumerate(query_data(request.args, schema, db, cursor))
+        result = {
+            "data": [
+                {"x": 1949 + x, "y": y}
+                for x, y in enumerate(query_data(request.args, schema, db, cursor))
+            ],
+            "markers": markers[request.args["topics"]]
+            if "topics" in request.args and request.args["topics"] in markers
+            else [],
+        }
+        for annotation in annotations:
+            if (
+                all(
+                    [
+                        constraint in request.args
+                        and annotation["constraints"][constraint]
+                        == request.args[constraint]
+                        for constraint in annotation["constraints"]
+                    ]
+                )
+                and len(result["data"]) > annotation["index"]
+            ):
+                result["data"][annotation["index"]]["annotation"] = annotation[
+                    "annotation"
                 ]
-            }
-        )
+        return jsonify(result)
     cursor.close()
 
 
