@@ -8,11 +8,7 @@ import os
 
 constraints = None
 dims = None
-markers = {
-    "topic_37": [
-        {"axis": "x", "value": 1991, "legend": "Pariser Klimaabkommen"}
-    ],
-}
+markers = {}
 annotations = []
 
 
