@@ -1,3 +1,4 @@
+import { Pool, PoolClient } from "node-postgres";
 import express = require("express");
 import puppeteer from "puppeteer";
 import mcache from "memory-cache";
@@ -6,9 +7,23 @@ import { v4 } from "uuid";
 import AWS from "aws-sdk";
 import cors from "cors";
 
+const zip = (arr: any[], ...arrs: any[]): any[] => {
+  return arr.map((val, i) => arrs.reduce((a, arr) => [...a, arr[i]], [val]));
+};
+
 const app = express();
 
 app.use(cors());
+
+const pool = new Pool({
+  user: process.env.POSTGRES_DB_USER || "postgres",
+  host: process.env.POSTGRES_DB_HOST || "localhost",
+  database: process.env.POSTGRES_DB_NAME || "next",
+  password: process.env.POSTGRES_DB_PASSWORD || "postgres",
+  port: process.env.POSTGRES_DB_PORT
+    ? parseInt(process.env.POSTGRES_DB_PORT)
+    : 5432,
+});
 
 const cache = (duration: number) => {
   return (
@@ -127,6 +142,184 @@ app.get(
     res.send(searchResult);
   }
 );
+
+interface argsType {
+  [key: string]: string;
+}
+
+interface dimsType {
+  [schema: string]: { [property: string]: number };
+}
+
+interface constraintsType {
+  [schema: string]: { [property: string]: string[] };
+}
+
+let dims: dimsType = {};
+let constraints: constraintsType = {};
+
+const getConstraints = async (
+  schema: string,
+  client: PoolClient
+): Promise<constraintsType> => {
+  console.log(constraints);
+  const res = await client.query(`SELECT
+            ccu.table_name,
+            kcu.column_name
+        FROM
+            information_schema.table_constraints AS tc
+            JOIN information_schema.key_column_usage AS kcu
+            ON tc.constraint_name = kcu.constraint_name
+            AND tc.table_schema = kcu.table_schema
+            JOIN information_schema.constraint_column_usage AS ccu
+            ON ccu.constraint_name = tc.constraint_name
+            AND ccu.table_schema = tc.table_schema
+        WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_schema='${schema}';`);
+  if (!(schema in constraints)) {
+    constraints[schema] = {};
+  }
+  for (let part of res.rows as { [property: string]: string }[]) {
+    if (part["table_name"] in constraints[schema]) {
+      constraints[schema][part["table_name"]].push(part["column_name"]);
+    } else {
+      constraints[schema][part["table_name"]] = [part["column_name"]];
+    }
+  }
+  return constraints;
+};
+
+const getDims = async (
+  schema: string,
+  client: PoolClient
+): Promise<dimsType> => {
+  const res = await client.query(`SELECT table_name, n FROM ${schema}.dims`);
+  dims[schema] = Object.fromEntries(
+    res.rows.map((element) => [element["table_name"], element["n"]])
+  );
+  return dims;
+};
+
+const queryData = async (
+  args: argsType,
+  schema: string,
+  client: PoolClient
+): Promise<[string]> => {
+  const dim =
+    schema in dims ? dims[schema] : (await getDims(schema, client))[schema];
+  const keys = Object.keys(dim);
+  let cache = [];
+  for (let tuple of zip(keys.slice(1), keys.slice(-1))) {
+    const nextKey = tuple[0] as string;
+    const lastKey = tuple[1] as string;
+    let stringCache = "";
+    console.log(nextKey);
+    console.log(lastKey);
+    if (nextKey in args) {
+      stringCache = `${schema}.${nextKey}.id=${schema}.${lastKey}.${args[nextKey]}`;
+      cache.push(
+        `INNER JOIN ${schema}.${nextKey} ON ${schema}.${nextKey}.id=${schema}.${lastKey}.${args[nextKey]}`
+      );
+    } else {
+      const constraint =
+        schema in constraints
+          ? constraints[schema][nextKey]
+          : (await getConstraints(schema, client))[schema][nextKey];
+      cache.push(
+        `INNER JOIN ${schema}.${nextKey} ON (${constraint
+          .map(
+            (element) =>
+              `${schema}.${nextKey}.id=${schema}.${lastKey}.${element}`
+          )
+          .join(" OR ")})`
+      );
+    }
+  }
+  // console.log(keys);
+  // console.log(dim);
+  // console.log(
+  //   `SELECT ${schema}.${keys[keys.length - 1]}.value, ${schema}.${
+  //     keys[keys.length - 1]
+  //   }.n FROM ${schema}.${keys[0]} ${cache.join(" ")} WHERE ${schema}.${
+  //     keys[0]
+  //   }.id='${args[keys[0]]}'`
+  // );
+  const res = await client.query(
+    `SELECT ${schema}.${keys[keys.length - 1]}.value, ${schema}.${
+      keys[keys.length - 1]
+    }.n FROM ${schema}.${keys[0]} ${cache.join(" ")} WHERE ${schema}.${
+      keys[0]
+    }.id='${args[keys[0]]}'`
+  );
+  // console.log(res);
+  console.log();
+  return ["a"];
+};
+
+// def query_data(args, schema, connection, cursor):
+//     dim = (
+//         dims[schema]
+//         if dims and schema in dims
+//         else get_dims(schema, connection, cursor)[schema]
+//     )
+
+//     try:
+//         cursor.execute(query)
+//     except psycopg2.errors.InFailedSqlTransaction:
+//         cursor.execute("ROLLBACK")
+//         connection.commit()
+//         cursor.execute(query)
+//     data = [(0, x[1]) if np.isnan(x[0]) else (x[0], x[1]) for x in cursor.fetchall()]
+//     squashed_data = []
+//     for data_points in [data[i :: dim[keys[-1]]] for i in range(dim[keys[-1]])]:
+//         combined_weight = sum([data_point[1] for data_point in data_points])
+//         median = (
+//             0
+//             if combined_weight == 0
+//             else sum([data_point[0] * data_point[1] for data_point in data_points])
+//             / combined_weight
+//         )
+//         squashed_data.append(median)
+//     return squashed_data
+
+interface markerType {
+  [proptery: string]: { axis: string; value: number; legend: string }[];
+}
+interface annotationType {
+  [index: number]: {
+    constraints: { [property: string]: string };
+    index: number;
+    annotation: { title: string; description: string; otherpropts: string };
+  };
+}
+
+let markers: markerType = {};
+let annotations: annotationType = [];
+
+app.get("/topicmodelling", async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const schema = "politicians" in req.query ? "lda_person" : "lda_group";
+    const result = {
+      data: [
+        (await queryData(req.query as argsType, schema, client)).map(
+          (y, x) => ({
+            x: 1949 + x,
+            y: y,
+            annotation: "Test",
+          })
+        ),
+      ],
+      markers:
+        "topics" in req.query && (req.query["topics"] as string) in markers
+          ? markers[req.query["topics"] as string]
+          : [],
+    };
+    res.setHeader("Content-Type", "application/json");
+    res.send(JSON.stringify(result));
+  } finally {
+    client.release();
+  }
+});
 
 app.get(
   "/screenshot",

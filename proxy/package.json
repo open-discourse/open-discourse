@@ -21,6 +21,7 @@
     "express": "4.17.1",
     "memory-cache": "^0.2.0",
     "node-fetch": "^2.6.1",
+    "node-postgres": "^0.6.2",
     "puppeteer": "^7.1.0",
     "uuid": "^8.3.2"
   },
