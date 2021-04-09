@@ -79,12 +79,14 @@ def query_data(args, schema, connection, cursor):
     )
     keys = list(dim.keys())
     cache = []
+    input_list = []
     format_string = "INNER JOIN " + schema + ".{0} ON {1}"
     for next_key, last_key in zip(keys[1:], keys[:-1]):
         if next_key in args:
-            string = "{0}.{1}.id={0}.{2}.{3}".format(
-                schema, next_key, last_key, args[next_key]
+            string = "{0}.{1}.id={0}.{2}.%s".format(
+                schema, next_key, last_key
             )
+            input_list.append(args[next_key])
         else:
             constraint = (
                 constraints[schema][next_key]
@@ -102,12 +104,14 @@ def query_data(args, schema, connection, cursor):
                 + ")"
             )
         cache.append(format_string.format(next_key, string))
-    query = "SELECT {0}.{1}.value, {0}.{1}.n FROM {0}.{2} {3} WHERE {0}.{2}.id='{4}'".format(
-        schema, keys[-1], keys[0], " ".join(cache), args[keys[0]]
+    query = "SELECT {0}.{1}.value, {0}.{1}.n FROM {0}.{2} {3} WHERE {0}.{2}.id=%s".format(
+        schema, keys[-1], keys[0], " ".join(cache)
     )
 
+    input_list.append(args[keys[0]])
+
     try:
-        cursor.execute(query)
+        cursor.execute(query, input_list)
     except psycopg2.errors.InFailedSqlTransaction:
         cursor.execute("ROLLBACK")
         connection.commit()
