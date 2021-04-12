@@ -25,11 +25,11 @@ const pool = new Pool({
     : 5432,
 });
 
-const pool2 = process.env.POSTGRES_PERSISTENT_DB_USER
+const pool2 = process.env.POSTGRES_PERSISTENT_DB_HOST
   ? new Pool({
       user: process.env.POSTGRES_PERSISTENT_DB_USER || "postgres",
       host: process.env.POSTGRES_PERSISTENT_DB_HOST || "localhost",
-      database: process.env.POSTGRES_PERSISTENT_DB_NAME || "opendiscourse",
+      database: process.env.POSTGRES_PERSISTENT_DB_NAME || "open_discourse",
       password: process.env.POSTGRES_PERSISTENT_DB_PASSWORD || "postgres",
       port: process.env.POSTGRES_PERSISTENT_DB_PORT
         ? parseInt(process.env.POSTGRES_PERSISTENT_DB_PORT)
