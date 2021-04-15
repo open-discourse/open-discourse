@@ -27,6 +27,7 @@ services:
       - ./proxy/src/:/srv/src/
     environment:
       - CACHE_EXPIRATION=1000
+      - POSTGRES_DB_HOST=database
     depends_on:
       database:
         condition: service_started

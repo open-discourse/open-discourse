@@ -80,16 +80,10 @@ app.get(
         positionShortQuery,
       },
     } = req;
-    console.log(
-      politicianIdQuery,
-      factionIdQuery,
-      positionShortQuery,
-      contentQuery,
-      fromDate,
-      toDate
-    );
     const result = await pool.query(
-      "SELECT open_discourse.search_speeches($1, $2, $3, $4, $5, $6) LIMIT $7",
+      `SELECT id, position_short AS "positionShort", date, speech_content AS "speechContent", document_url AS "documentUrl", rank,
+              first_name AS "firstName", last_name AS "lastName", abbreviation
+       FROM open_discourse.search_speeches($1, $2, $3, $4, $5, $6) LIMIT $7`,
       [
         politicianIdQuery ? ((politicianIdQuery as unknown) as number) : -2,
         factionIdQuery ? ((factionIdQuery as unknown) as number) : -2,
@@ -100,7 +94,8 @@ app.get(
         process.env.QUERY_LIMIT || "50",
       ]
     );
-    res.send(result.rows);
+    res.setHeader("Content-Type", "application/json");
+    res.send({ data: { searchSpeeches: result.rows } });
   }
 );
 
@@ -109,9 +104,10 @@ app.get(
   cache(((process.env.CACHE_EXPIRATION as unknown) as number) || 1),
   async (_req, res) => {
     const result = await pool.query(
-      "SELECT id, first_name, last_name FROM open_discourse.politicians"
+      'SELECT id, first_name AS "firstName", last_name AS "lastName" FROM open_discourse.politicians'
     );
-    res.send(result.rows);
+    res.setHeader("Content-Type", "application/json");
+    res.send(JSON.stringify({ data: { politicians: result.rows } }));
   }
 );
 
@@ -120,9 +116,10 @@ app.get(
   cache(((process.env.CACHE_EXPIRATION as unknown) as number) || 1),
   async (_req, res) => {
     const result = await pool.query(
-      "SELECT id, full_name, abbreviation FROM open_discourse.factions"
+      'SELECT id, full_name AS "fullName", abbreviation FROM open_discourse.factions'
     );
-    res.send(result.rows);
+    res.setHeader("Content-Type", "application/json");
+    res.send(JSON.stringify({ data: { factions: result.rows } }));
   }
 );
 
@@ -257,91 +254,103 @@ interface dataType {
   annotation?: { title: string; description: string; otherprops?: string };
 }
 
-app.get("/topicmodelling", async (req, res) => {
-  const client = await pool.connect();
-  try {
-    const schema = "politicians" in req.query ? "lda_person" : "lda_group";
-    let result = {
-      data: (await queryData(req.query as argsType, schema, client)).map(
-        (y, x) => ({
-          x: 1949 + x,
-          y: y,
-        })
-      ) as dataType[],
-      markers:
-        "topics" in req.query && (req.query["topics"] as string) in markers
-          ? markers[req.query["topics"] as string]
-          : [],
-    };
-    annotations
-      .filter((element) =>
-        Object.keys(element.constraints)
-          .map(
-            (constraint) =>
-              constraint in req.query &&
-              element.constraints[constraint] == req.query[constraint]
-          )
-          .every(Boolean)
-      )
-      .map(
-        (element) =>
-          (result.data[element.index].annotation = element.annotation)
-      );
-    res.setHeader("Content-Type", "application/json");
-    res.send(JSON.stringify(result));
-  } finally {
-    client.release();
+app.get(
+  "/topicmodelling",
+  cache(((process.env.CACHE_EXPIRATION as unknown) as number) || 1),
+  async (req, res) => {
+    const client = await pool.connect();
+    try {
+      const schema = "politicians" in req.query ? "lda_person" : "lda_group";
+      let result = {
+        data: (await queryData(req.query as argsType, schema, client)).map(
+          (y, x) => ({
+            x: 1949 + x,
+            y: y,
+          })
+        ) as dataType[],
+        markers:
+          "topics" in req.query && (req.query["topics"] as string) in markers
+            ? markers[req.query["topics"] as string]
+            : [],
+      };
+      annotations
+        .filter((element) =>
+          Object.keys(element.constraints)
+            .map(
+              (constraint) =>
+                constraint in req.query &&
+                element.constraints[constraint] == req.query[constraint]
+            )
+            .every(Boolean)
+        )
+        .map(
+          (element) =>
+            (result.data[element.index].annotation = element.annotation)
+        );
+      res.setHeader("Content-Type", "application/json");
+      res.send(JSON.stringify(result));
+    } finally {
+      client.release();
+    }
   }
-});
+);
 
-app.get("/screenshot", async (req, res) => {
-  const {
-    query: { url, selector },
-  } = req;
-  const random_id = v4();
-  if (!url) {
-    res.status(400).send(JSON.parse(`{"error": "Missing url parameter"}`));
-    return;
-  }
-  res.send(JSON.parse(`{"fileName": "${random_id}.jpg"}`));
-  const { host } = new URL(url as string);
-  const split_host = host.split(".");
-  if (
-    split_host.slice(-2).join(".") != "opendiscourse.de" &&
-    split_host.slice(-3).join(".") != "ofranke.vercel.app" &&
-    split_host.slice(-1).join(".") != "localhost"
-  ) {
-    throw Error("Bad URL Name");
-  }
-  const browser = await puppeteer.launch({
-    args: ["--no-sandbox"],
-  });
-  const page = await browser.newPage();
-  page.setViewport({ width: 1920, height: 800, deviceScaleFactor: 1 });
-  await page.goto(url as string, {
-    waitUntil: "networkidle2",
-  });
-  const imageBuffer = await screenshotDOMElement({
-    path:
-      !process.env.ACCESS_KEY ||
-      !process.env.SECRET_KEY ||
-      !process.env.ENDPOINT
-        ? process.env.IMAGE_PATH
-          ? `${process.env.IMAGE_PATH}/${random_id}.jpg`
-          : `./src/${random_id}.jpg`
-        : undefined,
-    selector: (selector as string) || "#topic-modelling-line-graph",
-    padding: 16,
-    page: page,
-  });
-  browser.close();
-  if (process.env.ACCESS_KEY && process.env.SECRET_KEY && process.env.ENDPOINT)
-    uploadImage({
-      endpoint: process.env.ENDPOINT,
-      imageBuffer: imageBuffer as Buffer,
-      id: random_id,
+app.get(
+  "/screenshot",
+  cache(((process.env.CACHE_EXPIRATION as unknown) as number) || 1),
+  async (req, res) => {
+    const {
+      query: { url, selector },
+    } = req;
+    const random_id = v4();
+    if (!url) {
+      res.status(400).send(JSON.parse(`{"error": "Missing url parameter"}`));
+      return;
+    }
+    res.send(JSON.parse(`{"fileName": "${random_id}.jpg"}`));
+    const { host } = new URL(url as string);
+    const split_host = host.split(".");
+    if (
+      split_host.slice(-2).join(".") != "opendiscourse.de" &&
+      split_host.slice(-3).join(".") != "ofranke.vercel.app" &&
+      split_host.slice(-1).join(".") != "localhost"
+    ) {
+      throw Error("Bad URL Name");
+    }
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox"],
     });
-});
+    const page = await browser.newPage();
+    page.setViewport({ width: 1920, height: 800, deviceScaleFactor: 1 });
+    await page.goto(url as string, {
+      waitUntil: "networkidle2",
+    });
+    const imageBuffer = await screenshotDOMElement({
+      path:
+        !process.env.ACCESS_KEY ||
+        !process.env.SECRET_KEY ||
+        !process.env.ENDPOINT
+          ? process.env.IMAGE_PATH
+            ? `${process.env.IMAGE_PATH}/${random_id}.jpg`
+            : `./src/${random_id}.jpg`
+          : undefined,
+      selector: (selector as string) || "#topic-modelling-line-graph",
+      padding: 16,
+      page: page,
+    });
+    browser.close();
+    if (
+      process.env.ACCESS_KEY &&
+      process.env.SECRET_KEY &&
+      process.env.ENDPOINT
+    )
+      uploadImage({
+        endpoint: process.env.ENDPOINT,
+        imageBuffer: imageBuffer as Buffer,
+        id: random_id,
+      });
+  }
+);
 
 interface uploadImageProps {
   endpoint: string;
