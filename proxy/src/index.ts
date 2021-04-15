@@ -1,8 +1,7 @@
-import { Pool, PoolClient } from "node-postgres";
+import { Pool, PoolClient } from "pg";
 import express = require("express");
 import puppeteer from "puppeteer";
 import mcache from "memory-cache";
-import fetch from "node-fetch";
 import { v4 } from "uuid";
 import AWS from "aws-sdk";
 import cors from "cors";
@@ -45,12 +44,11 @@ const cache = (duration: number) => {
   ) => {
     const key = "__express__" + req.originalUrl || req.url;
     if ((req.originalUrl || req.url).startsWith("/?")) {
-      // Fix Query Parameterization. node-postgress is breaking me mentally
-      (pool2 ?? pool).query(
-        `INSERT INTO misc.fts_tracking (search_query) VALUES ('${
-          req.originalUrl || req.url
-        }')`
-      );
+      (
+        pool2 ?? pool
+      ).query(`INSERT INTO misc.fts_tracking (search_query) VALUES ($1)`, [
+        req.originalUrl || req.url,
+      ]);
     }
 
     const cachedBody = JSON.parse(mcache.get(key));
@@ -82,31 +80,27 @@ app.get(
         positionShortQuery,
       },
     } = req;
-    const variables = `"variables":{"first":${
-      process.env.QUERY_LIMIT || "50"
-    },"contentQuery":"${contentQuery || ""}${
-      factionIdQuery
-        ? `","factionIdQuery":"${(factionIdQuery as unknown) as number}`
-        : ""
-    }${
-      politicianIdQuery
-        ? `","politicianIdQuery":"${(politicianIdQuery as unknown) as number}`
-        : ""
-    }","positionShortQuery":"${positionShortQuery || ""}"${
-      fromDate ? `,"fromDate":"${fromDate}"` : ""
-    }${toDate ? `,"toDate":"${toDate}"` : ""}}`;
-    const query = `{"operationName":"Search",${variables},"query":"query Search($contentQuery: String, $factionIdQuery: BigInt, $politicianIdQuery: BigInt, $positionShortQuery: String, $fromDate: Date, $toDate: Date, $first: Int!) {\\n searchSpeeches(first: $first, politicianIdQuery: $politicianIdQuery, positionShortQuery: $positionShortQuery, factionIdQuery: $factionIdQuery, fromDate: $fromDate, toDate: $toDate, contentQuery: $contentQuery) {\\n rank\\n id\\n firstName\\n lastName\\n positionShort\\n date\\n  documentUrl\\n speechContent\\n abbreviation\\n}\\n}\\n"}`;
-    const result = await fetch(
-      (process.env.GRAPHQL_ENDPOINT ||
-        "http://localhost:5000/graphql") as string,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: query,
-      }
+    console.log(
+      politicianIdQuery,
+      factionIdQuery,
+      positionShortQuery,
+      contentQuery,
+      fromDate,
+      toDate
     );
-    const searchResult = await result.json();
-    res.send(searchResult);
+    const result = await pool.query(
+      "SELECT open_discourse.search_speeches($1, $2, $3, $4, $5, $6) LIMIT $7",
+      [
+        politicianIdQuery ? ((politicianIdQuery as unknown) as number) : -2,
+        factionIdQuery ? ((factionIdQuery as unknown) as number) : -2,
+        positionShortQuery || "",
+        contentQuery || "",
+        fromDate,
+        toDate,
+        process.env.QUERY_LIMIT || "50",
+      ]
+    );
+    res.send(result.rows);
   }
 );
 
@@ -114,18 +108,10 @@ app.get(
   "/politicians",
   cache(((process.env.CACHE_EXPIRATION as unknown) as number) || 1),
   async (_req, res) => {
-    const query = `{"operationName":"Politicians","query":"query Politicians {\\n politicians {\\n id\\n firstName\\n lastName\\n} \\n}"}`;
-    const result = await fetch(
-      (process.env.GRAPHQL_ENDPOINT ||
-        "http://localhost:5000/graphql") as string,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: query,
-      }
+    const result = await pool.query(
+      "SELECT id, first_name, last_name FROM open_discourse.politicians"
     );
-    const searchResult = await result.json();
-    res.send(searchResult);
+    res.send(result.rows);
   }
 );
 
@@ -133,215 +119,229 @@ app.get(
   "/factions",
   cache(((process.env.CACHE_EXPIRATION as unknown) as number) || 1),
   async (_req, res) => {
-    const query = `{"operationName":"Factions","query":"query Factions {\\n factions {\\n id\\n fullName\\n abbreviation\\n }\\n \\n}"}`;
-    const result = await fetch(
-      (process.env.GRAPHQL_ENDPOINT ||
-        "http://localhost:5000/graphql") as string,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: query,
-      }
+    const result = await pool.query(
+      "SELECT id, full_name, abbreviation FROM open_discourse.factions"
     );
-    const searchResult = await result.json();
-    res.send(searchResult);
+    res.send(result.rows);
   }
 );
 
-// interface argsType {
-//   [key: string]: string;
-// }
+interface argsType {
+  [key: string]: string;
+}
 
-// interface dimsType {
-//   [schema: string]: { [property: string]: number };
-// }
+interface dimsType {
+  [schema: string]: { [property: string]: number };
+}
 
-// interface constraintsType {
-//   [schema: string]: { [property: string]: string[] };
-// }
+interface constraintsType {
+  [schema: string]: { [property: string]: string[] };
+}
 
-// let dims: dimsType = {};
-// let constraints: constraintsType = {};
+let dims: dimsType = {};
+let constraints: constraintsType = {};
 
-// const getConstraints = async (
-//   schema: string,
-//   client: PoolClient
-// ): Promise<constraintsType> => {
-//   const res = await client.query(`SELECT
-//             ccu.table_name,
-//             kcu.column_name
-//         FROM
-//             information_schema.table_constraints AS tc
-//             JOIN information_schema.key_column_usage AS kcu
-//             ON tc.constraint_name = kcu.constraint_name
-//             AND tc.table_schema = kcu.table_schema
-//             JOIN information_schema.constraint_column_usage AS ccu
-//             ON ccu.constraint_name = tc.constraint_name
-//             AND ccu.table_schema = tc.table_schema
-//         WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_schema='${schema}';`);
-//   if (!(schema in constraints)) {
-//     constraints[schema] = {};
-//   }
-//   for (let part of res.rows as { [property: string]: string }[]) {
-//     if (part["table_name"] in constraints[schema]) {
-//       constraints[schema][part["table_name"]].push(part["column_name"]);
-//     } else {
-//       constraints[schema][part["table_name"]] = [part["column_name"]];
-//     }
-//   }
-//   return constraints;
-// };
-
-// const getDims = async (
-//   schema: string,
-//   client: PoolClient
-// ): Promise<dimsType> => {
-//   const res = await client.query(`SELECT table_name, n FROM ${schema}.dims`);
-//   dims[schema] = Object.fromEntries(
-//     res.rows.map((element) => [element["table_name"], element["n"]])
-//   );
-//   return dims;
-// };
-
-// const queryData = async (
-//   args: argsType,
-//   schema: string,
-//   client: PoolClient
-// ): Promise<[string]> => {
-//   const dim =
-//     schema in dims ? dims[schema] : (await getDims(schema, client))[schema];
-//   const keys = Object.keys(dim);
-//   let cache = [];
-//   for (let tuple of zip(keys.slice(1), keys.slice(0, -1))) {
-//     const nextKey = tuple[0] as string;
-//     const lastKey = tuple[1] as string;
-//     if (nextKey in args) {
-//       cache.push(
-//         `INNER JOIN ${schema}.${nextKey} ON ${schema}.${nextKey}.id=${schema}.${lastKey}.${args[nextKey]}`
-//       );
-//     } else {
-//       const constraint =
-//         schema in constraints
-//           ? constraints[schema][nextKey]
-//           : (await getConstraints(schema, client))[schema][nextKey];
-//       cache.push(
-//         `INNER JOIN ${schema}.${nextKey} ON (${constraint
-//           .map(
-//             (element) =>
-//               `${schema}.${nextKey}.id=${schema}.${lastKey}.${element}`
-//           )
-//           .join(" OR ")})`
-//       );
-//     }
-//   }
-//   const res = await client.query(
-//     `SELECT ${schema}.${keys[keys.length - 1]}.value, ${schema}.${
-//       keys[keys.length - 1]
-//     }.n FROM ${schema}.${keys[0]} ${cache.join(" ")} WHERE ${schema}.${
-//       keys[0]
-//     }.id=$1`,
-//     [args[keys[0]]]
-//   );
-//   console.log();
-//   return ["a"];
-// };
-
-// interface markerType {
-//   [proptery: string]: { axis: string; value: number; legend: string }[];
-// }
-// interface annotationType {
-//   [index: number]: {
-//     constraints: { [property: string]: string };
-//     index: number;
-//     annotation: { title: string; description: string; otherpropts: string };
-//   };
-// }
-
-// let markers: markerType = {};
-// let annotations: annotationType = [];
-
-// app.get("/topicmodelling", async (req, res) => {
-//   const client = await pool.connect();
-//   try {
-//     const schema = "politicians" in req.query ? "lda_person" : "lda_group";
-//     const result = {
-//       data: [
-//         (await queryData(req.query as argsType, schema, client)).map(
-//           (y, x) => ({
-//             x: 1949 + x,
-//             y: y,
-//             annotation: "Test",
-//           })
-//         ),
-//       ],
-//       markers:
-//         "topics" in req.query && (req.query["topics"] as string) in markers
-//           ? markers[req.query["topics"] as string]
-//           : [],
-//     };
-//     res.setHeader("Content-Type", "application/json");
-//     res.send(JSON.stringify(result));
-//   } finally {
-//     client.release();
-//   }
-// });
-
-app.get(
-  "/screenshot",
-  cache(((process.env.CACHE_EXPIRATION as unknown) as number) || 1),
-  async (req, res) => {
-    const {
-      query: { url, selector },
-    } = req;
-    const random_id = v4();
-    if (!url) {
-      res.status(400).send(JSON.parse(`{"error": "Missing url parameter"}`));
-      return;
+const getConstraints = async (
+  schema: string,
+  client: PoolClient
+): Promise<constraintsType> => {
+  const res = await client.query(`SELECT
+            ccu.table_name,
+            kcu.column_name
+        FROM
+            information_schema.table_constraints AS tc
+            JOIN information_schema.key_column_usage AS kcu
+            ON tc.constraint_name = kcu.constraint_name
+            AND tc.table_schema = kcu.table_schema
+            JOIN information_schema.constraint_column_usage AS ccu
+            ON ccu.constraint_name = tc.constraint_name
+            AND ccu.table_schema = tc.table_schema
+        WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_schema='${schema}';`);
+  if (!(schema in constraints)) {
+    constraints[schema] = {};
+  }
+  for (let part of res.rows as { [property: string]: string }[]) {
+    if (part["table_name"] in constraints[schema]) {
+      constraints[schema][part["table_name"]].push(part["column_name"]);
+    } else {
+      constraints[schema][part["table_name"]] = [part["column_name"]];
     }
-    res.send(JSON.parse(`{"fileName": "${random_id}.jpg"}`));
-    const { host } = new URL(url as string);
-    const split_host = host.split(".");
-    if (
-      split_host.slice(-2).join(".") != "opendiscourse.de" &&
-      split_host.slice(-3).join(".") != "ofranke.vercel.app" &&
-      split_host.slice(-1).join(".") != "localhost"
-    ) {
-      throw Error("Bad URL Name");
+  }
+  return constraints;
+};
+
+const getDims = async (
+  schema: string,
+  client: PoolClient
+): Promise<dimsType> => {
+  const res = await client.query(`SELECT table_name, n FROM ${schema}.dims`);
+  dims[schema] = Object.fromEntries(
+    res.rows.map((element) => [element["table_name"], +element["n"]])
+  );
+  return dims;
+};
+
+const queryData = async (
+  args: argsType,
+  schema: string,
+  client: PoolClient
+): Promise<number[]> => {
+  const dim =
+    schema in dims ? dims[schema] : (await getDims(schema, client))[schema];
+  const keys = Object.keys(dim);
+  let cache = [];
+  for (let tuple of zip(keys.slice(1), keys.slice(0, -1))) {
+    const nextKey = tuple[0] as string;
+    const lastKey = tuple[1] as string;
+    if (nextKey in args) {
+      cache.push(
+        `INNER JOIN ${schema}.${nextKey} ON ${schema}.${nextKey}.id=${schema}.${lastKey}.${args[nextKey]}`
+      );
+    } else {
+      const constraint =
+        schema in constraints
+          ? constraints[schema][nextKey]
+          : (await getConstraints(schema, client))[schema][nextKey];
+      cache.push(
+        `INNER JOIN ${schema}.${nextKey} ON (${constraint
+          .map(
+            (element) =>
+              `${schema}.${nextKey}.id=${schema}.${lastKey}.${element}`
+          )
+          .join(" OR ")})`
+      );
     }
-    const browser = await puppeteer.launch({
-      args: ["--no-sandbox"],
-    });
-    const page = await browser.newPage();
-    page.setViewport({ width: 1920, height: 800, deviceScaleFactor: 1 });
-    await page.goto(url as string, {
-      waitUntil: "networkidle2",
-    });
-    const imageBuffer = await screenshotDOMElement({
-      path:
-        !process.env.ACCESS_KEY ||
-        !process.env.SECRET_KEY ||
-        !process.env.ENDPOINT
-          ? process.env.IMAGE_PATH
-            ? `${process.env.IMAGE_PATH}/${random_id}.jpg`
-            : `./src/${random_id}.jpg`
-          : undefined,
-      selector: (selector as string) || "#topic-modelling-line-graph",
-      padding: 16,
-      page: page,
-    });
-    browser.close();
-    if (
-      process.env.ACCESS_KEY &&
-      process.env.SECRET_KEY &&
-      process.env.ENDPOINT
+  }
+  const res = await client.query(
+    `SELECT ${schema}.${keys[keys.length - 1]}.value, ${schema}.${
+      keys[keys.length - 1]
+    }.n FROM ${schema}.${keys[0]} ${cache.join(" ")} WHERE ${schema}.${
+      keys[0]
+    }.id=$1`,
+    [args[keys[0]]]
+  );
+  const data = res.rows.map((element) =>
+    isNaN(element.value) ? [0, +element.n] : [element.value, +element.n]
+  );
+  const dataPoints = [
+    ...Array(dim[keys[keys.length - 1]]).keys(),
+  ].map((firstIndex) =>
+    data.filter(
+      (_, secondIndex) => secondIndex % dim[keys[keys.length - 1]] == firstIndex
     )
-      uploadImage({
-        endpoint: process.env.ENDPOINT,
-        imageBuffer: imageBuffer as Buffer,
-        id: random_id,
-      });
+  );
+  return dataPoints.map((element) => {
+    const combined_weight = element.reduce((acc, el) => acc + el[1], 0);
+    return combined_weight
+      ? element.reduce((acc, el) => acc + el[0] * el[1], 0) / combined_weight
+      : 0;
+  });
+};
+
+interface markerType {
+  [proptery: string]: { axis: string; value: number; legend: string }[];
+}
+interface annotationType {
+  constraints: { [property: string]: string };
+  index: number;
+  annotation: { title: string; description: string; otherprops?: string };
+}
+
+const markers: markerType = {};
+
+const annotations: annotationType[] = [];
+
+interface dataType {
+  x: number;
+  y: number;
+  annotation?: { title: string; description: string; otherprops?: string };
+}
+
+app.get("/topicmodelling", async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const schema = "politicians" in req.query ? "lda_person" : "lda_group";
+    let result = {
+      data: (await queryData(req.query as argsType, schema, client)).map(
+        (y, x) => ({
+          x: 1949 + x,
+          y: y,
+        })
+      ) as dataType[],
+      markers:
+        "topics" in req.query && (req.query["topics"] as string) in markers
+          ? markers[req.query["topics"] as string]
+          : [],
+    };
+    annotations
+      .filter((element) =>
+        Object.keys(element.constraints)
+          .map(
+            (constraint) =>
+              constraint in req.query &&
+              element.constraints[constraint] == req.query[constraint]
+          )
+          .every(Boolean)
+      )
+      .map(
+        (element) =>
+          (result.data[element.index].annotation = element.annotation)
+      );
+    res.setHeader("Content-Type", "application/json");
+    res.send(JSON.stringify(result));
+  } finally {
+    client.release();
   }
-);
+});
+
+app.get("/screenshot", async (req, res) => {
+  const {
+    query: { url, selector },
+  } = req;
+  const random_id = v4();
+  if (!url) {
+    res.status(400).send(JSON.parse(`{"error": "Missing url parameter"}`));
+    return;
+  }
+  res.send(JSON.parse(`{"fileName": "${random_id}.jpg"}`));
+  const { host } = new URL(url as string);
+  const split_host = host.split(".");
+  if (
+    split_host.slice(-2).join(".") != "opendiscourse.de" &&
+    split_host.slice(-3).join(".") != "ofranke.vercel.app" &&
+    split_host.slice(-1).join(".") != "localhost"
+  ) {
+    throw Error("Bad URL Name");
+  }
+  const browser = await puppeteer.launch({
+    args: ["--no-sandbox"],
+  });
+  const page = await browser.newPage();
+  page.setViewport({ width: 1920, height: 800, deviceScaleFactor: 1 });
+  await page.goto(url as string, {
+    waitUntil: "networkidle2",
+  });
+  const imageBuffer = await screenshotDOMElement({
+    path:
+      !process.env.ACCESS_KEY ||
+      !process.env.SECRET_KEY ||
+      !process.env.ENDPOINT
+        ? process.env.IMAGE_PATH
+          ? `${process.env.IMAGE_PATH}/${random_id}.jpg`
+          : `./src/${random_id}.jpg`
+        : undefined,
+    selector: (selector as string) || "#topic-modelling-line-graph",
+    padding: 16,
+    page: page,
+  });
+  browser.close();
+  if (process.env.ACCESS_KEY && process.env.SECRET_KEY && process.env.ENDPOINT)
+    uploadImage({
+      endpoint: process.env.ENDPOINT,
+      imageBuffer: imageBuffer as Buffer,
+      id: random_id,
+    });
+});
 
 interface uploadImageProps {
   endpoint: string;
