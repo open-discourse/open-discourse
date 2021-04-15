@@ -11,6 +11,7 @@
   "dependencies": {
     "@types/aws-sdk": "^2.7.0",
     "@types/cors": "^2.8.8",
+    "@types/express-rate-limit": "^5.1.1",
     "@types/memory-cache": "^0.2.1",
     "@types/node": "14.11.8",
     "@types/node-fetch": "^2.5.7",
@@ -20,6 +21,7 @@
     "aws-sdk": "^2.846.0",
     "cors": "^2.8.5",
     "express": "4.17.1",
+    "express-rate-limit": "^5.2.6",
     "memory-cache": "^0.2.0",
     "pg": "^8.6.0",
     "puppeteer": "^7.1.0",
