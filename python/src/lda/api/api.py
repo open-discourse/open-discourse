@@ -83,10 +83,9 @@ def query_data(args, schema, connection, cursor):
     format_string = "INNER JOIN " + schema + ".{0} ON {1}"
     for next_key, last_key in zip(keys[1:], keys[:-1]):
         if next_key in args:
-            string = "{0}.{1}.id={0}.{2}.%s".format(
-                schema, next_key, last_key
+            string = "{0}.{1}.id={0}.{2}.{3}".format(
+                schema, next_key, last_key, args[next_key]
             )
-            input_list.append(args[next_key])
         else:
             constraint = (
                 constraints[schema][next_key]
