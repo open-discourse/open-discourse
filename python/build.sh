@@ -6,9 +6,7 @@ docker-compose up -d database
 sleep 20
 cd ../database
 yarn run db:update:local
-cd ..
-docker-compose up -d graphql
-cd ./python
+cd ../python
 . .venv/bin/activate
 mkdir -p logs
 

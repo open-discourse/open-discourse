@@ -1,6 +1,6 @@
 # Proxy
 
-The proxy service contains an express Endpoint, which protects the graphql service (in production the graphql service is hidden behind a firewall and only the proxy is exposed)
+The proxy service contains an express Endpoint, which protects the database (in production the database is hidden behind a firewall and only the proxy is exposed)
 
 ## Folders
 
