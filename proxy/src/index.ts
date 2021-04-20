@@ -267,6 +267,13 @@ app.get(
   cache(((process.env.CACHE_EXPIRATION as unknown) as number) || 1),
   async (req, res) => {
     const client = await pool.connect();
+    if ((req.originalUrl || req.url).startsWith("/topicmodelling?")) {
+      (
+        pool2 ?? pool
+      ).query(`INSERT INTO misc.topic_tracking (search_query) VALUES ($1)`, [
+        req.originalUrl || req.url,
+      ]);
+    }
     try {
       const schema = "politicians" in req.query ? "lda_person" : "lda_group";
       let result = {
