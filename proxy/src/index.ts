@@ -32,7 +32,7 @@ const pool = new Pool({
     : 5432,
 });
 
-const pool2 = process.env.POSTGRES_PERSISTENT_DB_HOST
+const persistent_pool = process.env.POSTGRES_PERSISTENT_DB_HOST
   ? new Pool({
       user: process.env.POSTGRES_PERSISTENT_DB_USER || "postgres",
       host: process.env.POSTGRES_PERSISTENT_DB_HOST || "localhost",
@@ -51,15 +51,16 @@ const cache = (duration: number) => {
     next: express.NextFunction
   ) => {
     const key = "__express__" + req.originalUrl || req.url;
+    // Save the tracking data in the persistent database (if possible)
     if ((req.originalUrl || req.url).startsWith("/?")) {
       (
-        pool2 ?? pool
+        persistent_pool ?? pool
       ).query(`INSERT INTO misc.fts_tracking (search_query) VALUES ($1)`, [
         req.originalUrl || req.url,
       ]);
     } else if ((req.originalUrl || req.url).startsWith("/topicmodelling?")) {
       (
-        pool2 ?? pool
+        persistent_pool ?? pool
       ).query(`INSERT INTO misc.topic_tracking (search_query) VALUES ($1)`, [
         req.originalUrl || req.url,
       ]);
