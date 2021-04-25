@@ -137,6 +137,22 @@ app.get(
   }
 );
 
+app.get(
+  "/contributions",
+  cache(((process.env.CACHE_EXPIRATION as unknown) as number) || 1),
+  async (req, res) => {
+    const {
+      query: { speechId },
+    } = req;
+    const result = await pool.query(
+      `SELECT content, text_position FROM open_discourse.contributions_simplified WHERE speech_id=$1`,
+      [speechId]
+    );
+    res.setHeader("Content-Type", "application/json");
+    res.send(JSON.stringify({ data: { contributions: result.rows } }));
+  }
+);
+
 interface argsType {
   [key: string]: string;
 }
