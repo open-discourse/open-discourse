@@ -20,14 +20,6 @@ docker tag "frontend:$REVISION_FRONTEND" "$REGISTRY/frontend:$REVISION_FRONTEND"
 docker push "$REGISTRY/frontend:latest"
 docker push "$REGISTRY/frontend:$REVISION_FRONTEND"
 
-cd ../graphql
-: ${REVISION_GRAPHQL:="$(node -p "require('./package.json').version")"}
-docker build --file Dockerfile.prod --tag "graphql:$REVISION_GRAPHQL" --tag "graphql:latest" --progress plain .
-docker tag "graphql:latest" "$REGISTRY/graphql:latest"
-docker tag "graphql:$REVISION_GRAPHQL" "$REGISTRY/graphql:$REVISION_GRAPHQL"
-docker push "$REGISTRY/graphql:latest"
-docker push "$REGISTRY/graphql:$REVISION_GRAPHQL"
-
 cd ../proxy
 : ${REVISION_PROXY:="$(node -p "require('./package.json').version")"}
 docker build --file Dockerfile.prod --tag "proxy:$REVISION_PROXY" --tag "proxy:latest" --progress plain .

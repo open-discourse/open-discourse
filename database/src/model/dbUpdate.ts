@@ -29,10 +29,11 @@ const FILES = [
   ["open_discourse", "search_speeches.sql"],
   ["open_discourse", "contributions_extended.sql"],
   ["open_discourse", "contributions_simplified.sql"],
-  ["open_discourse", "__permission.sql"],
   ["misc", "__init.sql"],
-  ["misc", "__permission.sql"],
   ["misc", "fts_tracking.sql"],
+  ["misc", "topic_tracking.sql"],
+  ["lda_group", "__init.sql"],
+  ["lda_person", "__init.sql"],
 ];
 
 export const closeAllOtherConnections = async (
