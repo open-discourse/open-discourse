@@ -16,7 +16,7 @@ def get_fuzzy_names(df, name_to_check, fuzzy_threshold=70):
 
 
 def get_possible_matches(df, **columns):
-    """ Returns possible matches in df with respect to specified columns. """
+    """Returns possible matches in df with respect to specified columns."""
 
     for col_name, col_value in columns.items():
         df = df.loc[df[col_name] == col_value]
@@ -29,7 +29,7 @@ def check_unique(possible_matches, col="ui"):
 
 
 def set_id(df, index, possible_matches, col_set, col_check):
-    """ Sets the ID in column "col_set" of "df" at "index" to the value in
+    """Sets the ID in column "col_set" of "df" at "index" to the value in
     "col_check" in possible_matches. Expects a unique col_check value in
     possible_matches.
     """
@@ -37,7 +37,7 @@ def set_id(df, index, possible_matches, col_set, col_check):
 
 
 def set_value(df, index, col, value):
-    """ Sets the value of col in df based on given value."""
+    """Sets the value of col in df based on given value."""
     df[col].at[index] = value
 
 
