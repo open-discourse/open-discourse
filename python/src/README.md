@@ -340,3 +340,15 @@ The Input and Output paths start at the project root
 - Function:
 
   - Uploads every Dataframe in `./data/03_final` to the Database
+
+## Topic Modelling
+
+The Topic Modelling is still WIP and most scripts for handling the Data Cubes are still in a prototype phase and are not yet published.
+
+...
+
+### [Upload Data Cubes to Database](./od_lib/topic_modelling/upload_data_cubes.py)
+
+- Function:
+
+  - Uploads every DataCube in `./data/03_final` to the Database
