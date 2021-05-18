@@ -19,7 +19,7 @@ def upload_dims(cur, dims, shape, schema):
         )
 
 
-def create_tables(cur, dims, shape, schema):
+def create_tables(cur, dims, schema):
     dims_keys = list(dims.keys())
     cur.execute(
         "CREATE TABLE IF NOT EXISTS {0}.{1}(id int8 NOT NULL, value double precision NULL, n int8 NULL, CONSTRAINT {1}_pk PRIMARY KEY (id));".format(  # noqa: E501
@@ -118,7 +118,7 @@ schema = "lda_group"
 upload_dims(cur, dims, shape, schema)
 conn.commit()
 
-create_tables(cur, dims, shape, schema)
+create_tables(cur, dims, schema)
 conn.commit()
 
 recursive_upload(
@@ -140,7 +140,7 @@ schema = "lda_person"
 upload_dims(cur, dims, shape, schema)
 conn.commit()
 
-create_tables(cur, dims, shape, schema)
+create_tables(cur, dims, schema)
 conn.commit()
 
 recursive_upload(cur, data_cube, weight_cube, dims, np.zeros(len(dims)), 0, schema)
