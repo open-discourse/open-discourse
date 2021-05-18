@@ -7,7 +7,7 @@ import os
 
 def upload_dims(cur, dims, shape, schema):
     cur.execute(
-        "CREATE TABLE {0}.dims(id serial NOT NULL, table_name varchar NOT NULL, n int8 NOT NULL, CONSTRAINT dims_pk PRIMARY KEY (id));".format(  # noqa: E501
+        "CREATE TABLE IF NOT EXISTS {0}.dims(id serial NOT NULL, table_name varchar NOT NULL, n int8 NOT NULL, CONSTRAINT dims_pk PRIMARY KEY (id));".format(  # noqa: E501
             schema
         )
     )
@@ -22,7 +22,7 @@ def upload_dims(cur, dims, shape, schema):
 def create_tables(cur, dims, shape, schema):
     dims_keys = list(dims.keys())
     cur.execute(
-        "CREATE TABLE {0}.{1}(id int8 NOT NULL, value double precision NULL, n int8 NULL, CONSTRAINT {1}_pk PRIMARY KEY (id));".format(  # noqa: E501
+        "CREATE TABLE IF NOT EXISTS {0}.{1}(id int8 NOT NULL, value double precision NULL, n int8 NULL, CONSTRAINT {1}_pk PRIMARY KEY (id));".format(  # noqa: E501
             schema, dims_keys[-1]
         )
     )
@@ -39,7 +39,7 @@ def create_tables(cur, dims, shape, schema):
             for dim, key in enumerate(keys)
         ]
         cur.execute(
-            "CREATE TABLE {0}.{1}(id int8 NOT NULL, {2}{3}CONSTRAINT {1}_pk PRIMARY KEY (id));".format(  # noqa: E501
+            "CREATE TABLE IF NOT EXISTS {0}.{1}(id int8 NOT NULL, {2}{3}CONSTRAINT {1}_pk PRIMARY KEY (id));".format(  # noqa: E501
                 schema,
                 current_dimension,
                 "".join(parsed_fields),
@@ -55,7 +55,7 @@ def create_tables(cur, dims, shape, schema):
         for dim, key in enumerate(keys)
     ]
     cur.execute(
-        "CREATE TABLE {0}.{1}(id varchar NOT NULL, {2}{3}CONSTRAINT {1}_pk PRIMARY KEY (id));".format(  # noqa: E501
+        "CREATE TABLE IF NOT EXISTS {0}.{1}(id varchar NOT NULL, {2}{3}CONSTRAINT {1}_pk PRIMARY KEY (id));".format(  # noqa: E501
             schema, dims_keys[0], "".join(parsed_fields), "".join(parsed_foreign_keys),
         )
     )
