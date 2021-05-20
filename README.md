@@ -18,8 +18,6 @@
   - [Start the Database](#start-the-database)
     - [Database: Normal Start](#database-normal-start)
     - [Database: Initial Start / Reset](#database-initial-start--reset)
-  - [Start the GraphQL Endpoint](#start-the-graphql-endpoint)
-    - [GraphQL: Normal Start](#graphql-normal-start)
   - [Generate Data](#generate-data)
   - [Start the Full Text Search](#start-the-full-text-search)
     - [Run Frontend with Docker](#run-frontend-with-docker)
@@ -44,10 +42,8 @@ This Repo is structured in three different parts.
   - Contains Scripts that update the Database
 - [frontend](./frontend):
   - Frontend for the Full Text Search
-- [graphql](./grahpql):
-  - Docker-Container for the GraphQL Endpoint
 - [proxy](./proxy):
-  - Docker-Container for the Proxy, which protects the graphql Endpoint
+  - Docker-Container for the Proxy, which protects the database
 - [python](./python):
   - Includes every python script in different subsections, sorted by execution order
 
@@ -91,20 +87,6 @@ For the initial start of the Database, you will also need to upload the schema.
 yarn run db:update:local
 ```
 
-### Start the GraphQL Endpoint
-
-This step starts the GraphiQL interface on `http://localhost:5000/graphiql`. This tool is very useful for simply querying data.
-You can skip this step if you are if not interested in the interface.
-
-#### GraphQL: Normal Start
-
-You can easily start the GraphQL Endpoint via docker-compose
-
-```Shell
-// run from repository root
-docker-compose up -d database
-```
-
 ### Generate Data
 
 Generate the OpenDiscourse-Database from the ground up. The Database has to be started for this script to finish.
@@ -134,14 +116,13 @@ Choose one of the following ways to start the Frontend:
 
 #### Run Frontend locally
 
-- run `docker-compose up -d database graphql proxy`in the `root` folder
+- run `docker-compose up -d database proxy`in the `root` folder
 - run `yarn dev` in the `frontend` folder
 
 ## Further Documentation
 
 - Documentation of the database can be found in the [README in database](./database/README.md)
 - Documentation of the frontend can be found in the [README in frontend](./frontend/README.md)
-- Documentation of graphql can be found in the [README in graphql](./graphql/README.md)
 - Documentation of the proxy can be found in the [README in proxy](./proxy/README.md)
 - Documentation of the python service can be found in the [README in python](./python/README.md)
 - Documentation of every python-script can be found in the [README in python/src](./python/src/README.md)
@@ -149,3 +130,4 @@ Choose one of the following ways to start the Frontend:
 ## Notes
 
 - We use [Python 3.7.4](https://www.python.org/downloads/release/python-374/) [d](https://bit.ly/2KE5DFm)uring development of the project
+- The graphql endpoint was deprecated and removed by version 1.1.0

@@ -45,9 +45,9 @@ def clean(filetext, remove_pdf_header=True):
 
 
 def clean_name_headers(filetext, names, contributions_extended_filter=False):
-    """ Cleans lines a given text which remained from the pdf header.
-        Usually something like: "Präsident Dr. Lammert"
-        Keep in mind this also deletes lines from voting lists.
+    """Cleans lines a given text which remained from the pdf header.
+    Usually something like: "Präsident Dr. Lammert"
+    Keep in mind this also deletes lines from voting lists.
     """
     names = np.unique(names)
     if contributions_extended_filter:

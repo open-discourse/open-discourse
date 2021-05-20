@@ -3,7 +3,6 @@
 You can easily setup the Database and other Services using these Docker Images:
 
 - [Database Image](https://github.com/open-discourse/open-discourse/packages/471468)
-- [GraphQL Image](https://github.com/open-discourse/open-discourse/packages/471466)
 - [Proxy Image](https://github.com/open-discourse/open-discourse/packages/474204)
 - [Frontend Image](https://github.com/open-discourse/open-discourse/packages/490931)
 
@@ -30,30 +29,14 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_PASSWORD=postgres
 
-  graphql:
-    container_name: od-graphql
-    image: docker.pkg.github.com/open-discourse/open-discourse/graphql:latest
-    environment:
-      - POSTGRES_DB_NAME=next
-      - POSTGRES_DB_USER=postgres
-      - POSTGRES_DB_PASSWORD=postgres
-      - POSTGRES_DB_HOST=database
-      - POSTGRES_DB_PORT=5432
-      - ENABLE_GRAPHIQL=true
-    depends_on:
-      database:
-        condition: service_healthy
-    ports:
-      - "5000:5000"
-
   proxy:
     container_name: od-proxy
     image: docker.pkg.github.com/open-discourse/open-discourse/proxy:latest
     depends_on:
-      graphql:
-        condition: service_started
+      database:
+        condition: service_healthy
     environment:
-      - GRAPHQL_ENDPOINT=http://od-graphql:5000/graphql
+      - POSTGRES_DB_HOST=database
       - CACHE_EXPIRATION=100000
       - QUERY_LIMIT=500
     ports:

@@ -340,3 +340,26 @@ The Input and Output paths start at the project root
 - Function:
 
   - Uploads every Dataframe in `./data/03_final` to the Database
+
+## Topic Modelling
+
+The Topic Modelling is still WIP and most scripts for handling the Data Cubes are still in a prototype phase and are not yet published.
+
+In the meanwhile you can download and move the following files into the `./data/03_final` folder:
+
+- [dims.pkl](https://open-discourse-data-cubes.s3.eu-central-1.amazonaws.com/dims.pkl)
+- [data_cube.pkl](https://open-discourse-data-cubes.s3.eu-central-1.amazonaws.com/data_cube.pkl)
+- [weight_cube.pkl](https://open-discourse-data-cubes.s3.eu-central-1.amazonaws.com/weight_cube.pkl)
+- [politician_dims.pkl](https://open-discourse-data-cubes.s3.eu-central-1.amazonaws.com/politician_dims.pkl)
+- [politician_data_cube.pkl](https://open-discourse-data-cubes.s3.eu-central-1.amazonaws.com/politician_data_cube.pkl)
+- [politician_weight_cube.pkl](https://open-discourse-data-cubes.s3.eu-central-1.amazonaws.com/politician_weight_cube.pkl)
+
+You can track the development of the Topic Modelling using this [GitHub Issue](https://github.com/open-discourse/open-discourse/issues/74)
+
+...
+
+### [Upload Data Cubes to Database](./od_lib/topic_modelling/upload_data_cubes.py)
+
+- Function:
+
+  - Uploads every DataCube in `./data/03_final` to the Database
