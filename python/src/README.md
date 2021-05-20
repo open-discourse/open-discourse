@@ -354,6 +354,8 @@ In the meanwhile you can download and move the following files into the `./data/
 - [politician_data_cube.pkl](https://open-discourse-data-cubes.s3.eu-central-1.amazonaws.com/politician_data_cube.pkl)
 - [politician_weight_cube.pkl](https://open-discourse-data-cubes.s3.eu-central-1.amazonaws.com/politician_weight_cube.pkl)
 
+You can track the development of the Topic Modelling using this [GitHub Issue](https://github.com/open-discourse/open-discourse/issues/74)
+
 ...
 
 ### [Upload Data Cubes to Database](./od_lib/topic_modelling/upload_data_cubes.py)
