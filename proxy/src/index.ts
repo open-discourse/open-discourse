@@ -53,17 +53,15 @@ const cache = (duration: number) => {
     const key = "__express__" + req.originalUrl || req.url;
     // Save the tracking data in the persistent database (if possible)
     if ((req.originalUrl || req.url).startsWith("/?")) {
-      (
-        persistent_pool ?? pool
-      ).query(`INSERT INTO misc.fts_tracking (search_query) VALUES ($1)`, [
-        req.originalUrl || req.url,
-      ]);
+      (persistent_pool ?? pool).query(
+        `INSERT INTO misc.fts_tracking (search_query) VALUES ($1)`,
+        [req.originalUrl || req.url]
+      );
     } else if ((req.originalUrl || req.url).startsWith("/topicmodelling?")) {
-      (
-        persistent_pool ?? pool
-      ).query(`INSERT INTO misc.topic_tracking (search_query) VALUES ($1)`, [
-        req.originalUrl || req.url,
-      ]);
+      (persistent_pool ?? pool).query(
+        `INSERT INTO misc.topic_tracking (search_query) VALUES ($1)`,
+        [req.originalUrl || req.url]
+      );
     }
     const cachedBody = JSON.parse(mcache.get(key));
     if (cachedBody) {
@@ -82,7 +80,7 @@ const cache = (duration: number) => {
 
 app.get(
   "/",
-  cache(((process.env.CACHE_EXPIRATION as unknown) as number) || 1),
+  cache((process.env.CACHE_EXPIRATION as unknown as number) || 1),
   async function (req, res) {
     const {
       query: {
@@ -99,8 +97,8 @@ app.get(
               first_name AS "firstName", last_name AS "lastName", abbreviation
        FROM open_discourse.search_speeches($1, $2, $3, $4, $5, $6) LIMIT $7`,
       [
-        politicianIdQuery ? ((politicianIdQuery as unknown) as number) : -2,
-        factionIdQuery ? ((factionIdQuery as unknown) as number) : -2,
+        politicianIdQuery ? (politicianIdQuery as unknown as number) : -2,
+        factionIdQuery ? (factionIdQuery as unknown as number) : -2,
         positionShortQuery || "",
         contentQuery || "",
         fromDate,
@@ -115,7 +113,7 @@ app.get(
 
 app.get(
   "/politicians",
-  cache(((process.env.CACHE_EXPIRATION as unknown) as number) || 1),
+  cache((process.env.CACHE_EXPIRATION as unknown as number) || 1),
   async (_req, res) => {
     const result = await pool.query(
       'SELECT id, first_name AS "firstName", last_name AS "lastName" FROM open_discourse.politicians'
@@ -127,7 +125,7 @@ app.get(
 
 app.get(
   "/factions",
-  cache(((process.env.CACHE_EXPIRATION as unknown) as number) || 1),
+  cache((process.env.CACHE_EXPIRATION as unknown as number) || 1),
   async (_req, res) => {
     const result = await pool.query(
       'SELECT id, full_name AS "fullName", abbreviation FROM open_discourse.factions'
@@ -204,15 +202,18 @@ const queryData = async (
   for (let tuple of zip(keys.slice(1), keys.slice(0, -1))) {
     const nextKey = tuple[0] as string;
     const lastKey = tuple[1] as string;
+    const constraint =
+      schema in constraints
+        ? constraints[schema][nextKey]
+        : (await getConstraints(schema, client))[schema][nextKey];
     if (nextKey in args) {
       cache.push(
-        `INNER JOIN ${schema}.${nextKey} ON ${schema}.${nextKey}.id=${schema}.${lastKey}.${args[nextKey]}`
+        `INNER JOIN ${schema}.${nextKey} ON ${schema}.${nextKey}.id=${schema}.${lastKey}.${
+          // Workaround to prevent unsanitized user input
+          constraint[constraint.indexOf(args[nextKey])]
+        }`
       );
     } else {
-      const constraint =
-        schema in constraints
-          ? constraints[schema][nextKey]
-          : (await getConstraints(schema, client))[schema][nextKey];
       cache.push(
         `INNER JOIN ${schema}.${nextKey} ON (${constraint
           .map(
@@ -234,12 +235,12 @@ const queryData = async (
   const data = res.rows.map((element) =>
     isNaN(element.value) ? [0, +element.n] : [element.value, +element.n]
   );
-  const dataPoints = [
-    ...Array(dim[keys[keys.length - 1]]).keys(),
-  ].map((firstIndex) =>
-    data.filter(
-      (_, secondIndex) => secondIndex % dim[keys[keys.length - 1]] == firstIndex
-    )
+  const dataPoints = [...Array(dim[keys[keys.length - 1]]).keys()].map(
+    (firstIndex) =>
+      data.filter(
+        (_, secondIndex) =>
+          secondIndex % dim[keys[keys.length - 1]] == firstIndex
+      )
   );
   return dataPoints.map((element) => {
     const combined_weight = element.reduce((acc, el) => acc + el[1], 0);
@@ -270,7 +271,7 @@ interface dataType {
 
 app.get(
   "/topicmodelling",
-  cache(((process.env.CACHE_EXPIRATION as unknown) as number) || 1),
+  cache((process.env.CACHE_EXPIRATION as unknown as number) || 1),
   async (req, res) => {
     const client = await pool.connect();
     try {
@@ -311,7 +312,7 @@ app.get(
 
 app.get(
   "/screenshot",
-  cache(((process.env.CACHE_EXPIRATION as unknown) as number) || 1),
+  cache((process.env.CACHE_EXPIRATION as unknown as number) || 1),
   async (req, res) => {
     const {
       query: { url, selector },
