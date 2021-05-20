@@ -60,3 +60,6 @@ ELECTORAL_TERM_19 = os.path.join(DATA_CACHE, "electoral_term_19")
 ELECTORAL_TERM_19_STAGE_01 = os.path.join(ELECTORAL_TERM_19, "stage_01")
 ELECTORAL_TERM_19_STAGE_02 = os.path.join(ELECTORAL_TERM_19, "stage_02")
 ELECTORAL_TERM_19_STAGE_03 = os.path.join(ELECTORAL_TERM_19, "stage_03")
+
+# TOPIC_MODELLING __________________________________________________________________________________
+TOPIC_MODELLING = os.path.join(DATA_CACHE, "topic_modelling")
