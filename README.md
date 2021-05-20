@@ -130,4 +130,4 @@ Choose one of the following ways to start the Frontend:
 ## Notes
 
 - We use [Python 3.7.4](https://www.python.org/downloads/release/python-374/) [d](https://bit.ly/2KE5DFm)uring development of the project
-- The graphql endpoint was deprecated and removed by version 2.0.0
+- The graphql endpoint was deprecated and removed by version 1.1.0
