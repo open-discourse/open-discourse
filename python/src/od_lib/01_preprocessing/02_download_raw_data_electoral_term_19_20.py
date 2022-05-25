@@ -3,6 +3,7 @@ import od_lib.definitions.path_definitions as path_definitions
 import requests
 import os
 import regex
+import time
 
 # output directory
 ELECTORAL_TERM_19_20_OUTPUT = path_definitions.ELECTORAL_TERM_19_20_STAGE_01
@@ -48,6 +49,14 @@ for election_period in election_periods:
             session = regex.search(r"\d{5}(?=-data\.xml)", url).group(0)
 
             print(session)
-            with open(os.path.join(OUTPUT_PATH, session + ".xml"), "wb") as file:
-                file.write(page.content)
+            with open(os.path.join(OUTPUT_PATH, session + ".xml"), "w") as file:
+                file.write(
+                    regex.sub(
+                        "</sub>",
+                        "",
+                        regex.sub("<sub>", "", page.content.decode("utf-8")),
+                    )
+                )
+
+            time.sleep(0.1)
         offset += 10
