@@ -75,7 +75,8 @@ for div in main_section.find_all("div", recursive=False):
                 birth_date = int(match_years[0])
                 death_date = int(match_years[1])
             else:
-                raise ValueError("Something is wrong heregex.")
+                birth_date = -1
+                death_date = -1
 
             # Iterate over government position of the current politician.
             for pos in li.find_all("li"):

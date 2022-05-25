@@ -23,7 +23,8 @@ election_periods = [
 
 for election_period in election_periods:
     OUTPUT_PATH = os.path.join(
-        ELECTORAL_TERM_19_20_OUTPUT, "electoral_term_{}".format(election_period["election_period"])
+        ELECTORAL_TERM_19_20_OUTPUT,
+        "electoral_term_{}".format(election_period["election_period"]),
     )
 
     if not os.path.exists(OUTPUT_PATH):

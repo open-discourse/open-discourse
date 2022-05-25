@@ -9,33 +9,20 @@ import datetime
 
 
 # input directory
-ELECTORAL_TERM_19_INPUT = path_definitions.ELECTORAL_TERM_19_STAGE_02
+ELECTORAL_TERM_19_20_INPUT = path_definitions.ELECTORAL_TERM_19_20_STAGE_02
 FACTIONS = path_definitions.DATA_FINAL
 politicians = path_definitions.DATA_FINAL
 
 # output directory
-ELECTORAL_TERM_19_OUTPUT = path_definitions.ELECTORAL_TERM_19_STAGE_03
-CONTRIBUTIONS_EXTENDED_OUTPUT = os.path.join(
-    path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_01, "electoral_term_19"
-)
-ELECTORAL_TERM_19_SPOKEN_CONTENT = os.path.join(
-    ELECTORAL_TERM_19_OUTPUT, "speech_content"
-)
+ELECTORAL_TERM_19_20_OUTPUT = path_definitions.ELECTORAL_TERM_19_20_STAGE_03
 CONTRIBUTIONS_SIMPLIFIED = path_definitions.CONTRIBUTIONS_SIMPLIFIED
 
-if not os.path.exists(ELECTORAL_TERM_19_OUTPUT):
-    os.makedirs(ELECTORAL_TERM_19_SPOKEN_CONTENT)
+if not os.path.exists(ELECTORAL_TERM_19_20_OUTPUT):
+    os.makedirs(ELECTORAL_TERM_19_20_OUTPUT)
 
-# Contributions are saved to the contributions_extended folder not the seperate electoral_term_19 folders  # noqa: E501
-if not os.path.exists(CONTRIBUTIONS_EXTENDED_OUTPUT):
-    os.makedirs(CONTRIBUTIONS_EXTENDED_OUTPUT)
 
 if not os.path.exists(CONTRIBUTIONS_SIMPLIFIED):
     os.makedirs(CONTRIBUTIONS_SIMPLIFIED)
-
-contributions_simplified = pd.DataFrame(
-    {"text_position": [], "content": [], "speech_id": []}
-)
 
 faction_patterns = {
     "Bündnis 90/Die Grünen": r"(?:BÜNDNIS\s*(?:90)?/?(?:\s*D[1I]E)?|Bündnis\s*90/(?:\s*D[1I]E)?)?\s*[GC]R[UÜ].?\s*[ÑN]EN?(?:/Bündnis 90)?",  # noqa: E501
@@ -172,254 +159,290 @@ politicians.first_name = politicians.first_name.str.lower()
 politicians.first_name = politicians.first_name.str.replace("ß", "ss", regex=False)
 politicians.first_name = politicians.first_name.apply(str.split)
 
-for session in sorted(os.listdir(ELECTORAL_TERM_19_INPUT)):
+for electoral_term_folder in sorted(os.listdir(ELECTORAL_TERM_19_20_INPUT)):
+    electoral_term_folder_path = os.path.join(
+        ELECTORAL_TERM_19_20_INPUT, electoral_term_folder
+    )
 
-    if session == ".DS_Store":
+    if not os.path.isdir(electoral_term_folder_path):
         continue
 
-    contributions_extended = pd.DataFrame(
-        {
-            "id": [],
-            "type": [],
-            "name": [],
-            "faction": [],
-            "constituency": [],
-            "content": [],
-            "text_position": [],
-        }
+    CONTRIBUTIONS_EXTENDED_OUTPUT = os.path.join(
+        path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_01, electoral_term_folder
     )
 
-    print(session)
-
-    session_content = et.parse(
-        os.path.join(ELECTORAL_TERM_19_INPUT, session, "session_content.xml")
+    ELECTORAL_TERM_SPOKEN_CONTENT = os.path.join(
+        ELECTORAL_TERM_19_20_OUTPUT, electoral_term_folder, "speech_content"
     )
 
-    meta_data = et.parse(
-        os.path.join(ELECTORAL_TERM_19_INPUT, session, "meta_data.xml")
+    CONTRIBUTIONS_SIMPLIFIED_OUTPUT = os.path.join(
+        CONTRIBUTIONS_SIMPLIFIED, electoral_term_folder
     )
 
-    date = meta_data.getroot().get("sitzung-datum")
-    # Wrong date in xml file. Fixing manually
-    if session == "19158":
-        date = "07.05.2020"
-    date = (
-        datetime.datetime.strptime(date, "%d.%m.%Y") - datetime.datetime(1970, 1, 1)
-    ).total_seconds()
+    if not os.path.exists(CONTRIBUTIONS_EXTENDED_OUTPUT):
+        os.makedirs(CONTRIBUTIONS_EXTENDED_OUTPUT)
 
-    root = session_content.getroot()
+    if not os.path.exists(ELECTORAL_TERM_SPOKEN_CONTENT):
+        os.makedirs(ELECTORAL_TERM_SPOKEN_CONTENT)
 
-    tops = root.findall("tagesordnungspunkt")
+    if not os.path.exists(CONTRIBUTIONS_SIMPLIFIED_OUTPUT):
+        os.makedirs(CONTRIBUTIONS_SIMPLIFIED_OUTPUT)
 
-    c = Incrementor()
-    id_Counter = 0
+    speech_records = []
 
-    for top in tops:
-        speeches = top.findall("rede")
-        for speech in speeches:
-            speaker = speech[0].find("redner")
-            try:
-                speaker_id = int(speaker.get("id"))
-            except (ValueError, AttributeError):
-                speaker_id = -1
+    contributions_simplified = pd.DataFrame(
+        {"text_position": [], "content": [], "speech_id": []}
+    )
 
-            try:
-                name = speaker.find("name")
-            except AttributeError:
-                continue
+    for session in sorted(os.listdir(electoral_term_folder_path)):
 
-            try:
-                first_name = name.find("vorname").text
-            except AttributeError:
-                first_name = ""
+        if session == ".DS_Store":
+            continue
 
-            try:
-                last_name = name.find("nachname").text
-            except AttributeError:
-                last_name = ""
+        contributions_extended = pd.DataFrame(
+            {
+                "id": [],
+                "type": [],
+                "name": [],
+                "faction": [],
+                "constituency": [],
+                "content": [],
+                "text_position": [],
+            }
+        )
 
-            try:
-                position_raw = name.find("fraktion").text
-            except (ValueError, AttributeError):
-                position_raw = name.find("rolle").find("rolle_lang").text
-            faction_abbrev = get_faction_abbrev(
-                str(position_raw), faction_patterns=faction_patterns
-            )
-            position_short, position_long = get_position_short_and_long(
-                faction_abbrev
-                if faction_abbrev
-                else regex.sub("\n+", " ", position_raw)
-            )
-            faction_id = -1
-            if faction_abbrev:
-                # .iloc[0] is important right now, as some faction entries
-                # in factions df share same faction_id, so always the first
-                # one is chosen right now.
-                faction_id = int(
-                    factions.id.loc[factions.abbreviation == faction_abbrev].iloc[0]
-                )
+        print(session)
 
-            speech_text = ""
-            text_position = 0
-            for content in speech[1:]:
-                tag = content.tag
-                if tag == "name":
-                    speech_series = pd.Series(
-                        {
-                            "id": speech_content_id,
-                            "session": session,
-                            "first_name": first_name,
-                            "last_name": last_name,
-                            "faction_id": faction_id,
-                            "position_short": position_short,
-                            "position_long": position_long,
-                            "politician_id": speaker_id,
-                            "speech_content": speech_text,
-                            "date": date,
-                        }
-                    )
-                    speech_content = speech_content.append(
-                        speech_series, ignore_index=True
-                    )
-                    speech_content_id += 1
-                    faction_id = -1
+        session_content = et.parse(
+            os.path.join(electoral_term_folder_path, session, "session_content.xml")
+        )
+
+        meta_data = et.parse(
+            os.path.join(electoral_term_folder_path, session, "meta_data.xml")
+        )
+
+        date = meta_data.getroot().get("sitzung-datum")
+        # Wrong date in xml file. Fixing manually
+        if session == "19158":
+            date = "07.05.2020"
+        date = (
+            datetime.datetime.strptime(date, "%d.%m.%Y") - datetime.datetime(1970, 1, 1)
+        ).total_seconds()
+
+        root = session_content.getroot()
+
+        tops = root.findall("tagesordnungspunkt")
+
+        c = Incrementor()
+        id_Counter = 0
+
+        for top in tops:
+            speeches = top.findall("rede")
+            for speech in speeches:
+                speaker = speech[0].find("redner")
+                try:
+                    speaker_id = int(speaker.get("id"))
+                except (ValueError, AttributeError):
                     speaker_id = -1
-                    name = regex.sub(":", "", content.text).split()
-                    first_name, last_name = get_first_last(" ".join(name[1:]))
-                    position_short, position_long = get_position_short_and_long(name[0])
-                    possible_matches = politicians.loc[
-                        politicians.last_name == last_name.lower()
-                    ]
-                    length = len(np.unique(possible_matches["ui"]))
-                    if length == 1:
-                        speaker_id = int(possible_matches["ui"].iloc[0])
-                    elif length > 1:
-                        first_name_set = set([x.lower() for x in first_name.split()])
-                        possible_matches = possible_matches.loc[
-                            ~possible_matches.first_name.apply(
-                                lambda x: set(x).isdisjoint(first_name_set)
-                            )
+
+                try:
+                    name = speaker.find("name")
+                except AttributeError:
+                    continue
+
+                try:
+                    first_name = name.find("vorname").text
+                except AttributeError:
+                    first_name = ""
+
+                try:
+                    last_name = name.find("nachname").text
+                except AttributeError:
+                    last_name = ""
+
+                try:
+                    position_raw = name.find("fraktion").text
+                except (ValueError, AttributeError):
+                    position_raw = name.find("rolle").find("rolle_lang").text
+                faction_abbrev = get_faction_abbrev(
+                    str(position_raw), faction_patterns=faction_patterns
+                )
+                position_short, position_long = get_position_short_and_long(
+                    faction_abbrev
+                    if faction_abbrev
+                    else regex.sub("\n+", " ", position_raw)
+                )
+                faction_id = -1
+                if faction_abbrev:
+                    # .iloc[0] is important right now, as some faction entries
+                    # in factions df share same faction_id, so always the first
+                    # one is chosen right now.
+                    faction_id = int(
+                        factions.id.loc[factions.abbreviation == faction_abbrev].iloc[0]
+                    )
+
+                speech_text = ""
+                text_position = 0
+                for content in speech[1:]:
+                    tag = content.tag
+                    if tag == "name":
+                        speech_records.append(
+                            {
+                                "id": speech_content_id,
+                                "session": session,
+                                "first_name": first_name,
+                                "last_name": last_name,
+                                "faction_id": faction_id,
+                                "position_short": position_short,
+                                "position_long": position_long,
+                                "politician_id": speaker_id,
+                                "speech_content": speech_text,
+                                "date": date,
+                            }
+                        )
+                        speech_content_id += 1
+                        faction_id = -1
+                        speaker_id = -1
+                        name = regex.sub(":", "", content.text).split()
+                        first_name, last_name = get_first_last(" ".join(name[1:]))
+                        position_short, position_long = get_position_short_and_long(
+                            name[0]
+                        )
+                        possible_matches = politicians.loc[
+                            politicians.last_name == last_name.lower()
                         ]
                         length = len(np.unique(possible_matches["ui"]))
                         if length == 1:
                             speaker_id = int(possible_matches["ui"].iloc[0])
-                    speech_text = ""
-                    text_position = 0
-                elif tag == "p" and content.get("klasse") == "redner":
-                    speech_series = pd.Series(
-                        {
-                            "id": speech_content_id,
-                            "session": session,
-                            "first_name": first_name,
-                            "last_name": last_name,
-                            "faction_id": faction_id,
-                            "position_short": position_short,
-                            "position_long": position_long,
-                            "politician_id": speaker_id,
-                            "speech_content": speech_text,
-                            "date": date,
-                        }
-                    )
-                    speech_content = speech_content.append(
-                        speech_series, ignore_index=True
-                    )
-                    speech_content_id += 1
-                    speech_text = ""
-                    text_position = 0
-                    speaker = content.find("redner")
-                    speaker_id = int(speaker.get("id"))
-                    possible_matches = politicians.loc[politicians.ui == speaker_id]
-                    if len(possible_matches) == 0:
-                        speaker_id = -1
-                    name = speaker.find("name")
-                    try:
-                        first_name = name.find("vorname").text
-                        last_name = name.find("nachname").text
-                    except AttributeError:
-                        try:
-                            first_name, last_name = get_first_last(speech[0].text)
-                        except AttributeError:
-                            first_name = "ERROR"
-                            last_name = "ERROR"
-                    try:
-                        position_raw = name.find("fraktion").text
-                    except (ValueError, AttributeError):
-                        position_raw = name.find("rolle").find("rolle_lang").text
-                    faction_abbrev = get_faction_abbrev(
-                        str(position_raw), faction_patterns=faction_patterns
-                    )
-
-                    faction_id = -1
-                    position_short, position_long = get_position_short_and_long(
-                        faction_abbrev
-                        if faction_abbrev
-                        else regex.sub("\n+", " ", position_raw)
-                    )
-                    if faction_abbrev:
-                        faction = faction_abbrev
-                        # .iloc[0] is important right now, as some faction entries
-                        # in factions df share same faction_id, so always the first
-                        # one is chosen right now.
-                        faction_id = int(
-                            factions.id.loc[
-                                factions.abbreviation == faction_abbrev
-                            ].iloc[0]
+                        elif length > 1:
+                            first_name_set = set(
+                                [x.lower() for x in first_name.split()]
+                            )
+                            possible_matches = possible_matches.loc[
+                                ~possible_matches.first_name.apply(
+                                    lambda x: set(x).isdisjoint(first_name_set)
+                                )
+                            ]
+                            length = len(np.unique(possible_matches["ui"]))
+                            if length == 1:
+                                speaker_id = int(possible_matches["ui"].iloc[0])
+                        speech_text = ""
+                        text_position = 0
+                    elif tag == "p" and content.get("klasse") == "redner":
+                        speech_records.append(
+                            {
+                                "id": speech_content_id,
+                                "session": session,
+                                "first_name": first_name,
+                                "last_name": last_name,
+                                "faction_id": faction_id,
+                                "position_short": position_short,
+                                "position_long": position_long,
+                                "politician_id": speaker_id,
+                                "speech_content": speech_text,
+                                "date": date,
+                            }
                         )
-                elif tag == "p":
-                    try:
-                        speech_text += "\n\n" + content.text
-                    except TypeError:
-                        pass
-                elif tag == "kommentar":
-                    (
-                        contributions_extended_frame,
-                        speech_replaced,
-                        contributions_simplified_frame,
-                        text_position,
-                    ) = extract(
-                        content.text,
-                        int(session),
-                        speech_content_id,
-                        text_position,
-                        False,
-                    )
-                    speech_text += "\n\n" + speech_replaced
-                    contributions_extended = pd.concat(
-                        [contributions_extended, contributions_extended_frame],
-                        sort=False,
-                    )
-                    contributions_simplified = pd.concat(
-                        [contributions_simplified, contributions_simplified_frame],
-                        sort=False,
-                    )
 
-            speech_series = pd.Series(
-                {
-                    "id": speech_content_id,
-                    "session": session,
-                    "first_name": first_name,
-                    "last_name": last_name,
-                    "faction_id": faction_id,
-                    "position_short": position_short,
-                    "position_long": position_long,
-                    "politician_id": speaker_id,
-                    "speech_content": speech_text,
-                    "date": date,
-                }
-            )
-            speech_content = speech_content.append(speech_series, ignore_index=True)
-            speech_content_id += 1
+                        speech_content_id += 1
+                        speech_text = ""
+                        text_position = 0
+                        speaker = content.find("redner")
+                        speaker_id = int(speaker.get("id"))
+                        possible_matches = politicians.loc[politicians.ui == speaker_id]
+                        if len(possible_matches) == 0:
+                            speaker_id = -1
+                        name = speaker.find("name")
+                        try:
+                            first_name = name.find("vorname").text
+                            last_name = name.find("nachname").text
+                        except AttributeError:
+                            try:
+                                first_name, last_name = get_first_last(speech[0].text)
+                            except AttributeError:
+                                first_name = "ERROR"
+                                last_name = "ERROR"
+                        try:
+                            position_raw = name.find("fraktion").text
+                        except (ValueError, AttributeError):
+                            position_raw = name.find("rolle").find("rolle_lang").text
+                        faction_abbrev = get_faction_abbrev(
+                            str(position_raw), faction_patterns=faction_patterns
+                        )
 
-    contributions_extended.to_pickle(
-        os.path.join(CONTRIBUTIONS_EXTENDED_OUTPUT, session + ".pkl")
+                        faction_id = -1
+                        position_short, position_long = get_position_short_and_long(
+                            faction_abbrev
+                            if faction_abbrev
+                            else regex.sub("\n+", " ", position_raw)
+                        )
+                        if faction_abbrev:
+                            faction = faction_abbrev
+                            # .iloc[0] is important right now, as some faction entries
+                            # in factions df share same faction_id, so always the first
+                            # one is chosen right now.
+                            faction_id = int(
+                                factions.id.loc[
+                                    factions.abbreviation == faction_abbrev
+                                ].iloc[0]
+                            )
+                    elif tag == "p":
+                        try:
+                            speech_text += "\n\n" + content.text
+                        except TypeError:
+                            pass
+                    elif tag == "kommentar":
+                        (
+                            contributions_extended_frame,
+                            speech_replaced,
+                            contributions_simplified_frame,
+                            text_position,
+                        ) = extract(
+                            content.text,
+                            int(session),
+                            speech_content_id,
+                            text_position,
+                            False,
+                        )
+                        speech_text += "\n\n" + speech_replaced
+                        contributions_extended = pd.concat(
+                            [contributions_extended, contributions_extended_frame],
+                            sort=False,
+                        )
+                        contributions_simplified = pd.concat(
+                            [contributions_simplified, contributions_simplified_frame],
+                            sort=False,
+                        )
+
+                speech_records.append(
+                    {
+                        "id": speech_content_id,
+                        "session": session,
+                        "first_name": first_name,
+                        "last_name": last_name,
+                        "faction_id": faction_id,
+                        "position_short": position_short,
+                        "position_long": position_long,
+                        "politician_id": speaker_id,
+                        "speech_content": speech_text,
+                        "date": date,
+                    }
+                )
+                speech_content_id += 1
+
+        contributions_extended.to_pickle(
+            os.path.join(CONTRIBUTIONS_EXTENDED_OUTPUT, session + ".pkl")
+        )
+
+    speech_content = pd.DataFrame.from_records(speech_records)
+
+    speech_content.to_pickle(
+        os.path.join(ELECTORAL_TERM_SPOKEN_CONTENT, "speech_content.pkl")
     )
 
-speech_content.to_pickle(
-    os.path.join(ELECTORAL_TERM_19_SPOKEN_CONTENT, "speech_content.pkl")
-)
-
-contributions_simplified.to_pickle(
-    os.path.join(
-        CONTRIBUTIONS_SIMPLIFIED, "contributions_simplified_electoral_term_19.pkl"
+    contributions_simplified.to_pickle(
+        os.path.join(
+            CONTRIBUTIONS_SIMPLIFIED_OUTPUT,
+            "contributions_simplified.pkl",
+        )
     )
-)

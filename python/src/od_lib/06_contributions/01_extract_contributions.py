@@ -83,7 +83,9 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
                 contributions_simplified_frame,
                 _,
             ) = extract(
-                speech, int(speech_content_file.replace(".pkl", "")), speech_id,
+                speech,
+                int(speech_content_file.replace(".pkl", "")),
+                speech_id,
             )
 
             speech_content.at[counter, "speech_content"] = speech_text

@@ -109,7 +109,11 @@ for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_EXTENDED_INPUT)):
         # CAN INTRODUCE A LARGE BIAS IN TEXT ANALYSIS
         names = contributions_extended.name_raw.to_list()
         contributions_extended.content = contributions_extended.content.apply(
-            clean_name_headers, args=(names, True,),
+            clean_name_headers,
+            args=(
+                names,
+                True,
+            ),
         )
 
         contributions_extended.reset_index(inplace=True, drop=True)

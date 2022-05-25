@@ -20,7 +20,13 @@ CONTRIBUTIONS_SIMPLIFIED = os.path.join(
 )
 CONTRIBUTIONS_SIMPLIFIED_WP19 = os.path.join(
     path_definitions.CONTRIBUTIONS_SIMPLIFIED,
-    "contributions_simplified_electoral_term_19.pkl",
+    "electoral_term_19",
+    "contributions_simplified.pkl",
+)
+CONTRIBUTIONS_SIMPLIFIED_WP20 = os.path.join(
+    path_definitions.CONTRIBUTIONS_SIMPLIFIED,
+    "electoral_term_20",
+    "contributions_simplified.pkl",
 )
 ELECTORAL_TERMS = os.path.join(path_definitions.ELECTORAL_TERMS, "electoral_terms.csv")
 
@@ -259,9 +265,17 @@ contributions_simplified = pd.read_pickle(CONTRIBUTIONS_SIMPLIFIED)
 contributions_simplified_electoral_term_19 = pd.read_pickle(
     CONTRIBUTIONS_SIMPLIFIED_WP19
 )
+contributions_simplified_electoral_term_20 = pd.read_pickle(
+    CONTRIBUTIONS_SIMPLIFIED_WP20
+)
 
 contributions_simplified = pd.concat(
-    [contributions_simplified, contributions_simplified_electoral_term_19], sort=False
+    [
+        contributions_simplified,
+        contributions_simplified_electoral_term_19,
+        contributions_simplified_electoral_term_20,
+    ],
+    sort=False,
 )
 
 contributions_simplified = contributions_simplified.where(

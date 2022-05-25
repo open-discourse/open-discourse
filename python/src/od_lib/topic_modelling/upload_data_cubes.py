@@ -56,7 +56,10 @@ def create_tables(cur, dims, schema):
     ]
     cur.execute(
         "CREATE TABLE IF NOT EXISTS {0}.{1}(id varchar NOT NULL, {2}{3}CONSTRAINT {1}_pk PRIMARY KEY (id));".format(  # noqa: E501
-            schema, dims_keys[0], "".join(parsed_fields), "".join(parsed_foreign_keys),
+            schema,
+            dims_keys[0],
+            "".join(parsed_fields),
+            "".join(parsed_foreign_keys),
         )
     )
 
@@ -122,7 +125,13 @@ create_tables(cur, dims, schema)
 conn.commit()
 
 recursive_upload(
-    cur, data_cube, weight_cube, dims, np.zeros(len(dims)), 0, schema,
+    cur,
+    data_cube,
+    weight_cube,
+    dims,
+    np.zeros(len(dims)),
+    0,
+    schema,
 )
 conn.commit()
 
