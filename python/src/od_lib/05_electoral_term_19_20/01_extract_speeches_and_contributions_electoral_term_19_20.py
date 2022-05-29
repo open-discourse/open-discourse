@@ -152,7 +152,6 @@ speech_content = pd.DataFrame(
 factions = pd.read_pickle(os.path.join(FACTIONS, "factions.pkl"))
 
 politicians = pd.read_csv(os.path.join(politicians, "politicians.csv"))
-politicians = politicians.loc[politicians.electoral_term == 19]
 politicians.last_name = politicians.last_name.str.lower()
 politicians.last_name = politicians.last_name.str.replace("ß", "ss", regex=False)
 politicians.first_name = politicians.first_name.str.lower()
@@ -193,6 +192,10 @@ for electoral_term_folder in sorted(os.listdir(ELECTORAL_TERM_19_20_INPUT)):
     contributions_simplified = pd.DataFrame(
         {"text_position": [], "content": [], "speech_id": []}
     )
+
+    politicians_electoral_term = politicians.loc[
+        politicians.electoral_term == int(electoral_term_folder[-2:])
+    ]
 
     for session in sorted(os.listdir(electoral_term_folder_path)):
 
@@ -308,8 +311,8 @@ for electoral_term_folder in sorted(os.listdir(ELECTORAL_TERM_19_20_INPUT)):
                         position_short, position_long = get_position_short_and_long(
                             name[0]
                         )
-                        possible_matches = politicians.loc[
-                            politicians.last_name == last_name.lower()
+                        possible_matches = politicians_electoral_term.loc[
+                            politicians_electoral_term.last_name == last_name.lower()
                         ]
                         length = len(np.unique(possible_matches["ui"]))
                         if length == 1:
@@ -349,7 +352,9 @@ for electoral_term_folder in sorted(os.listdir(ELECTORAL_TERM_19_20_INPUT)):
                         text_position = 0
                         speaker = content.find("redner")
                         speaker_id = int(speaker.get("id"))
-                        possible_matches = politicians.loc[politicians.ui == speaker_id]
+                        possible_matches = politicians_electoral_term.loc[
+                            politicians_electoral_term.ui == speaker_id
+                        ]
                         if len(possible_matches) == 0:
                             speaker_id = -1
                         name = speaker.find("name")
