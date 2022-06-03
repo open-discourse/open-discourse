@@ -216,7 +216,18 @@ electoral_terms = [
             - datetime.datetime(1970, 1, 1)
         ).total_seconds(),
         "end_date": (
-            datetime.datetime.strptime("2021-10-24", "%Y-%m-%d")
+            datetime.datetime.strptime("2021-10-26", "%Y-%m-%d")
+            - datetime.datetime(1970, 1, 1)
+        ).total_seconds(),
+    },
+    {
+        "id": 20,
+        "start_date": (
+            datetime.datetime.strptime("2021-10-27", "%Y-%m-%d")
+            - datetime.datetime(1970, 1, 1)
+        ).total_seconds(),
+        "end_date": (
+            datetime.datetime.strptime("2025-10-29", "%Y-%m-%d")
             - datetime.datetime(1970, 1, 1)
         ).total_seconds(),
     },

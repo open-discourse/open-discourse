@@ -216,11 +216,15 @@ def extract_initiators(
     # Create the first_person_search_Pattern (looking for key Abg.)
     first_person_search_Pattern = r"Abg\s?\.\s?{}(?:(?<=!:)|(?!:))".format(
         name_Pattern[name_Pattern_id].format(
-            opening_bracket_Pattern, closing_bracket_Pattern,
+            opening_bracket_Pattern,
+            closing_bracket_Pattern,
         )
     )
     # Find match
-    first_person_match = regex.search(first_person_search_Pattern, initiators,)
+    first_person_match = regex.search(
+        first_person_search_Pattern,
+        initiators,
+    )
     if first_person_match:
         # Remove name_raw from the search text
         initiators = initiators.replace(first_person_match.group(), "")
@@ -251,14 +255,20 @@ def extract_initiators(
             )
 
     # Create the first_person_search_Pattern (looking for key und)
-    second_person_search_Pattern = r"(?:\sund|sowie\sdes)\s+(?:des|der)?{}(?:(?<=!:)|(?!:))".format(
-        name_Pattern[name_Pattern_id].format(
-            opening_bracket_Pattern, closing_bracket_Pattern,
+    second_person_search_Pattern = (
+        r"(?:\sund|sowie\sdes)\s+(?:des|der)?{}(?:(?<=!:)|(?!:))".format(
+            name_Pattern[name_Pattern_id].format(
+                opening_bracket_Pattern,
+                closing_bracket_Pattern,
+            )
         )
     )
 
     # Find match
-    second_person_match = regex.search(second_person_search_Pattern, initiators,)
+    second_person_match = regex.search(
+        second_person_search_Pattern,
+        initiators,
+    )
     if second_person_match:
         # Remove the person name_raw from the search text
         initiators = initiators.replace(second_person_match.group(), "")
@@ -334,7 +344,9 @@ def extract_initiators(
             # or stuff in initiators_not_removed
         ):
             print(
-                initiators_not_removed, session, first_person_search_Pattern,
+                initiators_not_removed,
+                session,
+                first_person_search_Pattern,
             )
     # Return the frame
     return frame, initiators
@@ -354,7 +366,12 @@ def extract_applause(text, electoral_term, session, identity, text_position, fra
         )
     )
 
-    matches = list(regex.finditer(applause_Pattern, text,))
+    matches = list(
+        regex.finditer(
+            applause_Pattern,
+            text,
+        )
+    )
 
     for match in matches:
         # replace everything except the delimeters
@@ -395,7 +412,8 @@ def extract_person_interjection(
         + base_person_interjection_Pattern.format(
             extra_Pattern
             + name_Pattern[name_Pattern_id].format(
-                opening_bracket_Pattern, closing_bracket_Pattern,
+                opening_bracket_Pattern,
+                closing_bracket_Pattern,
             )
         )
         + start_contributions_closing_bracket_Pattern.format("")
@@ -455,7 +473,8 @@ def extract_shout(text, electoral_term, session, identity, text_position, frame)
         + base_shout_Pattern.format(
             r"\s*Abg\s?\.\s?{}".format(
                 name_Pattern[name_Pattern_id].format(
-                    opening_bracket_Pattern, closing_bracket_Pattern,
+                    opening_bracket_Pattern,
+                    closing_bracket_Pattern,
                 )
             ),
             text_Pattern.format("").replace("{}", "{{}}"),
@@ -465,7 +484,12 @@ def extract_shout(text, electoral_term, session, identity, text_position, frame)
         )
     )
 
-    matches = list(regex.finditer(shout_Pattern, text,))
+    matches = list(
+        regex.finditer(
+            shout_Pattern,
+            text,
+        )
+    )
     for match in matches:
         if match.group("initiator"):
             # replace everything except the delimeters
@@ -528,7 +552,12 @@ def extract_shout(text, electoral_term, session, identity, text_position, frame)
         )
     )
 
-    matches = list(regex.finditer(faction_shout_Pattern, text,))
+    matches = list(
+        regex.finditer(
+            faction_shout_Pattern,
+            text,
+        )
+    )
     for match in matches:
         # replace everything except the delimeters
         text = text.replace(match.group("delete"), " ")
@@ -568,7 +597,12 @@ def extract_cheerfulness(text, electoral_term, session, identity, text_position,
         )
     )
 
-    matches = list(regex.finditer(cheerfulness_Pattern, text,))
+    matches = list(
+        regex.finditer(
+            cheerfulness_Pattern,
+            text,
+        )
+    )
     for match in matches:
         # replace everything except the delimeters
         text = text.replace(match.group("delete"), " ")
@@ -601,7 +635,12 @@ def extract_objection(text, electoral_term, session, identity, text_position, fr
         )
     )
 
-    matches = list(regex.finditer(objection_Pattern, text,))
+    matches = list(
+        regex.finditer(
+            objection_Pattern,
+            text,
+        )
+    )
     for match in matches:
         # replace everything except the delimeters
         text = text.replace(match.group("delete"), " ")
@@ -634,7 +673,12 @@ def extract_laughter(text, electoral_term, session, identity, text_position, fra
         )
     )
 
-    matches = list(regex.finditer(laughter_Pattern, text,))
+    matches = list(
+        regex.finditer(
+            laughter_Pattern,
+            text,
+        )
+    )
     for match in matches:
         # replace everything except the delimeters
         text = text.replace(match.group("delete"), " ")
@@ -667,7 +711,12 @@ def extract_approval(text, electoral_term, session, identity, text_position, fra
         )
     )
 
-    matches = list(regex.finditer(approval_Pattern, text,))
+    matches = list(
+        regex.finditer(
+            approval_Pattern,
+            text,
+        )
+    )
     for match in matches:
         # replace everything except the delimeters
         text = text.replace(match.group("delete"), " ")
@@ -736,7 +785,12 @@ def extract_disturbance(text, electoral_term, session, identity, text_position, 
         )
     )
 
-    matches = list(regex.finditer(disturbance_Pattern, text,))
+    matches = list(
+        regex.finditer(
+            disturbance_Pattern,
+            text,
+        )
+    )
 
     for match in matches:
         # replace everything except the delimeters

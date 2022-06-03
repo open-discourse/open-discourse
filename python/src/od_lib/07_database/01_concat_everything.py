@@ -10,7 +10,12 @@ import sys
 # input directory
 RAW_XML = path_definitions.RAW_XML
 SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_04
-SPEECH_CONTENT_INPUT_2 = path_definitions.ELECTORAL_TERM_19_STAGE_03
+SPEECH_CONTENT_INPUT_2 = os.path.join(
+    path_definitions.ELECTORAL_TERM_19_20_STAGE_03, "electoral_term_19"
+)
+SPEECH_CONTENT_INPUT_3 = os.path.join(
+    path_definitions.ELECTORAL_TERM_19_20_STAGE_03, "electoral_term_20"
+)
 CONTRIBUTIONS_EXTENDED_INPUT = path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_03
 
 # output directory
@@ -143,8 +148,26 @@ speech_content_01_18["electoral_term"] = speech_content_01_18["electoral_term"].
 speech_content_19 = pd.read_pickle(
     os.path.join(SPEECH_CONTENT_INPUT_2, "speech_content", "speech_content.pkl")
 )
+speech_content_20 = pd.read_pickle(
+    os.path.join(SPEECH_CONTENT_INPUT_3, "speech_content", "speech_content.pkl")
+)
 
 speech_content_19 = speech_content_19.loc[
+    :,
+    [
+        "id",
+        "session",
+        "first_name",
+        "last_name",
+        "faction_id",
+        "position_short",
+        "position_long",
+        "politician_id",
+        "speech_content",
+        "date",
+    ],
+]
+speech_content_20 = speech_content_20.loc[
     :,
     [
         "id",
@@ -162,14 +185,25 @@ speech_content_19 = speech_content_19.loc[
 
 
 speech_content_19.insert(1, "electoral_term", -1)
+speech_content_20.insert(1, "electoral_term", -1)
 speech_content.insert(2, "document_url", "")
 
 speech_content_19["electoral_term"] = speech_content_19["session"].apply(
     lambda x: str(x)[:2]
 )
+speech_content_20["electoral_term"] = speech_content_20["session"].apply(
+    lambda x: str(x)[:2]
+)
 speech_content_19["session"] = speech_content_19["session"].apply(lambda x: str(x)[-3:])
+speech_content_20["session"] = speech_content_20["session"].apply(lambda x: str(x)[-3:])
 
 speech_content_19["document_url"] = speech_content_19.apply(
+    lambda row: "https://dip21.bundestag.de/dip21/btp/{0}/{0}{1}.pdf".format(
+        row["electoral_term"], row["session"]
+    ),
+    axis=1,
+)
+speech_content_20["document_url"] = speech_content_20.apply(
     lambda row: "https://dip21.bundestag.de/dip21/btp/{0}/{0}{1}.pdf".format(
         row["electoral_term"], row["session"]
     ),
@@ -179,9 +213,13 @@ speech_content_19["document_url"] = speech_content_19.apply(
 speech_content_19["electoral_term"] = speech_content_19["electoral_term"].astype(
     "int32"
 )
+speech_content_20["electoral_term"] = speech_content_20["electoral_term"].astype(
+    "int32"
+)
 speech_content_19["session"] = speech_content_19["session"].astype("int32")
+speech_content_20["session"] = speech_content_20["session"].astype("int32")
 
-speech_content = pd.concat([speech_content_01_18, speech_content_19])
+speech_content = pd.concat([speech_content_01_18, speech_content_19, speech_content_20])
 
 # save data.
 
@@ -238,8 +276,8 @@ concat_contributions_extended_df.insert(
     0, "id", list(range(len(concat_contributions_extended_df)))
 )
 
-concat_contributions_extended_df.first_name = concat_contributions_extended_df.first_name.apply(
-    " ".join
+concat_contributions_extended_df.first_name = (
+    concat_contributions_extended_df.first_name.apply(" ".join)
 )
 
 concat_contributions_extended_df = concat_contributions_extended_df.astype(
