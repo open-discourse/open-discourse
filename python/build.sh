@@ -21,10 +21,10 @@ contributions_path=$src_path/06_contributions
 database_path=$src_path/07_database
 
 python $preprocessing_path/01_download_raw_data.py 2>&1 | tee logs/01_download_raw_data_log.log
-python $preprocessing_path/02_download_raw_data_electoral_term_19.py 2>&1 | tee logs/02_download_raw_data_electoral_term_19_log.log
+python $preprocessing_path/02_download_raw_data_electoral_term_19_20.py 2>&1 | tee logs/02_download_raw_data_electoral_term_19_20_log.log
 python $preprocessing_path/03_split_xml.py 2>&1 | tee logs/03_split_xml_log.log
 python $preprocessing_path/04_split_xml_electoral_term_1_and_2.py 2>&1 | tee logs/04_split_xml_electoral_term_1_and_2_log.log
-python $preprocessing_path/05_split_xml_electoral_term_19.py 2>&1 | tee logs/05_split_xml_electoral_term_19_log.log
+python $preprocessing_path/05_split_xml_electoral_term_19_20.py 2>&1 | tee logs/05_split_xml_electoral_term_19_20_log.log
 python $preprocessing_path/06_extract_mps_from_mp_base_data.py 2>&1 | tee logs/06_extract_mps_from_mp_base_data_log.log
 python $preprocessing_path/07_create_electoral_terms.py 2>&1 | tee logs/07_create_electoral_terms_log.log
 python $factions_path/01_create_factions.py 2>&1 | tee logs/01_create_factions_log.log
