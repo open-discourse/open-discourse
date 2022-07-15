@@ -124,6 +124,27 @@ app.get(
 );
 
 app.get(
+  "/politician",
+  cache((process.env.CACHE_EXPIRATION as unknown as number) || 1),
+  async (req, res) => {
+    const {
+      query: { politicianId },
+    } = req;
+
+    const politicianIdParsed = parseInt(politicianId as string);
+
+    const result = await pool.query(
+      `SELECT *
+       FROM   open_discourse.politicians
+       WHERE  id = '${politicianIdParsed}'`
+    );
+
+    res.setHeader("Content-Type", "application/json");
+    res.send(JSON.stringify({ data: { politician: result.rows[0] } }));
+  }
+);
+
+app.get(
   "/factions",
   cache((process.env.CACHE_EXPIRATION as unknown as number) || 1),
   async (_req, res) => {
@@ -132,6 +153,27 @@ app.get(
     );
     res.setHeader("Content-Type", "application/json");
     res.send(JSON.stringify({ data: { factions: result.rows } }));
+  }
+);
+
+app.get(
+  "/faction",
+  cache((process.env.CACHE_EXPIRATION as unknown as number) || 1),
+  async (req, res) => {
+    const {
+      query: { factionId },
+    } = req;
+
+    const factionIdParsed = parseInt(factionId as string);
+
+    const result = await pool.query(
+      `SELECT *
+       FROM   open_discourse.factions
+       WHERE  id = '${factionIdParsed}'`
+    );
+
+    res.setHeader("Content-Type", "application/json");
+    res.send(JSON.stringify({ data: { faction: result.rows[0] } }));
   }
 );
 
@@ -364,6 +406,60 @@ app.get(
         imageBuffer: imageBuffer as Buffer,
         id: random_id,
       });
+  }
+);
+
+app.get(
+  "/sessions",
+  cache((process.env.CACHE_EXPIRATION as unknown as number) || 1),
+  async (_req, res) => {
+    const result = await pool.query(
+      `SELECT DISTINCT electoral_term AS "electoralTerm",
+                       session,
+                       date
+         FROM   open_discourse.speeches
+         ORDER  BY electoral_term,
+                   session`
+    );
+
+    res.setHeader("Content-Type", "application/json");
+    res.send(JSON.stringify({ data: { sessionIds: result.rows } }));
+  }
+);
+
+app.get(
+  "/session",
+  cache((process.env.CACHE_EXPIRATION as unknown as number) || 1),
+  async (req, res) => {
+    const {
+      query: { electoralTerm, session },
+    } = req;
+
+    const electoralTermParsed = parseInt(electoralTerm as string);
+    const sessionParsed = parseInt(session as string);
+
+    const result = await pool.query(
+      `SELECT id,
+              session,
+              electoral_term AS "electoralTerm",
+              first_name     AS "firstName",
+              last_name      AS "lastName",
+              politician_id  AS "politicianId",
+              speech_content AS "speechContent",
+              faction_id     AS "factionId",
+              document_url   AS "documentUrl",
+              position_short AS "positionShort",
+              position_long  AS "positionLong",
+              date
+        FROM  open_discourse.speeches
+        WHERE electoral_term = '${electoralTermParsed}'
+              AND session = '${sessionParsed}'
+        ORDER BY id
+      `
+    );
+
+    res.setHeader("Content-Type", "application/json");
+    res.send(JSON.stringify({ data: { speeches: result.rows } }));
   }
 );
 
