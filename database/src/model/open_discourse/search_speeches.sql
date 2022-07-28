@@ -1,6 +1,8 @@
 CREATE OR REPLACE FUNCTION open_discourse.search_speeches (politician_id_query int8 DEFAULT -2, faction_id_query int8 DEFAULT -2, "position_short_query" text DEFAULT '', content_query text DEFAULT '', from_date date DEFAULT NULL, to_date date DEFAULT NULL)
   RETURNS TABLE (
     id int8,
+    "session" int8,
+    "electoral_term" int8,
     "position_short" varchar,
     "date" date,
     speech_content text,
@@ -21,6 +23,8 @@ BEGIN
   RETURN QUERY
   SELECT
     s.id,
+    s.session,
+    s.electoral_term,
     s.position_short,
     s.date,
     s.speech_content,
