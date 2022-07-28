@@ -93,7 +93,8 @@ app.get(
       },
     } = req;
     const result = await pool.query(
-      `SELECT id, position_short AS "positionShort", date, speech_content AS "speechContent", document_url AS "documentUrl", rank,
+      `SELECT id, session, electoral_term AS "electoralTerm", position_short AS "positionShort",
+              date, speech_content AS "speechContent", document_url AS "documentUrl", rank,
               first_name AS "firstName", last_name AS "lastName", abbreviation
        FROM open_discourse.search_speeches($1, $2, $3, $4, $5, $6) LIMIT $7`,
       [
@@ -136,7 +137,8 @@ app.get(
     const result = await pool.query(
       `SELECT *
        FROM   open_discourse.politicians
-       WHERE  id = '${politicianIdParsed}'`
+       WHERE  id = $1`,
+      [politicianIdParsed]
     );
 
     res.setHeader("Content-Type", "application/json");
@@ -169,7 +171,8 @@ app.get(
     const result = await pool.query(
       `SELECT *
        FROM   open_discourse.factions
-       WHERE  id = '${factionIdParsed}'`
+       WHERE  id = $1`,
+      [factionIdParsed]
     );
 
     res.setHeader("Content-Type", "application/json");
@@ -196,7 +199,8 @@ const getConstraints = async (
   schema: string,
   client: PoolClient
 ): Promise<constraintsType> => {
-  const res = await client.query(`SELECT
+  const res = await client.query(
+    `SELECT
             ccu.table_name,
             kcu.column_name
         FROM
@@ -207,7 +211,9 @@ const getConstraints = async (
             JOIN information_schema.constraint_column_usage AS ccu
             ON ccu.constraint_name = tc.constraint_name
             AND ccu.table_schema = tc.table_schema
-        WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_schema='${schema}';`);
+        WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_schema=$1`,
+    [schema]
+  );
   if (!(schema in constraints)) {
     constraints[schema] = {};
   }
@@ -439,23 +445,30 @@ app.get(
     const sessionParsed = parseInt(session as string);
 
     const result = await pool.query(
-      `SELECT id,
+      `SELECT s.id,
               session,
-              electoral_term AS "electoralTerm",
-              first_name     AS "firstName",
-              last_name      AS "lastName",
-              politician_id  AS "politicianId",
-              speech_content AS "speechContent",
-              faction_id     AS "factionId",
-              document_url   AS "documentUrl",
-              position_short AS "positionShort",
-              position_long  AS "positionLong",
+              electoral_term   AS "electoralTerm",
+              p.first_name     AS "firstName",
+              p.last_name      AS "lastName",
+              p.academic_title AS "academicTitle",
+              politician_id    AS "politicianId",
+              speech_content   AS "speechContent",
+              faction_id       AS "factionId",
+              full_name        AS "factionFullName",
+              abbreviation     AS "factionAbbreviation",
+              document_url     AS "documentUrl",
+              position_short   AS "positionShort",
+              position_long    AS "positionLong",
               date
-        FROM  open_discourse.speeches
-        WHERE electoral_term = '${electoralTermParsed}'
-              AND session = '${sessionParsed}'
-        ORDER BY id
-      `
+       FROM  open_discourse.speeches as s
+             JOIN open_discourse.politicians as p
+             ON s.politician_id = p.id
+             JOIN open_discourse.factions as f
+             ON s.faction_id = f.id
+       WHERE electoral_term = $1
+             AND session = $2
+       ORDER BY id`,
+      [electoralTermParsed, sessionParsed]
     );
 
     res.setHeader("Content-Type", "application/json");
