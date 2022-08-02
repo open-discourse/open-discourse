@@ -22,13 +22,11 @@ jobs:
           envs: GITHUB_TOKEN
           script: |
             cd open-discourse-droplet
+            git pull
             docker-compose down
             docker system prune -af
             docker image prune -f
             docker volume rm $(docker volume ls -q --filter dangling=true)
             docker volume prune -f
             docker login docker.pkg.github.com -u open-discourse -p $GITHUB_TOKEN
-            docker pull docker.pkg.github.com/open-discourse/open-discourse/database:latest
-            docker pull docker.pkg.github.com/open-discourse/open-discourse/proxy:latest
-            docker pull docker.pkg.github.com/open-discourse/open-discourse/frontend:latest
             docker-compose up -d
