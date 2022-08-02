@@ -29,4 +29,4 @@ jobs:
             docker volume rm $(docker volume ls -q --filter dangling=true)
             docker volume prune -f
             docker login docker.pkg.github.com -u open-discourse -p $GITHUB_TOKEN
-            docker-compose up -d
+            docker-compose --env-file .env up -d
