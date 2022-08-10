@@ -35,6 +35,8 @@ mps = {
     "academic_title": [],
     "institution_type": [],
     "institution_name": [],
+    "institution_start_dt": [],
+    "institution_end_dt": []
 }
 
 last_names_to_revisit = []
@@ -91,6 +93,8 @@ for mdb in tree.iter("MDB"):
             for institution in electoral_term.findall("./INSTITUTIONEN/INSTITUTION"):
                 institution_name = institution.findtext("INS_LANG")
                 institution_type = institution.findtext("INSART_LANG")
+                institution_start_dt = institution.findtext("MDBINS_VON")
+                institution_end_dt = institution.findtext("MDBINS_BIS")
 
                 mps["ui"].append(ui)
                 mps["electoral_term"].append(electoral_term_number)
@@ -108,6 +112,8 @@ for mdb in tree.iter("MDB"):
 
                 mps["institution_type"].append(institution_type)
                 mps["institution_name"].append(institution_name)
+                mps["institution_start_dt"].append(institution_start_dt)
+                mps["institution_end_dt"].append(institution_end_dt)
 
 
 mps = pd.DataFrame(mps)
