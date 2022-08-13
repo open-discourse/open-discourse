@@ -6,14 +6,16 @@ import lxml
 import lxml.etree
 
 
-haushaltsgesetz_dates = []
-haushaltsgesetz_docnum = []
-
 # input directory
 ELECTORAL_TERM_19_20_INPUT = path_definitions.ELECTORAL_TERM_19_20_STAGE_01
 
 # output directory
 ELECTORAL_TERM_19_20_OUTPUT = path_definitions.ELECTORAL_TERM_19_20_STAGE_02
+
+HAUSHALTSGESETZ_OUTPUT = path_definitions.FINAL
+
+haushaltsgesetz_dates = []
+haushaltsgesetz_docnum = []
 
 for electoral_term_folder in sorted(os.listdir(ELECTORAL_TERM_19_20_INPUT)):
     electoral_term_folder_path = os.path.join(
@@ -66,20 +68,20 @@ for electoral_term_folder in sorted(os.listdir(ELECTORAL_TERM_19_20_INPUT)):
             encoding="UTF-8",
             xml_declaration=True,
         )
-        
-        
+
+
 
         tree = lxml.etree.parse(os.path.join(electoral_term_folder_path, xml_file))
         text = " ".join(tree.xpath("//ivz-eintrag-inhalt/text()"))
         date = tree.xpath("//@sitzung-datum")[0]
-    
+
         if 'Haushaltsgesetz' in text:
                 haushaltsgesetz_dates.append(date)
                 haushaltsgesetz_docnum.append(xml_file)
 
-with open(os.path.join(ELECTORAL_TERM_19_20_OUTPUT, "haushaltsgesetz_dates_19_20.txt"), "w") as text_file:
+with open(os.path.join(HAUSHALTSGESETZ_OUTPUT, "haushaltsgesetz_dates_19_20.txt"), "w") as text_file:
     text_file.write("\n".join(haushaltsgesetz_dates))
-    
-with open(os.path.join(ELECTORAL_TERM_19_20_OUTPUT, "haushaltsgesetz_docnum_19_20.txt"), "w") as text_file:
+
+with open(os.path.join(HAUSHALTSGESETZ_OUTPUT, "haushaltsgesetz_docnum_19_20.txt"), "w") as text_file:
     text_file.write("\n".join(haushaltsgesetz_docnum))
 

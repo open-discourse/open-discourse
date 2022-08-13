@@ -12,6 +12,8 @@ RAW_XML = path_definitions.RAW_XML
 # output directory
 RAW_TXT = path_definitions.RAW_TXT
 
+HAUSHALTSGESETZ_OUTPUT = path_definitions.FINAL
+
 haushaltsgesetz_dates = []
 haushaltsgesetz_docnum = []
 
@@ -246,13 +248,13 @@ for electoral_term_folder in sorted(os.listdir(RAW_XML)):
 
             with open(os.path.join(save_path, "meta_data.xml"), "wb") as result_file:
                 result_file.write(dicttoxml.dicttoxml(meta_data))
-                
+
             if 'Haushaltsgesetz' in toc:
                 haushaltsgesetz_dates.append(meta_data["date"])
                 haushaltsgesetz_docnum.append(meta_data["document_number"])
 
-with open(os.path.join(RAW_XML, "haushaltsgesetz_dates.txt"), "w") as text_file:
+with open(os.path.join(HAUSHALTSGESETZ_OUTPUT, "haushaltsgesetz_dates.txt"), "w") as text_file:
     text_file.write("\n".join(haushaltsgesetz_dates))
-    
-with open(os.path.join(RAW_XML, "haushaltsgesetz_docnum.txt"), "w") as text_file:
+
+with open(os.path.join(HAUSHALTSGESETZ_OUTPUT, "haushaltsgesetz_docnum.txt"), "w") as text_file:
     text_file.write("\n".join(haushaltsgesetz_docnum))

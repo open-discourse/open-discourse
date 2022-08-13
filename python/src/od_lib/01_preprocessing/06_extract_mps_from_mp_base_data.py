@@ -93,6 +93,8 @@ for mdb in tree.iter("MDB"):
             for institution in electoral_term.findall("./INSTITUTIONEN/INSTITUTION"):
                 institution_name = institution.findtext("INS_LANG")
                 institution_type = institution.findtext("INSART_LANG")
+
+                # start and end date help us to deal with changing faction affiliations over time
                 institution_start_dt = institution.findtext("MDBINS_VON")
                 institution_end_dt = institution.findtext("MDBINS_BIS")
 
