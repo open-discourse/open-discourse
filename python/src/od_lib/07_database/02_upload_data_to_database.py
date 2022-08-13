@@ -41,6 +41,8 @@ politicians = politicians.drop(
         "faction_id",
         "institution_type",
         "institution_name",
+        "institution_start_dt",
+        "institution_end_dt",
         "constituency",
     ],
     axis=1,
@@ -110,6 +112,7 @@ electoral_terms.to_sql(
     "electoral_terms", engine, if_exists="append", schema="open_discourse", index=False
 )
 
+electoral_terms.to_csv(os.path.join(path_definitions.DATABASE, "electoral_terms.csv"), index = False)
 
 print("starting politicians..")
 
@@ -117,6 +120,9 @@ politicians = politicians.where((pd.notnull(politicians)), None)
 
 politicians.birth_date = politicians.birth_date.apply(convert_date_politicians)
 politicians.death_date = politicians.death_date.apply(convert_date_politicians)
+
+politicians.to_csv(os.path.join(path_definitions.DATABASE, "politicians.csv"), index = False)
+
 
 politicians.to_sql(
     "politicians", engine, if_exists="append", schema="open_discourse", index=False
@@ -221,6 +227,9 @@ factions = pd.DataFrame(
 
 factions.id = factions.id.astype(int)
 
+factions.to_csv(os.path.join(path_definitions.DATABASE, "factions.csv"), index = False)
+
+
 factions.to_sql(
     "factions", engine, if_exists="append", schema="open_discourse", index=False
 )
@@ -236,6 +245,8 @@ speeches = speeches.where((pd.notnull(speeches)), None)
 speeches.position_long.replace([r"^\s*$"], [None], regex=True, inplace=True)
 speeches.politician_id = speeches.apply(check_politicians, axis=1)
 
+speeches.to_csv(os.path.join(path_definitions.DATABASE, "speeches.csv"), index = False)
+
 speeches.to_sql(
     "speeches", engine, if_exists="append", schema="open_discourse", index=False
 )
@@ -248,6 +259,9 @@ contributions_extended = pd.read_pickle(CONTRIBUTIONS_EXTENDED)
 contributions_extended = contributions_extended.where(
     (pd.notnull(contributions_extended)), None
 )
+
+contributions_extended.to_csv(os.path.join(path_definitions.DATABASE, "contributions_extended.csv"), index = False)
+
 
 contributions_extended.to_sql(
     "contributions_extended",
@@ -283,6 +297,9 @@ contributions_simplified = contributions_simplified.where(
 )
 
 contributions_simplified["id"] = range(len(contributions_simplified.content))
+
+contributions_simplified.to_csv(os.path.join(path_definitions.DATABASE, "contributions_simplified.csv"), index = False)
+
 
 contributions_simplified.to_sql(
     "contributions_simplified",

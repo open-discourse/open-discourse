@@ -9,6 +9,7 @@ DATA_RAW = os.path.join(DATA, "01_raw")
 DATA_CACHE = os.path.join(DATA, "02_cached")
 DATA_FINAL = os.path.join(DATA, "03_final")
 FINAL = os.path.join(DATA, "03_final")
+DATABASE = os.path.join(DATA, "04_database")
 
 # MP_BASE_DATA ___________________________________________________________________________________
 MP_BASE_DATA = os.path.join(DATA_RAW, "MP_BASE_DATA", "MDB_STAMMDATEN.XML")
