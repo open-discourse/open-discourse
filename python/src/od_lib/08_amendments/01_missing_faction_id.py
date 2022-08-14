@@ -119,7 +119,8 @@ dt[dt.faction_id != dt.faction_id_hist].groupby(['faction_id', 'faction_id_hist'
 
 dt['faction_id'] = np.where(dt['faction_id_hist'].isnull(), dt['faction_id'], dt['faction_id_hist'])
 
-
+dt['speech_content'] = dt['speech_content'].astype(str)
+dt['length'] = dt['speech_content'].str.split().apply(len)
 
 dt = dt.drop([
     'faction_id_hist',
