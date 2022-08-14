@@ -310,3 +310,12 @@ contributions_simplified.to_sql(
 )
 
 print("finished")
+
+
+
+hg_part1 = pd.read_table(os.path.join(path_definitions.DATA_FINAL, 'haushaltsgesetz_dates.txt'), header = None)
+hg_part2 = pd.read_table(os.path.join(path_definitions.DATA_FINAL, 'haushaltsgesetz_dates_19_20.txt'), header = None)
+
+hg_dt = pd.concat([hg_part1, hg_part2], ignore_index=True)
+
+hg_dt.to_csv(os.path.join(path_definitions.DATABASE, "haushaltsgesetz_dates.csv"), header=None, index=False, sep=' ', mode='a')
