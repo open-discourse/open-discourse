@@ -11,6 +11,11 @@ RAW_XML = path_definitions.RAW_XML
 # output directory
 RAW_TXT = path_definitions.RAW_TXT
 
+HAUSHALTSGESETZ_OUTPUT = path_definitions.FINAL
+
+haushaltsgesetz_dates = []
+haushaltsgesetz_docnum = []
+
 if not os.path.exists(RAW_TXT):
     os.makedirs(RAW_TXT)
 
@@ -25,9 +30,16 @@ for electoral_term_folder in sorted(os.listdir(RAW_XML)):
     if electoral_term_folder not in ["electoral_term_01", "electoral_term_02"]:
         continue
 
+    # JK: this pattern do not capture sentences like this: 02078.xml '4332\nDie Sitzung wird um 9 Uhr durch den Präsidenten\nD. Dr. Gerstenmaier eröffnet'
     begin_pattern = regex.compile(
         r"Die.*?Sitzung.*?wird.*?\d{1,2}.*?Uhr.*?(durch.*?den.*?)?eröffnet"
     )
+
+    alternative_begin_pattern = regex.compile(
+        r"Die[^\.]*?Sitzung[^\.]*?wird[^\.]*?\d{1,2}[^\.]*?Uhr[^\.]*?(durch[^\.]*?den.*?)?(eröffnet|eingeleitet)[^\.]*?[.]",
+        regex.V0 | regex.DOTALL
+    )
+
     appendix_pattern = regex.compile(r"\(Schluß.*?Sitzung.*?Uhr.*?\)")
 
     print(electoral_term_folder)
@@ -49,11 +61,28 @@ for electoral_term_folder in sorted(os.listdir(RAW_XML)):
 
             # Find the beginnings and endings of the spoken contents in the
             # pattern plenar files.
+
             find_beginnings = list(regex.finditer(begin_pattern, text_corpus))
+
+            if len(find_beginnings) == 0:
+                print("applying different pattern beginnings")
+                find_beginnings = list(regex.finditer(alternative_begin_pattern, text_corpus))
+                print(find_beginnings[0])
+
             find_endings = list(regex.finditer(appendix_pattern, text_corpus))
 
+            beginning_of_session = find_beginnings[0].span()[1]
+
+            toc = text_corpus[:beginning_of_session]
             # Append "END OF FILE" to document text, otherwise pattern is
             # not found, when appearing at the end of the file.
+
+
+            if 'Haushaltsgesetz' in toc:
+                print("Found budget discussion")
+                haushaltsgesetz_dates.append(meta_data["date"])
+                haushaltsgesetz_docnum.append(meta_data["document_number"])
+
             text_corpus += "\n\nEND OF FILE"
 
             session_content = ""
@@ -90,3 +119,10 @@ for electoral_term_folder in sorted(os.listdir(RAW_XML)):
 
             with open(os.path.join(save_path, "meta_data.xml"), "wb") as result_file:
                 result_file.write(dicttoxml.dicttoxml(meta_data))
+
+
+with open(os.path.join(HAUSHALTSGESETZ_OUTPUT, "haushaltsgesetz_dates_1_2.txt"), "w") as text_file:
+    text_file.write("\n".join(haushaltsgesetz_dates))
+
+with open(os.path.join(HAUSHALTSGESETZ_OUTPUT, "haushaltsgesetz_docnum_1_2.txt"), "w") as text_file:
+    text_file.write("\n".join(haushaltsgesetz_docnum))
