@@ -134,5 +134,11 @@ dt = dt.drop([
     'keep_rows'
 ], axis = 1)
 
+dt.date = pd.to_datetime(dt.date)
+dt.date = dt.date.dt.date
+dt.speech_content.fillna(" ", inplace=True)
+
+
 dt.to_csv(os.path.join(path_definitions.DATABASE, "speeches_revised.csv"), index = False)
 
+#dt = pd.read_csv(os.path.join(path_definitions.DATABASE, "speeches_revised.csv"))
