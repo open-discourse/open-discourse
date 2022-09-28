@@ -30,6 +30,8 @@ mps = {
     "death_date": [],
     "gender": [],
     "profession": [],
+    "religion": [],
+    "family": [],
     "constituency": [],
     "aristocracy": [],
     "academic_title": [],
@@ -65,6 +67,8 @@ for mdb in tree.iter("MDB"):
 
     gender = mdb.findtext("BIOGRAFISCHE_ANGABEN/GESCHLECHT")
     profession = mdb.findtext("BIOGRAFISCHE_ANGABEN/BERUF")
+    religion = mdb.findtext("BIOGRAFISCHE_ANGABEN/RELIGION")
+    family = mdb.findtext("BIOGRAFISCHE_ANGABEN/FAMILIENSTAND")
 
     # Iterate over all name entries for the poltiician_id, e.g. necessary if
     # name has changed due to a marriage or losing/gaining of titles like "Dr."
@@ -108,6 +112,8 @@ for mdb in tree.iter("MDB"):
                 mps["death_date"].append(death_date)
                 mps["gender"].append(gender)
                 mps["profession"].append(profession)
+                mps["religion"].append(religion)
+                mps["family"].append(family)
                 mps["constituency"].append(constituency)
                 mps["aristocracy"].append(aristocracy)
                 mps["academic_title"].append(academic_title)

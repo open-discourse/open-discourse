@@ -58,6 +58,8 @@ politicians.columns = [
     "death_date",
     "gender",
     "profession",
+    "religion",
+    "family",
     "aristocracy",
     "academic_title",
 ]
@@ -72,6 +74,8 @@ series = {
     "death_date": None,
     "gender": None,
     "profession": None,
+    "religion": None,
+    "family": None,
     "aristocracy": None,
     "academic_title": None,
 }
