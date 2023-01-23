@@ -1,6 +1,6 @@
 {
   "name": "proxy",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "author": "Limebit GmbH",
   "license": "MIT",
   "scripts": {
@@ -20,7 +20,7 @@
     "@types/uuid": "^8.3.0",
     "aws-sdk": "^2.846.0",
     "cors": "^2.8.5",
-    "express": "4.17.1",
+    "express": "4.17.3",
     "express-rate-limit": "^5.2.6",
     "memory-cache": "^0.2.0",
     "pg": "^8.6.0",
