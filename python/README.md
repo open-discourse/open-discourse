@@ -1,6 +1,11 @@
 # Python
 
 The python service processes and creates all of the open-discourse data
+- Add module directory to sys path: sys.path.insert(0,'path/open-discourse/python/src')
+- export PYTHONPATH=${PYTHONPATH}:path/open-discourse/python/src
+export PYTHONPATH=${PYTHONPATH}:/Users/justynaklejdysz/Documents/Projekty/open-discourse-custom/open-discourse/python/src
+/Users/justynaklejdysz/Documents/Projekty/open-discourse-custom/open-discourse
+hon/src
 
 ## Folders
 
@@ -12,3 +17,7 @@ The python service processes and creates all of the open-discourse data
 
 - To setup the python environment, please run `sh setup.sh`
 - To build the open-discourse data, please run `sh build.sh`
+
+## Notes
+
+- Staatsminister in Auswaertigem Amt treated as Guest
