@@ -359,7 +359,7 @@ app.get(
 );
 
 app.get(
-  "/screenshot",
+  "/screenshots",
   cache((process.env.CACHE_EXPIRATION as unknown as number) || 1),
   async (req, res) => {
     const {
