@@ -1,14 +1,11 @@
 import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import datetime
-import os
+from pathlib import Path
 
 # output directory
-ELECTORAL_TERMS = path_definitions.ELECTORAL_TERMS
-save_path = os.path.join(ELECTORAL_TERMS, "electoral_terms.csv")
-
-if not os.path.exists(ELECTORAL_TERMS):
-    os.makedirs(ELECTORAL_TERMS)
+ELECTORAL_TERMS = Path(path_definitions.ELECTORAL_TERMS)
+ELECTORAL_TERMS.mkdir(parents=True, exist_ok=True)
 
 electoral_terms = [
     {
@@ -233,4 +230,5 @@ electoral_terms = [
     },
 ]
 
+save_path = ELECTORAL_TERMS / "electoral_terms.csv"
 pd.DataFrame(electoral_terms).to_csv(save_path, index=False)

@@ -1,74 +1,43 @@
 from od_lib.helper_functions.clean_text import clean
 import od_lib.definitions.path_definitions as path_definitions
+from od_lib.helper_functions.progressbar import progressbar
 import xml.etree.ElementTree as et
-import os
 import regex
 import sys
 import dicttoxml
+from pathlib import Path
 
 # input directory
-RAW_XML = path_definitions.RAW_XML
+RAW_XML = Path(path_definitions.RAW_XML)
 
 # output directory
-RAW_TXT = path_definitions.RAW_TXT
-
-if not os.path.exists(RAW_TXT):
-    os.makedirs(RAW_TXT)
+RAW_TXT = Path(path_definitions.RAW_TXT)
+RAW_TXT.mkdir(parents=True, exist_ok=True)
 
 # Open every xml plenar file in every legislature period.
-for electoral_term_folder in sorted(os.listdir(RAW_XML)):
-    electoral_term_folder_path = os.path.join(RAW_XML, electoral_term_folder)
-
+for folder_path in sorted(RAW_XML.iterdir()):
     # Skip e.g. the .DS_Store file.
-    if not os.path.isdir(electoral_term_folder_path):
+    if not folder_path.is_dir():
         continue
 
-    if electoral_term_folder in ["electoral_term_01", "electoral_term_02"]:
+    term_number = int(regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem).group(0))
+    if not (3 <= term_number <= 18):
         continue
 
-    elif electoral_term_folder in [
-        "electoral_term_03",
-        "electoral_term_04",
-        "electoral_term_05",
-        "electoral_term_06",
-        "electoral_term_07",
-        "electoral_term_08",
-        "electoral_term_09",
-        "electoral_term_10",
-        "electoral_term_11",
-        "electoral_term_12",
-        "electoral_term_13",
-        "electoral_term_14",
-        "electoral_term_15",
-        "electoral_term_16",
-        "electoral_term_17",
-        "electoral_term_18",
-    ]:
-        begin_pattern_electoral_term = regex.compile(
-            r"Beginn?:?\s?(\d){1,2}(\s?[.,]\s?(\d){1,2})?\s?Uhr"
-        )
-
-        appendix_pattern_electoral_term = regex.compile(
-            r"\(Schlu(ß|ss)\s?:?(.*?)\d{1,2}\D+(\d{1,2})?(.*?)\)?|\(Ende der Sitzung: \d{1,2}\D+(\d{1,2}) Uhr\.?\)"  # noqa: E501
-        )
-
-    else:
-        raise ValueError("How did I come here?")
+    begin_pattern_electoral_term = regex.compile(
+        r"Beginn?:?\s?(\d){1,2}(\s?[.,]\s?(\d){1,2})?\s?Uhr"
+    )
+    appendix_pattern_electoral_term = regex.compile(
+        r"\(Schlu(ß|ss)\s?:?(.*?)\d{1,2}\D+(\d{1,2})?(.*?)\)?|\(Ende der Sitzung: \d{1,2}\D+(\d{1,2}) Uhr\.?\)"  # noqa: E501
+    )
 
     if len(sys.argv) > 1:
-        if (
-            str(int(regex.sub("electoral_term_", "", electoral_term_folder)))
-            not in sys.argv
-        ):
+        if str(term_number) not in sys.argv:
             continue
 
-    print(electoral_term_folder)
-
-    for xml_file in sorted(os.listdir(electoral_term_folder_path)):
-        if ".xml" in xml_file:
-            print(xml_file)
-            path = os.path.join(electoral_term_folder_path, xml_file)
-            tree = et.parse(path)
+    for xml_file_path in progressbar(folder_path.iterdir(), f"Parsing term {term_number:>2}..."):
+        if xml_file_path.suffix == ".xml":
+            tree = et.parse(xml_file_path)
 
             meta_data = {}
 
@@ -223,23 +192,18 @@ for electoral_term_folder in sorted(os.listdir(RAW_XML)):
             appendix = session_content[end_of_session:]
             session_content = session_content[:end_of_session]
 
-            save_path = os.path.join(
-                RAW_TXT, electoral_term_folder, xml_file.replace(".xml", "")
-            )
-
+            save_path = RAW_TXT / folder_path.stem / xml_file_path.stem
+            save_path.mkdir(parents=True, exist_ok=True)
             # Save table of content, spoken content and appendix
-            # in separate folders.
-            if not os.path.exists(save_path):
-                os.makedirs(save_path)
-
-            with open(os.path.join(save_path, "toc.txt"), "w") as text_file:
+            # in separate files.
+            with open(save_path / "toc.txt", "w") as text_file:
                 text_file.write(toc)
 
-            with open(os.path.join(save_path, "session_content.txt"), "w") as text_file:
+            with open(save_path / "session_content.txt", "w") as text_file:
                 text_file.write(session_content)
 
-            with open(os.path.join(save_path, "appendix.txt"), "w") as text_file:
+            with open(save_path / "appendix.txt", "w") as text_file:
                 text_file.write(appendix)
 
-            with open(os.path.join(save_path, "meta_data.xml"), "wb") as result_file:
+            with open(save_path / "meta_data.xml", "wb") as result_file:
                 result_file.write(dicttoxml.dicttoxml(meta_data))
