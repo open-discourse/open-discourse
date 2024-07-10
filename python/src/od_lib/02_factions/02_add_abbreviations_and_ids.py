@@ -16,6 +16,7 @@ factions = pd.read_pickle(os.path.join(FACTIONS_STAGE_01, "factions.pkl"))
 
 abbreviations_dict = {
     "Alternative für Deutschland": "AfD",
+    "Deutsche Soziale Union": "DSU",
     "Fraktion Alternative für Deutschland": "AfD",
     "Fraktion Bayernpartei": "BP",
     "Fraktion Bündnis 90/Die Grünen": "Bündnis 90/Die Grünen",

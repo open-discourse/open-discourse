@@ -21,7 +21,7 @@ factions = mps.loc[mps["institution_type"] == "Fraktion/Gruppe", "institution_na
 unique_factions = np.unique(factions)
 unique_factions = np.append(
     unique_factions,
-    ["Südschleswigscher Wählerverband", "Gast", "Gruppe Nationale Rechte"],
+    ["Südschleswigscher Wählerverband", "Gast", "Gruppe Nationale Rechte", "Deutsche Soziale Union"],
 )
 
 unique_factions = pd.DataFrame(unique_factions, columns=["faction_name"])

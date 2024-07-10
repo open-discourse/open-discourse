@@ -4,13 +4,12 @@ import regex
 import os
 
 # input directory
-MGS = path_definitions.POLITICIANS_STAGE_01
-MPS = path_definitions.POLITICIANS_STAGE_02
-FACTIONS = path_definitions.DATA_FINAL
-
-mps = pd.read_pickle(os.path.join(MPS, "mps.pkl"))
-mgs = pd.read_pickle(os.path.join(MGS, "mgs.pkl"))
-factions = pd.read_pickle(os.path.join(FACTIONS, "factions.pkl"))
+MGS_PATH = path_definitions.POLITICIANS_STAGE_01
+MPS_PATH = path_definitions.POLITICIANS_STAGE_02
+FACTIONS_PATH = path_definitions.DATA_FINAL
+mps = pd.read_pickle(os.path.join(MPS_PATH, "mps.pkl"))
+mgs = pd.read_pickle(os.path.join(MGS_PATH, "mgs.pkl"))
+factions = pd.read_pickle(os.path.join(FACTIONS_PATH, "factions.pkl"))
 
 # output directory
 DATA_FINAL = path_definitions.DATA_FINAL
@@ -72,6 +71,7 @@ faction_patterns = {
     "DIE LINKE.": r"DIE LINKE",
     "DPB": r"(?:^DPB)",
     "DRP": r"DRP(\-Hosp\.)?|SRP",
+    "DSU": r"^DSU   ",
     "FDP": r"\s*F\.?\s*[PDO][.']?[DP]\.?",
     "Fraktionslos": r"(?:fraktionslos|Parteilos|parteilos)",
     "FU": r"^FU",
@@ -177,7 +177,7 @@ for (
 
     if faction_abbrev:
         faction_match = int(
-            factions.id.loc[factions.abbreviation == faction_abbrev].iloc[0]
+            factions.loc[factions["abbreviation"] == faction_abbrev, "id"].iloc[0]
         )
     else:
         faction_match = -1
@@ -216,11 +216,11 @@ for (
                 "institution_type": "Regierungsmitglied",
                 "institution_name": position,
             }
-            politicians = politicians.append(pd.Series(series), ignore_index=True)
+            politicians = pd.concat([politicians, pd.Series(series)], ignore_index=True)
             # success_counter += 1
     elif len(possible_matches) > 1:
         # This doesn't get reached
-        pass
+        raise RuntimeError("What happend?")
     else:
         if len(first_name) > 1:
             possible_matches = politicians.loc[
@@ -253,10 +253,10 @@ for (
                     "institution_type": "Regierungsmitglied",
                     "institution_name": position,
                 }
-                politicians = politicians.append(pd.Series(series), ignore_index=True)
+                politicians = pd.concat([politicians, pd.Series(series)], ignore_index=True)
         elif len(possible_matches) > 1:
             # This doesn't get reached
-            pass
+            raise RuntimeError("What happend?")
         else:
             ui_temp = max(politicians.ui.tolist()) + 1
             for electoral_term in electoral_terms:
@@ -278,6 +278,5 @@ for (
                     "institution_type": "Regierungsmitglied",
                     "institution_name": position,
                 }
-                politicians = politicians.append(pd.Series(series), ignore_index=True)
-
+                politicians = pd.concat([politicians, pd.Series(series)], ignore_index=True)
 politicians.to_csv(os.path.join(DATA_FINAL, "politicians.csv"), index=False)
