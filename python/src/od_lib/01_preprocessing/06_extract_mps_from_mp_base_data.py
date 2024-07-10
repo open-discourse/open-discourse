@@ -111,7 +111,7 @@ for mdb in tree.iter("MDB"):
 
 
 mps = pd.DataFrame(mps)
-mps.constituency = mps.constituency.str.replace("[)(]", "")
+mps["constituency"] = mps["constituency"].str.replace("[)(]", "", regex=True)
 mps = mps.astype(dtype={"ui": "int64", "birth_date": "str", "death_date": "str"})
 
 mps.to_pickle(save_path)
