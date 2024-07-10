@@ -1,12 +1,13 @@
 import od_lib.definitions.path_definitions as path_definitions
+from od_lib.helper_functions.progressbar import progressbar
 import requests
 import io
 import zipfile
-import os
+from pathlib import Path
 import regex
 
 # output directory
-RAW_XML = path_definitions.RAW_XML
+RAW_XML = Path(path_definitions.RAW_XML)
 
 zip_links = [
     "https://www.bundestag.de/resource/blob/490392/90738376bb195628b95d117ab5392cfe/pp18-data.zip",
@@ -31,29 +32,26 @@ zip_links = [
 
 
 for link in zip_links:
-    r = requests.get(link)
-    z = zipfile.ZipFile(io.BytesIO(r.content))
-
     # Extract election period from URL
     electoral_term_str = "electoral_term_" + regex.search(
-        r"(?<=pp)\d+(?=-data\.zip)", link
-    ).group(0)
-
-    print("Unzipping: ", electoral_term_str)
-
-    save_path = os.path.join(RAW_XML, electoral_term_str)
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
-
-    z.extractall(save_path)
+            r"(?<=pp)\d+(?=-data\.zip)", link
+        ).group(0)
+    print(f"Download & unzip '{electoral_term_str}'...", end="", flush=True)
+    r = requests.get(link)
+    with zipfile.ZipFile(io.BytesIO(r.content)) as z:
+        save_path = RAW_XML / electoral_term_str
+        save_path.mkdir(parents=True, exist_ok=True)
+        z.extractall(save_path)
+    print("Done.")
 
 
 # Download MDB Stammdaten.
 mp_base_data_link = "https://www.bundestag.de/resource/blob/472878/7d4d417dbb7f7bd44508b3dc5de08ae2/MdB-Stammdaten-data.zip"  # noqa: E501
 
+print(f"Download & unzip 'MP_BASE_DATA'...", end="", flush=True)
 r = requests.get(mp_base_data_link)
-z = zipfile.ZipFile(io.BytesIO(r.content))
-mp_base_data_path = os.path.join(path_definitions.DATA_RAW, "MP_BASE_DATA")
-if not os.path.exists(mp_base_data_path):
-    os.makedirs(mp_base_data_path)
-z.extractall(mp_base_data_path)
+with zipfile.ZipFile(io.BytesIO(r.content)) as z:
+    mp_base_data_path = Path(path_definitions.DATA_RAW) / "MP_BASE_DATA"
+    mp_base_data_path.mkdir(parents=True, exist_ok=True)
+    z.extractall(mp_base_data_path)
+print("Done.")
