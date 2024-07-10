@@ -1,14 +1,13 @@
 import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import xml.etree.ElementTree as et
-from pathlib import Path
 import regex
 
 # input directory
-MP_BASE_DATA = Path(path_definitions.MP_BASE_DATA)
+MP_BASE_DATA = path_definitions.MP_BASE_DATA
 
 # output directory
-POLITICIANS_STAGE_01 = Path(path_definitions.POLITICIANS_STAGE_01)
+POLITICIANS_STAGE_01 = path_definitions.POLITICIANS_STAGE_01
 POLITICIANS_STAGE_01.mkdir(parents=True, exist_ok=True)
 save_path = POLITICIANS_STAGE_01 / "mps.pkl"
 

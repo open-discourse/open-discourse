@@ -4,6 +4,7 @@ def progressbar(it, prefix="", bar_size=60):
     timeToStr = lambda t: f"{int(t//60):02}:{int(t%60):02}"
     it = it if hasattr(it, '__len__') else list(it)
     count, start = len(it), time()
+    if count == 0: return []
     def show(j):
         prec, x, t = round(100*j/count), bar_size*j/count, time()-start
         bar = (u'█'*int(x))+(u' ▏▎▍▌▋▊█'[int(8*x)%8])+(' '*(bar_size-int(x)-1))

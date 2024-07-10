@@ -3,10 +3,9 @@ import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import regex
 import requests
-from pathlib import Path
 
 # Output directory
-POLITICIANS_STAGE_01 = Path(path_definitions.POLITICIANS_STAGE_01)
+POLITICIANS_STAGE_01 = path_definitions.POLITICIANS_STAGE_01
 POLITICIANS_STAGE_01.mkdir(parents=True, exist_ok=True)
 
 URL = "https://de.wikipedia.org/wiki/Liste_der_deutschen_Regierungsmitglieder_seit_1949"

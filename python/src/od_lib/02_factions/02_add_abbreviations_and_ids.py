@@ -1,13 +1,12 @@
 import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import numpy as np
-from pathlib import Path
 
 # input directory
-FACTIONS_STAGE_01 = Path(path_definitions.FACTIONS_STAGE_01)
+FACTIONS_STAGE_01 = path_definitions.FACTIONS_STAGE_01
 
 # output directory
-DATA_FINAL = Path(path_definitions.DATA_FINAL)
+DATA_FINAL = path_definitions.DATA_FINAL
 DATA_FINAL.mkdir(parents=True, exist_ok=True)
 
 factions = pd.read_pickle(FACTIONS_STAGE_01 / "factions.pkl")

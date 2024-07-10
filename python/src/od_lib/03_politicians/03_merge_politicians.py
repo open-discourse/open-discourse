@@ -2,19 +2,14 @@ import od_lib.definitions.path_definitions as path_definitions
 from od_lib.helper_functions.progressbar import progressbar
 import pandas as pd
 import regex
-from pathlib import Path
 
 # input directory
-MGS_PATH = Path(path_definitions.POLITICIANS_STAGE_01)
-MPS_PATH = Path(path_definitions.POLITICIANS_STAGE_02)
-FACTIONS_PATH = Path(path_definitions.DATA_FINAL)
+MGS_PATH = path_definitions.POLITICIANS_STAGE_01
+MPS_PATH = path_definitions.POLITICIANS_STAGE_02
+FACTIONS_PATH = path_definitions.DATA_FINAL
 mps = pd.read_pickle(MPS_PATH / "mps.pkl")
 mgs = pd.read_pickle(MGS_PATH / "mgs.pkl")
 factions = pd.read_pickle(FACTIONS_PATH / "factions.pkl")
-
-# output directory
-DATA_OUTPUT_PATH = Path(path_definitions.DATA_FINAL)
-DATA_OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
 
 # helper functions
 electoral_terms_dict = {
@@ -144,16 +139,19 @@ for (
     position_from,
     position_until,
     faction,
-) in progressbar(zip(
-    mgs.last_name,
-    mgs.first_name,
-    mgs.birth_date,
-    mgs.death_date,
-    mgs.position,
-    mgs.position_from,
-    mgs.position_until,
-    mgs.faction,
-), "Merging mp-data..."):
+) in progressbar(
+    zip( #
+        mgs.last_name,
+        mgs.first_name,
+        mgs.birth_date,
+        mgs.death_date,
+        mgs.position,
+        mgs.position_from,
+        mgs.position_until,
+        mgs.faction,
+    ),
+    "Merging mp-data..."
+):
 
     # Hardcode special cases
     if last_name == "Fischer" and first_name[0] == "Joschka":
@@ -214,7 +212,8 @@ for (
                 "institution_type": "Regierungsmitglied",
                 "institution_name": position,
             }
-            politicians = pd.concat([politicians, pd.Series(series)], ignore_index=True)
+            series = pd.DataFrame(series, index=[politicians.index[-1]])
+            politicians = pd.concat([politicians, series], ignore_index=True)
             # success_counter += 1
     elif len(possible_matches) > 1:
         # This doesn't get reached
@@ -251,7 +250,8 @@ for (
                     "institution_type": "Regierungsmitglied",
                     "institution_name": position,
                 }
-                politicians = pd.concat([politicians, pd.Series(series)], ignore_index=True)
+                series = pd.DataFrame(series, index=[politicians.index[-1]])
+                politicians = pd.concat([politicians, series], ignore_index=True)
         elif len(possible_matches) > 1:
             # This doesn't get reached
             raise RuntimeError("What happend?")
@@ -276,5 +276,6 @@ for (
                     "institution_type": "Regierungsmitglied",
                     "institution_name": position,
                 }
-                politicians = pd.concat([politicians, pd.Series(series)], ignore_index=True)
-politicians.to_csv(DATA_OUTPUT_PATH / "politicians.csv", index=False)
+                series = pd.DataFrame(series, index=[politicians.index[-1]])
+                politicians = pd.concat([politicians, series], ignore_index=True)
+politicians.to_csv(FACTIONS_PATH / "politicians.csv", index=False)

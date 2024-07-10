@@ -1,10 +1,9 @@
 import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import datetime
-from pathlib import Path
 
 # output directory
-ELECTORAL_TERMS = Path(path_definitions.ELECTORAL_TERMS)
+ELECTORAL_TERMS = path_definitions.ELECTORAL_TERMS
 ELECTORAL_TERMS.mkdir(parents=True, exist_ok=True)
 
 electoral_terms = [

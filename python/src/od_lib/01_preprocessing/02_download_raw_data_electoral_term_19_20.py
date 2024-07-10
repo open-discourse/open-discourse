@@ -2,12 +2,11 @@ from bs4 import BeautifulSoup
 import od_lib.definitions.path_definitions as path_definitions
 from od_lib.helper_functions.progressbar import progressbar
 import requests
-from pathlib import Path
 import regex
 import time
 
 # output directory
-ELECTORAL_TERM_19_20_OUTPUT = Path(path_definitions.ELECTORAL_TERM_19_20_STAGE_01)
+ELECTORAL_TERM_19_20_OUTPUT = path_definitions.ELECTORAL_TERM_19_20_STAGE_01
 ELECTORAL_TERM_19_20_OUTPUT.mkdir(parents=True, exist_ok=True)
 
 election_periods = [

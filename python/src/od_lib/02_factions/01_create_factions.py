@@ -1,12 +1,11 @@
 import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import numpy as np
-from pathlib import Path
 
 # input directory
-POLITICIANS_STAGE_01 = Path(path_definitions.POLITICIANS_STAGE_01)
+POLITICIANS_STAGE_01 = path_definitions.POLITICIANS_STAGE_01
 # output directory
-FACTIONS_STAGE_01 = Path(path_definitions.FACTIONS_STAGE_01)
+FACTIONS_STAGE_01 = path_definitions.FACTIONS_STAGE_01
 FACTIONS_STAGE_01.mkdir(parents=True, exist_ok=True)
 
 # read data.

@@ -3,11 +3,10 @@ from od_lib.helper_functions.progressbar import progressbar
 import requests
 import io
 import zipfile
-from pathlib import Path
 import regex
 
 # output directory
-RAW_XML = Path(path_definitions.RAW_XML)
+RAW_XML = path_definitions.RAW_XML
 
 zip_links = [
     "https://www.bundestag.de/resource/blob/490392/90738376bb195628b95d117ab5392cfe/pp18-data.zip",
@@ -51,7 +50,7 @@ mp_base_data_link = "https://www.bundestag.de/resource/blob/472878/7d4d417dbb7f7
 print(f"Download & unzip 'MP_BASE_DATA'...", end="", flush=True)
 r = requests.get(mp_base_data_link)
 with zipfile.ZipFile(io.BytesIO(r.content)) as z:
-    mp_base_data_path = Path(path_definitions.DATA_RAW) / "MP_BASE_DATA"
+    mp_base_data_path = path_definitions.DATA_RAW / "MP_BASE_DATA"
     mp_base_data_path.mkdir(parents=True, exist_ok=True)
     z.extractall(mp_base_data_path)
 print("Done.")

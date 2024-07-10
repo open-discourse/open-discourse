@@ -5,13 +5,12 @@ import xml.etree.ElementTree as et
 import regex
 import sys
 import dicttoxml
-from pathlib import Path
 
 # input directory
-RAW_XML = Path(path_definitions.RAW_XML)
+RAW_XML = path_definitions.RAW_XML
 
 # output directory
-RAW_TXT = Path(path_definitions.RAW_TXT)
+RAW_TXT = path_definitions.RAW_TXT
 RAW_TXT.mkdir(parents=True, exist_ok=True)
 
 # Open every xml plenar file in every legislature period.

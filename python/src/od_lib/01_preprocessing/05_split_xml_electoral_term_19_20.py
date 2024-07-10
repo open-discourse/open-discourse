@@ -1,14 +1,13 @@
 import od_lib.definitions.path_definitions as path_definitions
 from od_lib.helper_functions.progressbar import progressbar
 import xml.etree.ElementTree as et
-from pathlib import Path
 import regex
 
 # input directory
-ELECTORAL_TERM_19_20_INPUT = Path(path_definitions.ELECTORAL_TERM_19_20_STAGE_01)
+ELECTORAL_TERM_19_20_INPUT = path_definitions.ELECTORAL_TERM_19_20_STAGE_01
 
 # output directory
-ELECTORAL_TERM_19_20_OUTPUT = Path(path_definitions.ELECTORAL_TERM_19_20_STAGE_02)
+ELECTORAL_TERM_19_20_OUTPUT = path_definitions.ELECTORAL_TERM_19_20_STAGE_02
 
 for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
     # Skip e.g. the .DS_Store file.

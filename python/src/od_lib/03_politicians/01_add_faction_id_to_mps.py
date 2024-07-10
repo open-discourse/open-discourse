@@ -1,12 +1,11 @@
 import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
-from pathlib import Path
 
 # input directory
-POLITICIANS_INPUT = Path(path_definitions.POLITICIANS_STAGE_01)
-FACTIONS_INPUT = Path(path_definitions.DATA_FINAL)
+POLITICIANS_INPUT = path_definitions.POLITICIANS_STAGE_01
+FACTIONS_INPUT = path_definitions.DATA_FINAL
 # output directory
-POLITICIANS_OUTPUT = Path(path_definitions.POLITICIANS_STAGE_02)
+POLITICIANS_OUTPUT = path_definitions.POLITICIANS_STAGE_02
 POLITICIANS_OUTPUT.mkdir(parents=True, exist_ok=True)
 
 factions = pd.read_pickle(FACTIONS_INPUT / "factions.pkl")

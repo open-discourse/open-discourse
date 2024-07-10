@@ -2,15 +2,14 @@ from od_lib.helper_functions.clean_text import clean
 import od_lib.definitions.path_definitions as path_definitions
 from od_lib.helper_functions.progressbar import progressbar
 import xml.etree.ElementTree as et
-from pathlib import Path
 import regex
 import dicttoxml
 
 # input directory
-RAW_XML = Path(path_definitions.RAW_XML)
+RAW_XML = path_definitions.RAW_XML
 
 # output directory
-RAW_TXT = Path(path_definitions.RAW_TXT)
+RAW_TXT = path_definitions.RAW_TXT
 RAW_TXT.mkdir(parents=True, exist_ok=True)
 
 # Open every xml plenar file in every electoral term.
