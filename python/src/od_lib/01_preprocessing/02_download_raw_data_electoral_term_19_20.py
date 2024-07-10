@@ -46,7 +46,7 @@ for election_period in election_periods:
             reached_end = False
             url = "https://www.bundestag.de" + link.get("href")
             page = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
-            session = regex.search(r"\d{5}(?=-data\.xml)", url).group(0)
+            session = regex.search(r"\d{5}(?=\.xml)", url).group(0)
 
             print(session)
             with open(os.path.join(OUTPUT_PATH, session + ".xml"), "w") as file:
@@ -57,6 +57,4 @@ for election_period in election_periods:
                         regex.sub("<sub>", "", page.content.decode("utf-8")),
                     )
                 )
-
-            time.sleep(0.1)
         offset += 10
