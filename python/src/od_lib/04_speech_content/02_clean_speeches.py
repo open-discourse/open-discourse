@@ -1,8 +1,8 @@
 from od_lib.helper_functions.clean_text import clean_name_headers
 import od_lib.definitions.path_definitions as path_definitions
+from od_lib.helper_functions.progressbar import progressbar
 import pandas as pd
 import sys
-import os
 import regex
 
 # Disabling pandas warnings.
@@ -15,7 +15,7 @@ FACTIONS = path_definitions.DATA_FINAL
 # output directory
 SPEECH_CONTENT_OUTPUT = path_definitions.SPEECH_CONTENT_STAGE_02
 
-factions = pd.read_pickle(os.path.join(FACTIONS, "factions.pkl"))
+factions = pd.read_pickle(FACTIONS / "factions.pkl")
 
 faction_patterns = {
     "Bündnis 90/Die Grünen": r"(?:BÜNDNIS\s*(?:90)?/?(?:\s*D[1I]E)?|Bündnis\s*90/(?:\s*D[1I]E)?)?\s*[GC]R[UÜ].?\s*[ÑN]EN?(?:/Bündnis 90)?|Bündnis 90/Die Grünen",  # noqa: E501
@@ -97,37 +97,27 @@ def get_position_short_and_long(position):
 
 
 # iterate over all electoral_term_folders
-for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
-
-    if electoral_term_folder == ".DS_Store":
+for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
+    if not folder_path.is_dir():
         continue
+    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    if term_number is None:
+        continue
+    term_number = int(term_number.group(0))
     if len(sys.argv) > 1:
-        if (
-            str(int(regex.sub("electoral_term_", "", electoral_term_folder)))
-            not in sys.argv
-        ):
+        if str(term_number) not in sys.argv:
             continue
-    electoral_term_folder_path = os.path.join(
-        SPEECH_CONTENT_INPUT, electoral_term_folder
-    )
 
-    print(electoral_term_folder)
-
-    save_path = os.path.join(SPEECH_CONTENT_OUTPUT, electoral_term_folder)
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
+    save_path = SPEECH_CONTENT_OUTPUT / folder_path.stem
+    save_path.mkdir(exist_ok=True)
 
     # iterate over every speech_content file
-    for speech_content_file in sorted(os.listdir(electoral_term_folder_path)):
-        print(speech_content_file)
-
-        # checks if the file is a .pkl file
-        if ".pkl" not in speech_content_file:
-            continue
-        filepath = os.path.join(electoral_term_folder_path, speech_content_file)
-
+    for speech_content_file in progressbar(
+        folder_path.glob("*.pkl"),
+        f"Clean speeches (term {term_number:>2})...",
+    ):
         # read the spoken content csv
-        speech_content = pd.read_pickle(filepath)
+        speech_content = pd.read_pickle(speech_content_file)
 
         # Insert acad_title column and extract plain name and titles.
         # ADD DOCUMENTATION HERE
@@ -241,4 +231,4 @@ for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
                     speech_content.faction_id.at[index] = -1
 
         speech_content = speech_content.drop(columns=["position_raw", "name_raw"])
-        speech_content.to_pickle(os.path.join(save_path, speech_content_file))
+        speech_content.to_pickle(save_path / speech_content_file.name)

@@ -1,10 +1,10 @@
 from od_lib.helper_functions.extract_contributions import extract
 import od_lib.definitions.path_definitions as path_definitions
+from od_lib.helper_functions.progressbar import progressbar
 import pandas as pd
 import numpy as np
 import xml.etree.ElementTree as et
 import regex
-import os
 import datetime
 
 
@@ -16,13 +16,11 @@ politicians = path_definitions.DATA_FINAL
 # output directory
 ELECTORAL_TERM_19_20_OUTPUT = path_definitions.ELECTORAL_TERM_19_20_STAGE_03
 CONTRIBUTIONS_SIMPLIFIED = path_definitions.CONTRIBUTIONS_SIMPLIFIED
+CONTRIBUTIONS_EXTENDED = path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_01
 
-if not os.path.exists(ELECTORAL_TERM_19_20_OUTPUT):
-    os.makedirs(ELECTORAL_TERM_19_20_OUTPUT)
-
-
-if not os.path.exists(CONTRIBUTIONS_SIMPLIFIED):
-    os.makedirs(CONTRIBUTIONS_SIMPLIFIED)
+ELECTORAL_TERM_19_20_OUTPUT.mkdir(parents=True, exist_ok=True)
+CONTRIBUTIONS_SIMPLIFIED.mkdir(parents=True, exist_ok=True)
+CONTRIBUTIONS_EXTENDED.mkdir(parents=True, exist_ok=True)
 
 faction_patterns = {
     "Bündnis 90/Die Grünen": r"(?:BÜNDNIS\s*(?:90)?/?(?:\s*D[1I]E)?|Bündnis\s*90/(?:\s*D[1I]E)?)?\s*[GC]R[UÜ].?\s*[ÑN]EN?(?:/Bündnis 90)?",  # noqa: E501
@@ -98,17 +96,6 @@ def get_position_short_and_long(position_raw):
         return "Not found", None
 
 
-class Incrementor(object):
-    """Incrementor class for iterative regex deletion"""
-
-    def __init__(self):
-        self.count = -1
-
-    def increment(self, matchObject):
-        self.count += 1
-        return "{->" + str(self.count) + "}"
-
-
 def get_first_last(name):
     first_last = name.split()
     if len(first_last) == 1:
@@ -122,6 +109,9 @@ def get_first_last(name):
         last_name = "ERROR"
     return " ".join(first_name), last_name
 
+def find_with_default(node, key, default):
+    result = node.find(key)
+    return default if result is None else result.text
 
 def get_faction_abbrev(faction, faction_patterns):
     """matches the given faction and returns an id"""
@@ -149,43 +139,30 @@ speech_content = pd.DataFrame(
     }
 )
 
-factions = pd.read_pickle(os.path.join(FACTIONS, "factions.pkl"))
+factions = pd.read_pickle(FACTIONS / "factions.pkl")
 
-politicians = pd.read_csv(os.path.join(politicians, "politicians.csv"))
+politicians = pd.read_csv(politicians / "politicians.csv")
 politicians.last_name = politicians.last_name.str.lower()
 politicians.last_name = politicians.last_name.str.replace("ß", "ss", regex=False)
 politicians.first_name = politicians.first_name.str.lower()
 politicians.first_name = politicians.first_name.str.replace("ß", "ss", regex=False)
 politicians.first_name = politicians.first_name.apply(str.split)
 
-for electoral_term_folder in sorted(os.listdir(ELECTORAL_TERM_19_20_INPUT)):
-    electoral_term_folder_path = os.path.join(
-        ELECTORAL_TERM_19_20_INPUT, electoral_term_folder
-    )
-
-    if not os.path.isdir(electoral_term_folder_path):
+for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
+    if not folder_path.is_dir():
         continue
+    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    if term_number is None:
+        continue
+    term_number = int(term_number.group(0))
 
-    CONTRIBUTIONS_EXTENDED_OUTPUT = os.path.join(
-        path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_01, electoral_term_folder
-    )
+    contributions_extended_output = CONTRIBUTIONS_EXTENDED / folder_path.stem
+    term_spoken_content = ELECTORAL_TERM_19_20_OUTPUT / folder_path.stem / "speech_content"
+    contributions_simplified_output = CONTRIBUTIONS_SIMPLIFIED / folder_path.stem
 
-    ELECTORAL_TERM_SPOKEN_CONTENT = os.path.join(
-        ELECTORAL_TERM_19_20_OUTPUT, electoral_term_folder, "speech_content"
-    )
-
-    CONTRIBUTIONS_SIMPLIFIED_OUTPUT = os.path.join(
-        CONTRIBUTIONS_SIMPLIFIED, electoral_term_folder
-    )
-
-    if not os.path.exists(CONTRIBUTIONS_EXTENDED_OUTPUT):
-        os.makedirs(CONTRIBUTIONS_EXTENDED_OUTPUT)
-
-    if not os.path.exists(ELECTORAL_TERM_SPOKEN_CONTENT):
-        os.makedirs(ELECTORAL_TERM_SPOKEN_CONTENT)
-
-    if not os.path.exists(CONTRIBUTIONS_SIMPLIFIED_OUTPUT):
-        os.makedirs(CONTRIBUTIONS_SIMPLIFIED_OUTPUT)
+    contributions_extended_output.mkdir(parents=True, exist_ok=True)
+    term_spoken_content.mkdir(parents=True, exist_ok=True)
+    contributions_simplified_output.mkdir(parents=True, exist_ok=True)
 
     speech_records = []
 
@@ -194,12 +171,14 @@ for electoral_term_folder in sorted(os.listdir(ELECTORAL_TERM_19_20_INPUT)):
     )
 
     politicians_electoral_term = politicians.loc[
-        politicians.electoral_term == int(electoral_term_folder[-2:])
+        politicians.electoral_term == term_number
     ]
 
-    for session in sorted(os.listdir(electoral_term_folder_path)):
-
-        if session == ".DS_Store":
+    for session_path in progressbar(
+        folder_path.iterdir(),
+        f"Extract speeches (term {term_number:>2})...",
+    ):
+        if not session_path.is_dir():
             continue
 
         contributions_extended = pd.DataFrame(
@@ -214,19 +193,12 @@ for electoral_term_folder in sorted(os.listdir(ELECTORAL_TERM_19_20_INPUT)):
             }
         )
 
-        print(session)
-
-        session_content = et.parse(
-            os.path.join(electoral_term_folder_path, session, "session_content.xml")
-        )
-
-        meta_data = et.parse(
-            os.path.join(electoral_term_folder_path, session, "meta_data.xml")
-        )
+        session_content = et.parse(session_path / "session_content.xml")
+        meta_data = et.parse(session_path / "meta_data.xml")
 
         date = meta_data.getroot().get("sitzung-datum")
         # Wrong date in xml file. Fixing manually
-        if session == "19158":
+        if session_path.stem == "19158":
             date = "07.05.2020"
         date = (
             datetime.datetime.strptime(date, "%d.%m.%Y") - datetime.datetime(1970, 1, 1)
@@ -236,37 +208,29 @@ for electoral_term_folder in sorted(os.listdir(ELECTORAL_TERM_19_20_INPUT)):
 
         tops = root.findall("tagesordnungspunkt")
 
-        c = Incrementor()
         id_Counter = 0
 
         for top in tops:
             speeches = top.findall("rede")
             for speech in speeches:
                 speaker = speech[0].find("redner")
-                try:
-                    speaker_id = int(speaker.get("id"))
-                except (ValueError, AttributeError):
-                    speaker_id = -1
-
-                try:
-                    name = speaker.find("name")
-                except AttributeError:
+                if speaker is None:
                     continue
+                speaker_id = int(speaker.get("id", -1))
+                name = speaker.find("name")
+                first_name = find_with_default(name, "vorname", "")
+                last_name = find_with_default(name, "nachname", "")
 
-                try:
-                    first_name = name.find("vorname").text
-                except AttributeError:
-                    first_name = ""
+                position_raw = name.find("fraktion")
+                if position_raw is None:
+                    position_raw = name.find("rolle")
+                    if position_raw is not None:
+                        position_raw = find_with_default(position_raw, "rolle_lang", "")
+                    else:
+                        position_raw = ""
+                else:
+                    position_raw = ""
 
-                try:
-                    last_name = name.find("nachname").text
-                except AttributeError:
-                    last_name = ""
-
-                try:
-                    position_raw = name.find("fraktion").text
-                except (ValueError, AttributeError):
-                    position_raw = name.find("rolle").find("rolle_lang").text
                 faction_abbrev = get_faction_abbrev(
                     str(position_raw), faction_patterns=faction_patterns
                 )
@@ -281,7 +245,7 @@ for electoral_term_folder in sorted(os.listdir(ELECTORAL_TERM_19_20_INPUT)):
                     # in factions df share same faction_id, so always the first
                     # one is chosen right now.
                     faction_id = int(
-                        factions.id.loc[factions.abbreviation == faction_abbrev].iloc[0]
+                        factions.loc[factions.abbreviation == faction_abbrev, "id"].iloc[0]
                     )
 
                 speech_text = ""
@@ -292,7 +256,7 @@ for electoral_term_folder in sorted(os.listdir(ELECTORAL_TERM_19_20_INPUT)):
                         speech_records.append(
                             {
                                 "id": speech_content_id,
-                                "session": session,
+                                "session": session_path.stem,
                                 "first_name": first_name,
                                 "last_name": last_name,
                                 "faction_id": faction_id,
@@ -335,7 +299,7 @@ for electoral_term_folder in sorted(os.listdir(ELECTORAL_TERM_19_20_INPUT)):
                         speech_records.append(
                             {
                                 "id": speech_content_id,
-                                "session": session,
+                                "session": session_path.stem,
                                 "first_name": first_name,
                                 "last_name": last_name,
                                 "faction_id": faction_id,
@@ -387,9 +351,7 @@ for electoral_term_folder in sorted(os.listdir(ELECTORAL_TERM_19_20_INPUT)):
                             # in factions df share same faction_id, so always the first
                             # one is chosen right now.
                             faction_id = int(
-                                factions.id.loc[
-                                    factions.abbreviation == faction_abbrev
-                                ].iloc[0]
+                                factions.loc[factions.abbreviation == faction_abbrev, "id"].iloc[0]
                             )
                     elif tag == "p":
                         try:
@@ -404,7 +366,7 @@ for electoral_term_folder in sorted(os.listdir(ELECTORAL_TERM_19_20_INPUT)):
                             text_position,
                         ) = extract(
                             content.text,
-                            int(session),
+                            int(session_path.stem),
                             speech_content_id,
                             text_position,
                             False,
@@ -422,7 +384,7 @@ for electoral_term_folder in sorted(os.listdir(ELECTORAL_TERM_19_20_INPUT)):
                 speech_records.append(
                     {
                         "id": speech_content_id,
-                        "session": session,
+                        "session": session_path.stem,
                         "first_name": first_name,
                         "last_name": last_name,
                         "faction_id": faction_id,
@@ -436,18 +398,13 @@ for electoral_term_folder in sorted(os.listdir(ELECTORAL_TERM_19_20_INPUT)):
                 speech_content_id += 1
 
         contributions_extended.to_pickle(
-            os.path.join(CONTRIBUTIONS_EXTENDED_OUTPUT, session + ".pkl")
+            contributions_extended_output / (session_path.stem + ".pkl")
         )
 
     speech_content = pd.DataFrame.from_records(speech_records)
 
-    speech_content.to_pickle(
-        os.path.join(ELECTORAL_TERM_SPOKEN_CONTENT, "speech_content.pkl")
-    )
+    speech_content.to_pickle(term_spoken_content / "speech_content.pkl")
 
     contributions_simplified.to_pickle(
-        os.path.join(
-            CONTRIBUTIONS_SIMPLIFIED_OUTPUT,
-            "contributions_simplified.pkl",
-        )
+        contributions_simplified_output / "contributions_simplified.pkl"
     )

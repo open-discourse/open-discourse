@@ -1,8 +1,8 @@
 from od_lib.helper_functions.match_names import insert_politician_id_into_speech_content
 import od_lib.definitions.path_definitions as path_definitions
+from od_lib.helper_functions.progressbar import progressbar
 import pandas as pd
 import regex
-import os
 
 # input directory
 SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_02
@@ -10,12 +10,10 @@ DATA_FINAL = path_definitions.DATA_FINAL
 
 # output directory
 SPEECH_CONTENT_OUTPUT = path_definitions.SPEECH_CONTENT_STAGE_03
-
-if not os.path.exists(SPEECH_CONTENT_OUTPUT):
-    os.makedirs(SPEECH_CONTENT_OUTPUT)
+SPEECH_CONTENT_OUTPUT.mkdir(parents=True, exist_ok=True)
 
 # MDBS
-politicians = pd.read_csv(os.path.join(DATA_FINAL, "politicians.csv"))
+politicians = pd.read_csv(DATA_FINAL / "politicians.csv")
 politicians = politicians.loc[
     :,
     [
@@ -48,45 +46,36 @@ politicians.first_name = politicians.first_name.apply(str.split)
 politicians.profession = politicians.profession.str.lower()
 
 # iterate over all electoral_term_folders __________________________________________________
-for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
+for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
     working = []
-    if electoral_term_folder == ".DS_Store":
+    if not folder_path.is_dir():
         continue
-    electoral_term_folder_path = os.path.join(
-        SPEECH_CONTENT_INPUT, electoral_term_folder
-    )
+    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    if term_number is None:
+        continue
+    term_number = int(term_number.group(0))
 
-    print(electoral_term_folder)
-
-    save_path = os.path.join(SPEECH_CONTENT_OUTPUT, electoral_term_folder)
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
-
-    electoral_term = int(regex.sub("electoral_term_0?", "", electoral_term_folder))
+    save_path = SPEECH_CONTENT_OUTPUT / folder_path.stem
+    save_path.mkdir(exist_ok=True)
 
     # Only select politicians of the election period.
     politicians_electoral_term = politicians.loc[
-        politicians.electoral_term == electoral_term
+        politicians.electoral_term == term_number
     ]
     mgs_electoral_term = politicians_electoral_term.loc[
         politicians_electoral_term.institution_type == "Regierungsmitglied"
     ]
 
     # iterate over every speech_content file
-    for speech_content_file in sorted(os.listdir(electoral_term_folder_path)):
-
-        # check if session file is a pickle file
-        if ".pkl" not in speech_content_file:
-            continue
-        filepath = os.path.join(electoral_term_folder_path, speech_content_file)
-
-        print(speech_content_file)
-
+    for speech_content_file in progressbar(
+        folder_path.glob("*.pkl"),
+        f"Match speaker names (term {term_number:>2})..."
+    ):
         # read the spoken content pickle file
-        speech_content = pd.read_pickle(filepath)
+        speech_content = pd.read_pickle(speech_content_file)
 
         speech_content_matched, _ = insert_politician_id_into_speech_content(
             speech_content, politicians_electoral_term, mgs_electoral_term, politicians
         )
 
-        speech_content_matched.to_pickle(os.path.join(save_path, speech_content_file))
+        speech_content_matched.to_pickle(save_path / speech_content_file.name)

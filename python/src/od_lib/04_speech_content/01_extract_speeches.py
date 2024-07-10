@@ -1,6 +1,6 @@
 import od_lib.definitions.path_definitions as path_definitions
+from od_lib.helper_functions.progressbar import progressbar
 import pandas as pd
-import os
 import regex
 import sys
 
@@ -9,9 +9,7 @@ RAW_TXT = path_definitions.RAW_TXT
 
 # output directory
 SPEECH_CONTENT_OUTPUT = path_definitions.SPEECH_CONTENT_STAGE_01
-
-if not os.path.exists(SPEECH_CONTENT_OUTPUT):
-    os.makedirs(SPEECH_CONTENT_OUTPUT)
+SPEECH_CONTENT_OUTPUT.mkdir(parents=True, exist_ok=True)
 
 president_pattern_str = r"(?P<position_raw>Präsident(?:in)?|Vizepräsident(?:in)?|Alterspräsident(?:in)?|Bundespräsident(?:in)?|Bundeskanzler(?:in)?)\s+(?P<name_raw>[A-ZÄÖÜß](?:[^:([}{\]\)\s]+\s?){1,5})\s?:\s?"
 
@@ -47,49 +45,27 @@ parties = [
 print("Starting..")
 
 # Walk over all legislature periods. ___________________________________________
-for electoral_term_folder in sorted(os.listdir(RAW_TXT)):
-    electoral_term_folder_path = os.path.join(RAW_TXT, electoral_term_folder)
+for folder_path in sorted(RAW_TXT.iterdir()):
+    if not folder_path.is_dir():
+        continue
+    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    if term_number is None:
+        continue
+    term_number = int(term_number.group(0))
 
-    if not os.path.isdir(electoral_term_folder_path):
-        continue
-    elif electoral_term_folder == ".DS_Store":
-        continue
-    elif electoral_term_folder in [
-        "electoral_term_01",
-        "electoral_term_02",
-        "electoral_term_03",
-        "electoral_term_04",
-        "electoral_term_05",
-        "electoral_term_06",
-        "electoral_term_07",
-        "electoral_term_08",
-        "electoral_term_09",
-        "electoral_term_10",
-    ]:
+    if term_number <= 10:
         open_brackets = r"[({\[]"
         close_brackets = r"[)}\]]"
         prefix = r"(?<=\n)"
-    elif electoral_term_folder in [
-        "electoral_term_11",
-        "electoral_term_12",
-        "electoral_term_13",
-        "electoral_term_14",
-        "electoral_term_15",
-        "electoral_term_16",
-        "electoral_term_17",
-        "electoral_term_18",
-    ]:
+    elif 10 < term_number <= 18:
         open_brackets = r"[(]"
         close_brackets = r"[)]"
         prefix = r"(?<=\n)"
     else:
-        raise ValueError("You should not land heregex.")
+        raise ValueError("You should not land here.")
 
     if len(sys.argv) > 1:
-        if (
-            str(int(regex.sub("electoral_term_", "", electoral_term_folder)))
-            not in sys.argv
-        ):
+        if str(term_number) not in sys.argv:
             continue
 
     faction_speaker_pattern = regex.compile(
@@ -104,17 +80,17 @@ for electoral_term_folder in sorted(os.listdir(RAW_TXT)):
 
     patterns = [president_pattern, faction_speaker_pattern, minister_pattern]
 
-    save_path = os.path.join(SPEECH_CONTENT_OUTPUT, electoral_term_folder)
-    if not os.path.isdir(save_path):
-        os.makedirs(save_path)
+    save_path = SPEECH_CONTENT_OUTPUT / folder_path.stem
+    save_path.mkdir(exist_ok=True)
 
     # Walk over every session in the period.
-    for session in sorted(os.listdir(electoral_term_folder_path)):
+    for session in progressbar(
+        folder_path.iterdir(),
+        f"Extract speeches (term {term_number:>2})..."
+    ):
         # Skip e.g. the .DS_Store file.
-        if not os.path.isdir(os.path.join(electoral_term_folder_path, session)):
+        if not session.is_dir():
             continue
-
-        print(session)
 
         session_df = pd.DataFrame(
             {
@@ -129,9 +105,7 @@ for electoral_term_folder in sorted(os.listdir(RAW_TXT)):
         )
 
         # Open the session content
-        with open(
-            os.path.join(electoral_term_folder_path, session, "session_content.txt")
-        ) as file:
+        with open(session / "session_content.txt") as file:
             session_content = file.read()
 
         # Placeholders for the information of a speaker.
@@ -146,7 +120,7 @@ for electoral_term_folder in sorted(os.listdir(RAW_TXT)):
         # Search all parts where one of the patterns is matching.
         for pattern in patterns:
             for match in regex.finditer(pattern, session_content):
-                session_list.append(session)
+                session_list.append(session.stem)
                 speaker_name.append(match.group("name_raw"))
                 speaker_position.append(match.group("position_raw"))
                 try:
@@ -177,4 +151,4 @@ for electoral_term_folder in sorted(os.listdir(RAW_TXT)):
 
         session_df["speech_content"] = speech_content
 
-        session_df.to_pickle(os.path.join(save_path, session + ".pkl"))
+        session_df.to_pickle(save_path / (session.stem + ".pkl"))
