@@ -16,6 +16,7 @@ factions = pd.read_pickle(os.path.join(FACTIONS_STAGE_01, "factions.pkl"))
 
 abbreviations_dict = {
     "Alternative für Deutschland": "AfD",
+    "Fraktion Alternative für Deutschland": "AfD",
     "Fraktion Bayernpartei": "BP",
     "Fraktion Bündnis 90/Die Grünen": "Bündnis 90/Die Grünen",
     "Fraktion DIE LINKE.": "DIE LINKE.",
@@ -48,7 +49,9 @@ abbreviations_dict = {
     "Fraktion der Sozialdemokratischen Partei Deutschlands": "SPD",
     "Fraktionslos": "Fraktionslos",
     "Gruppe Bündnis 90/Die Grünen": "Bündnis 90/Die Grünen",
+    "Gruppe BSW - Bündnis Sahra Wagenknecht - Vernunft und Gerechtigkeit": "BSW",
     "Gruppe Deutsche Partei": "DP",
+    "Gruppe Die Linke": "DIE LINKE.",
     "Gruppe Kraft/Oberländer": "KO",
     "Gruppe der Partei des Demokratischen Sozialismus": "PDS",
     "Gruppe der Partei des Demokratischen Sozialismus/Linke Liste": "PDS",
@@ -58,17 +61,15 @@ abbreviations_dict = {
 }
 
 factions.insert(0, "abbreviation", "")
+factions["abbreviation"] = factions["faction_name"].apply(lambda x: abbreviations_dict[x])
 
-factions.abbreviation = factions.faction_name.apply(lambda x: abbreviations_dict[x])
-
-unique_abbreviations = np.unique(factions.abbreviation)
+unique_abbreviations = np.unique(factions["abbreviation"])
 faction_ids = list(range(len(unique_abbreviations)))
 
 factions.insert(0, "id", -1)
 
 for abbrev, id in zip(unique_abbreviations, faction_ids):
-    factions.id.loc[factions.abbreviation == abbrev] = id
-
+    factions.loc[factions["abbreviation"] == abbrev, "id"] = id
 
 # save the dataframe
 factions.to_pickle(os.path.join(DATA_FINAL, "factions.pkl"))
