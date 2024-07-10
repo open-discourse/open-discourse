@@ -17,7 +17,7 @@ URL = "https://de.wikipedia.org/wiki/Liste_der_deutschen_Regierungsmitglieder_se
 
 page = requests.get(URL)
 soup = BeautifulSoup(page.text, "html.parser")
-main_section = soup.find("div", {"id": "mw-content-text"})
+main_section = soup.find("div", {"id": "mw-content-text"}).find("div")
 
 mgs = {
     "ui": [],

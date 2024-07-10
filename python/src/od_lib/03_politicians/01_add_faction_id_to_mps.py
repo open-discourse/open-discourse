@@ -17,7 +17,7 @@ mps = pd.read_pickle(os.path.join(POLITICIANS_INPUT, "mps.pkl"))
 
 mps.insert(2, "faction_id", -1)
 
-for faction_name, faction_id in zip(factions.faction_name, factions.id):
-    mps.faction_id.loc[mps.institution_name == faction_name] = faction_id
+for faction_name, faction_id in zip(factions["faction_name"], factions["id"]):
+    mps.loc[mps["institution_name"] == faction_name, "faction_id"] = faction_id
 
 mps.to_pickle(os.path.join(POLITICIANS_OUTPUT, "mps.pkl"))
