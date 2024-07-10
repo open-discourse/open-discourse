@@ -14,7 +14,10 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
     # Skip e.g. the .DS_Store file.
     if not folder_path.is_dir():
         continue
-    term_number = int(regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem).group(0))
+    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    if term_number is None:
+        continue
+    term_number = int(term_number.group(0))
     for xml_file_path in progressbar(folder_path.iterdir(), f"Parsing term {term_number:>2}..."):
         # read data
         tree = et.parse(xml_file_path)

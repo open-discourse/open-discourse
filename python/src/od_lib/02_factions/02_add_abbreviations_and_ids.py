@@ -1,18 +1,16 @@
 import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import numpy as np
-import os
+from pathlib import Path
 
 # input directory
-FACTIONS_STAGE_01 = path_definitions.FACTIONS_STAGE_01
+FACTIONS_STAGE_01 = Path(path_definitions.FACTIONS_STAGE_01)
 
 # output directory
-DATA_FINAL = path_definitions.DATA_FINAL
+DATA_FINAL = Path(path_definitions.DATA_FINAL)
+DATA_FINAL.mkdir(parents=True, exist_ok=True)
 
-if not os.path.exists(DATA_FINAL):
-    os.makedirs(DATA_FINAL)
-
-factions = pd.read_pickle(os.path.join(FACTIONS_STAGE_01, "factions.pkl"))
+factions = pd.read_pickle(FACTIONS_STAGE_01 / "factions.pkl")
 
 abbreviations_dict = {
     "Alternative für Deutschland": "AfD",
@@ -73,4 +71,4 @@ for abbrev, id in zip(unique_abbreviations, faction_ids):
     factions.loc[factions["abbreviation"] == abbrev, "id"] = id
 
 # save the dataframe
-factions.to_pickle(os.path.join(DATA_FINAL, "factions.pkl"))
+factions.to_pickle(DATA_FINAL / "factions.pkl")
