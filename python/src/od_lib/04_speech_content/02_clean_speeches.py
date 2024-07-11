@@ -1,6 +1,7 @@
 from od_lib.helper_functions.clean_text import clean_name_headers
 import od_lib.definitions.path_definitions as path_definitions
 from od_lib.helper_functions.progressbar import progressbar
+import numpy as np
 import pandas as pd
 import sys
 import regex
@@ -141,7 +142,7 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
         # CAN INTRODUCE A LARGE BIAS IN TEXT ANALYSIS
         names = speech_content.name_raw.to_list()
         speech_content.speech_content = speech_content.speech_content.apply(
-            clean_name_headers, args=(names,)
+            clean_name_headers, args=(np.unique(names),)
         )
 
         speech_content.reset_index(inplace=True, drop=True)

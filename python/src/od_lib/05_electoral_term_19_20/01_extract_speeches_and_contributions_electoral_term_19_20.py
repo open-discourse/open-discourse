@@ -166,9 +166,7 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
 
     speech_records = []
 
-    contributions_simplified = pd.DataFrame(
-        {"text_position": [], "content": [], "speech_id": []}
-    )
+    contributions_simplified = []
 
     politicians_electoral_term = politicians.loc[
         politicians.electoral_term == term_number
@@ -181,17 +179,7 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
         if not session_path.is_dir():
             continue
 
-        contributions_extended = pd.DataFrame(
-            {
-                "id": [],
-                "type": [],
-                "name": [],
-                "faction": [],
-                "constituency": [],
-                "content": [],
-                "text_position": [],
-            }
-        )
+        contributions_extended = []
 
         session_content = et.parse(session_path / "session_content.xml")
         meta_data = et.parse(session_path / "meta_data.xml")
@@ -372,14 +360,8 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
                             False,
                         )
                         speech_text += "\n\n" + speech_replaced
-                        contributions_extended = pd.concat(
-                            [contributions_extended, contributions_extended_frame],
-                            sort=False,
-                        )
-                        contributions_simplified = pd.concat(
-                            [contributions_simplified, contributions_simplified_frame],
-                            sort=False,
-                        )
+                        contributions_extended.append(contributions_extended_frame)
+                        contributions_simplified.append(contributions_simplified_frame)
 
                 speech_records.append(
                     {
@@ -397,6 +379,7 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
                 )
                 speech_content_id += 1
 
+        contributions_extended = pd.concat(contributions_extended, sort=False)
         contributions_extended.to_pickle(
             contributions_extended_output / (session_path.stem + ".pkl")
         )
@@ -405,6 +388,7 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
 
     speech_content.to_pickle(term_spoken_content / "speech_content.pkl")
 
+    contributions_simplified = pd.concat(contributions_extended, sort=False)
     contributions_simplified.to_pickle(
         contributions_simplified_output / "contributions_simplified.pkl"
     )

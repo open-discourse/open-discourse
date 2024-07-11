@@ -49,15 +49,12 @@ def clean_name_headers(filetext, names, contributions_extended_filter=False):
     Usually something like: "Präsident Dr. Lammert"
     Keep in mind this also deletes lines from voting lists.
     """
-    names = np.unique(names)
     if contributions_extended_filter:
-        for counter, name in enumerate(names):
-            names[counter] = regex.sub(r"[()\[\]\{\}]", "", name)
+        table = {ord(c):"" for c in "()[]{}"}
+        names = np.unique([name.translate(table) for name in names])
 
-    names_to_clean = "(" + "|".join(np.unique(names)) + ")"
-    names_to_clean = regex.sub(r"\+", "\\+", names_to_clean)
-    names_to_clean = regex.sub(r"\*", "\\*", names_to_clean)
-    names_to_clean = regex.sub(r"\?", "\\?", names_to_clean)
+    table = {ord("+"): "\\+", ord("*"): "\\*", ord("?"): "\\?"}
+    names_to_clean = ("(" + "|".join(names) + ")").translate(table)
     pattern = (
         r"\n((?:Parl\s?\.\s)?Staatssekretär(?:in)?|Bundeskanzler(?:in)?|Bundesminister(?:in)?|Staatsminister(:?in)?)?\s?"  # noqa: E501
         + names_to_clean
