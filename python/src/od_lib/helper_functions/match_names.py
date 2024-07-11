@@ -1,17 +1,15 @@
-from fuzzywuzzy import fuzz
-import numpy as np
 import pandas as pd
+import numpy as np
 import regex
-
+import Levenshtein
 
 # Note: This matching script is a total mess, I know. But it works quite fine and has
 # some optimization logic already included. Would still be nice to clean this up
 # a little together with the preceeding scripts.
 
-
-def get_fuzzy_names(df, name_to_check, fuzzy_threshold=70):
+def get_fuzzy_names(df, name_to_check, fuzzy_threshold=0.7):
     return df.loc[
-        df.last_name.apply(fuzz.ratio, args=[name_to_check]) >= fuzzy_threshold
+        df.last_name.apply(Levenshtein.ratio, args=[name_to_check]) >= fuzzy_threshold
     ]
 
 
@@ -80,7 +78,7 @@ def check_faction_id(df, index, possible_matches, faction_id):
 
 def check_location_info(df, index, possible_matches, constituency, fuzzy_threshold=70):
     possible_matches = possible_matches.loc[
-        possible_matches.constituency.apply(fuzz.ratio, args=[constituency])
+        possible_matches.constituency.apply(Levenshtein.ratio, args=[constituency])
         > fuzzy_threshold
     ]
 

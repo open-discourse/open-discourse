@@ -1,8 +1,9 @@
 from od_lib.helper_functions.clean_text import clean_name_headers
 import od_lib.definitions.path_definitions as path_definitions
+from od_lib.helper_functions.progressbar import progressbar
 import pandas as pd
 import sys
-import os
+import numpy as np
 import regex
 
 # Disabling pandas warnings.
@@ -15,7 +16,7 @@ FACTIONS = path_definitions.DATA_FINAL
 # output directory
 CONTRIBUTIONS_EXTENDED_OUTPUT = path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_02
 
-factions = pd.read_pickle(os.path.join(FACTIONS, "factions.pkl"))
+factions = pd.read_pickle(FACTIONS / "factions.pkl")
 
 
 faction_patterns = {
@@ -56,38 +57,30 @@ def get_faction_abbrev(faction, faction_patterns):
 
 
 # iterate over all electoral_term_folders
-for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_EXTENDED_INPUT)):
-
-    if "electoral_term" not in electoral_term_folder:
+for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
+    if not folder_path.is_dir():
         continue
+    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    if term_number is None:
+        continue
+    term_number = int(term_number.group(0))
+    if term_number < 14:
+        continue
+
     if len(sys.argv) > 1:
-        if (
-            str(int(regex.sub("electoral_term_", "", electoral_term_folder)))
-            not in sys.argv
-        ):
+        if str(term_number) not in sys.argv:
             continue
-    electoral_term_folder_path = os.path.join(
-        CONTRIBUTIONS_EXTENDED_INPUT, electoral_term_folder
-    )
 
-    print(electoral_term_folder)
-
-    save_path = os.path.join(CONTRIBUTIONS_EXTENDED_OUTPUT, electoral_term_folder)
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
+    save_path = CONTRIBUTIONS_EXTENDED_OUTPUT / folder_path.stem
+    save_path.mkdir(parents=True, exist_ok=True)
 
     # iterate over every contributions_extended file
-    for contributions_extended_file in sorted(os.listdir(electoral_term_folder_path)):
-        # checks if the file is a .pkl file
-        if ".pkl" not in contributions_extended_file:
-            continue
-
-        print(contributions_extended_file)
-
-        filepath = os.path.join(electoral_term_folder_path, contributions_extended_file)
-
+    for contrib_ext_file_path in progressbar(
+        folder_path.glob("*.pkl"),
+        f"Clean contributions (term {term_number:>2})...",
+    ):
         # read the spoken content csv
-        contributions_extended = pd.read_pickle(filepath)
+        contributions_extended = pd.read_pickle(contrib_ext_file_path)
 
         # Insert acad_title column and extract plain name and titles.
         # ADD DOCUMENTATION HERE
@@ -110,10 +103,7 @@ for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_EXTENDED_INPUT)):
         names = contributions_extended.name_raw.to_list()
         contributions_extended.content = contributions_extended.content.apply(
             clean_name_headers,
-            args=(
-                names,
-                True,
-            ),
+            args=(np.unique(names), True),
         )
 
         contributions_extended.reset_index(inplace=True, drop=True)
@@ -168,7 +158,7 @@ for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_EXTENDED_INPUT)):
                     politician_titles.remove(acad_title)
 
         # Get the first and last name based on the amount of elements.
-        for index, first_last in zip(range(len(first_last_titles)), first_last_titles):
+        for index, first_last in enumerate(first_last_titles):
             if len(first_last) == 1:
                 contributions_extended.first_name.iloc[index] = []
                 contributions_extended.last_name.iloc[index] = first_last[0]
@@ -191,17 +181,13 @@ for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_EXTENDED_INPUT)):
                 )
 
                 if faction_abbrev:
-                    contributions_extended.faction.at[index] = faction_abbrev
+                    contributions_extended.at[index, "faction"] = faction_abbrev
                     try:
-                        contributions_extended.faction_id.at[index] = int(
-                            factions.id.loc[
-                                factions.abbreviation == faction_abbrev
-                            ].iloc[0]
+                        contributions_extended.at[index, "faction_id"] = int(
+                            factions.loc[factions.abbreviation == faction_abbrev, "id"].iloc[0]
                         )
                     except IndexError:
-                        contributions_extended.faction_id.at[index] = -1
+                        contributions_extended.at[index, "faction_id"] = -1
 
         contributions_extended.drop(columns=["name_raw"])
-        contributions_extended.to_pickle(
-            os.path.join(save_path, contributions_extended_file)
-        )
+        contributions_extended.to_pickle(save_path / contrib_ext_file_path.name)

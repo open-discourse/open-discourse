@@ -2,9 +2,9 @@ from od_lib.helper_functions.match_names import (
     insert_politician_id_into_contributions_extended,
 )
 import od_lib.definitions.path_definitions as path_definitions
+from od_lib.helper_functions.progressbar import progressbar
 import pandas as pd
 import regex
-import os
 import sys
 
 # input directory
@@ -15,7 +15,7 @@ DATA_FINAL = path_definitions.DATA_FINAL
 CONTRIBUTIONS_EXTENDED_OUTPUT = path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_03
 
 # MDBS
-politicians = pd.read_csv(os.path.join(DATA_FINAL, "politicians.csv"))
+politicians = pd.read_csv(DATA_FINAL / "politicians.csv")
 politicians = politicians.loc[
     :,
     [
@@ -44,50 +44,36 @@ politicians.last_name = politicians.last_name.str.replace("ß", "ss", regex=Fals
 
 politicians.first_name = politicians.first_name.apply(str.split)
 
-problem_df = pd.DataFrame()
-
 # iterate over all electoral_term_folders __________________________________________________
-for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_EXTENDED_INPUT)):
-    working = []
-    if "electoral_term" not in electoral_term_folder:
+for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
+    if not folder_path.is_dir():
         continue
+    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    if term_number is None:
+        continue
+    term_number = int(term_number.group(0))
+
     if len(sys.argv) > 1:
-        if (
-            str(int(regex.sub("electoral_term_", "", electoral_term_folder)))
-            not in sys.argv
-        ):
+        if str(term_number) not in sys.argv:
             continue
-    electoral_term_folder_path = os.path.join(
-        CONTRIBUTIONS_EXTENDED_INPUT, electoral_term_folder
-    )
 
-    print(electoral_term_folder)
-
-    save_path = os.path.join(CONTRIBUTIONS_EXTENDED_OUTPUT, electoral_term_folder)
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
-
-    electoral_term = int(regex.sub("electoral_term_0?", "", electoral_term_folder))
+    save_path = CONTRIBUTIONS_EXTENDED_OUTPUT / folder_path.stem
+    save_path.mkdir(parents=True, exist_ok=True)
 
     # Only select politicians of the election period.
-    politicians_electoral_term = politicians.loc[
-        politicians.electoral_term == electoral_term
-    ]
+    politicians_electoral_term = politicians.loc[politicians.electoral_term == term_number]
     gov_members_electoral_term = politicians_electoral_term.loc[
         politicians_electoral_term.institution_type == "Regierungsmitglied"
     ]
 
+    working = []
     # iterate over every contributions_extended file
-    for contributions_extended_file in sorted(os.listdir(electoral_term_folder_path)):
-        print(contributions_extended_file)
-
-        # check if session file is a pickle file
-        if ".pkl" not in contributions_extended_file:
-            continue
-        filepath = os.path.join(electoral_term_folder_path, contributions_extended_file)
-
+    for contrib_ext_file_path in progressbar(
+        folder_path.glob("*.pkl"),
+        f"Match contributions (term {term_number:>2})...",
+    ):
         # read the contributions_extended pickle file
-        contributions_extended = pd.read_pickle(filepath)
+        contributions_extended = pd.read_pickle(contrib_ext_file_path)
 
         (
             contributions_extended_matched,
@@ -98,8 +84,4 @@ for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_EXTENDED_INPUT)):
             gov_members_electoral_term,
         )
 
-        problem_df = problem_df.append(problems, ignore_index=True, sort=True)
-
-        contributions_extended.to_pickle(
-            os.path.join(save_path, contributions_extended_file)
-        )
+        contributions_extended.to_pickle(save_path / contrib_ext_file_path.name)

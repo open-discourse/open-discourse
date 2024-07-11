@@ -1,34 +1,24 @@
 from sqlalchemy import create_engine
 import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
-import os
 import datetime
 
 
-engine = create_engine("postgresql://postgres:postgres@localhost:5432/next")
+engine = create_engine("postgresql://postgres:postgres@localhost:5432/postgres")
 
 # Load Final Data
 
-CONTRIBUTIONS_EXTENDED = os.path.join(
-    path_definitions.DATA_FINAL, "contributions_extended.pkl"
-)
-SPOKEN_CONTENT = os.path.join(path_definitions.DATA_FINAL, "speech_content.pkl")
-FACTIONS = os.path.join(path_definitions.DATA_FINAL, "factions.pkl")
-PEOPLE = os.path.join(path_definitions.DATA_FINAL, "politicians.csv")
-CONTRIBUTIONS_SIMPLIFIED = os.path.join(
-    path_definitions.CONTRIBUTIONS_SIMPLIFIED, "contributions_simplified.pkl"
-)
-CONTRIBUTIONS_SIMPLIFIED_WP19 = os.path.join(
-    path_definitions.CONTRIBUTIONS_SIMPLIFIED,
-    "electoral_term_19",
-    "contributions_simplified.pkl",
-)
-CONTRIBUTIONS_SIMPLIFIED_WP20 = os.path.join(
-    path_definitions.CONTRIBUTIONS_SIMPLIFIED,
-    "electoral_term_20",
-    "contributions_simplified.pkl",
-)
-ELECTORAL_TERMS = os.path.join(path_definitions.ELECTORAL_TERMS, "electoral_terms.csv")
+CONTRIBUTIONS_EXTENDED = path_definitions.DATA_FINAL / "contributions_extended.pkl"
+SPOKEN_CONTENT = path_definitions.DATA_FINAL / "speech_content.pkl"
+FACTIONS = path_definitions.DATA_FINAL / "factions.pkl"
+PEOPLE = path_definitions.DATA_FINAL / "politicians.csv"
+CONTRIBUTIONS_SIMPLIFIED = path_definitions.CONTRIBUTIONS_SIMPLIFIED \
+    / "contributions_simplified.pkl"
+CONTRIBUTIONS_SIMPLIFIED_WP19 = path_definitions.CONTRIBUTIONS_SIMPLIFIED \
+    / "electoral_term_19" / "contributions_simplified.pkl"
+CONTRIBUTIONS_SIMPLIFIED_WP20 = path_definitions.CONTRIBUTIONS_SIMPLIFIED \
+    / "electoral_term_20" / "contributions_simplified.pkl"
+ELECTORAL_TERMS = path_definitions.ELECTORAL_TERMS / "electoral_terms.csv"
 
 # Load data
 electoral_terms = pd.read_csv(ELECTORAL_TERMS)
