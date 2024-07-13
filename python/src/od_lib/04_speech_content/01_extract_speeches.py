@@ -81,7 +81,7 @@ for folder_path in sorted(RAW_TXT.iterdir()):
     patterns = [president_pattern, faction_speaker_pattern, minister_pattern]
 
     save_path = SPEECH_CONTENT_OUTPUT / folder_path.stem
-    save_path.mkdir(exist_ok=True)
+    save_path.mkdir(parents=True, exist_ok=True)
 
     # Walk over every session in the period.
     for session in progressbar(

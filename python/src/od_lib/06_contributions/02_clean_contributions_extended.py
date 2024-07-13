@@ -64,8 +64,6 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
     if term_number is None:
         continue
     term_number = int(term_number.group(0))
-    if term_number < 14:
-        continue
 
     if len(sys.argv) > 1:
         if str(term_number) not in sys.argv:

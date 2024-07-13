@@ -204,7 +204,10 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
                 speaker = speech[0].find("redner")
                 if speaker is None:
                     continue
-                speaker_id = int(speaker.get("id", -1))
+                try:
+                    speaker_id = int(speaker.get("id"))
+                except (ValueError, AttributeError):
+                    speaker_id = -1
                 name = speaker.find("name")
                 first_name = find_with_default(name, "vorname", "")
                 last_name = find_with_default(name, "nachname", "")
@@ -233,7 +236,7 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
                     # in factions df share same faction_id, so always the first
                     # one is chosen right now.
                     faction_id = int(
-                        factions.loc[factions.abbreviation == faction_abbrev, "id"].iloc[0]
+                        factions.loc[factions["abbreviation"] == faction_abbrev, "id"].iloc[0]
                     )
 
                 speech_text = ""
@@ -388,7 +391,7 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
 
     speech_content.to_pickle(term_spoken_content / "speech_content.pkl")
 
-    contributions_simplified = pd.concat(contributions_extended, sort=False)
+    contributions_simplified = pd.concat(contributions_simplified, sort=False)
     contributions_simplified.to_pickle(
         contributions_simplified_output / "contributions_simplified.pkl"
     )

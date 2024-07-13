@@ -110,7 +110,7 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
             continue
 
     save_path = SPEECH_CONTENT_OUTPUT / folder_path.stem
-    save_path.mkdir(exist_ok=True)
+    save_path.mkdir(parents=True, exist_ok=True)
 
     # iterate over every speech_content file
     for speech_content_file in progressbar(
@@ -226,7 +226,7 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
             if faction_abbrev:
                 try:
                     speech_content.faction_id.at[index] = int(
-                        factions.id.loc[factions.abbreviation == faction_abbrev].iloc[0]
+                        factions.loc[factions.abbreviation == faction_abbrev, "id"].iloc[0]
                     )
                 except IndexError:
                     speech_content.faction_id.at[index] = -1

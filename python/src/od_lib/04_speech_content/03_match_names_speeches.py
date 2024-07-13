@@ -56,7 +56,7 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
     term_number = int(term_number.group(0))
 
     save_path = SPEECH_CONTENT_OUTPUT / folder_path.stem
-    save_path.mkdir(exist_ok=True)
+    save_path.mkdir(parents=True, exist_ok=True)
 
     # Only select politicians of the election period.
     politicians_electoral_term = politicians.loc[

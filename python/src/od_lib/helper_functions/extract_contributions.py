@@ -4,6 +4,7 @@ import copy
 
 # Party Patterns:
 parties = {
+    "AfD": r"Alternative für Deutschland|AfD",
     "CDU/CSU": r"(?:Gast|-)?(?:\s*C\s*[DSMU]\s*S?[DU]\s*(?:\s*[/,':!.-]?)*\s*(?:\s*C+\s*[DSs]?\s*[UÙ]?\s*)?)(?:-?Hosp\.|-Gast|1)?",
     "SPD": r"\s*'?S(?:PD|DP)(?:\.|-Gast)?",
     "FDP": r"\s*F\.?\s*[PDO][.']?[DP]\.?",
@@ -138,6 +139,7 @@ def get_government_factions(electoral_term):
         17: ["CDU/CSU", "FDP"],
         18: ["CDU/CSU", "SPD"],
         19: ["CDU/CSU", "SPD"],
+        20: ["SPD", "BÜNDNIS 90/DIE GRÜNEN", "FDP"],
     }
 
     return government_electoral_term[electoral_term]

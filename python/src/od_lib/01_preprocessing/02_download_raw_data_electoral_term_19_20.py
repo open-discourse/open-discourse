@@ -20,11 +20,11 @@ election_periods = [
     },
 ]
 
-xml_links = []
+
 
 for election_period in election_periods:
     print(
-        f"Scraping links for election period {election_period['election_period']}...",
+        f"Scraping links for term {election_period['election_period']}...",
         end="",
         flush=True,
     )
@@ -33,7 +33,7 @@ for election_period in election_periods:
     )
     OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
     offset = 0
-
+    xml_links = []
     while True:
         URL = election_period["url"].format(str(offset))
         page = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"})
@@ -41,23 +41,25 @@ for election_period in election_periods:
         # scrape for links
         current_links = list(soup.find_all("a", attrs={"href": regex.compile("xml$")}))
         if len(current_links) != 0:
-            reached_end = False
             xml_links += current_links
             offset += len(current_links)
         else:
             break
     print("Done.")
 
-for link in progressbar(xml_links, "Downloading XML-files..."):
-    url = "https://www.bundestag.de" + link.get("href")
-    page = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
-    session = regex.search(r"\d{5}(?=\.xml)", url).group(0)
+    for link in progressbar(
+        xml_links,
+        f"Download XML-files for term {election_period['election_period']}...",
+    ):
+        url = "https://www.bundestag.de" + link.get("href")
+        page = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+        session = regex.search(r"\d{5}(?=\.xml)", url).group(0)
 
-    with open(OUTPUT_PATH / (session + ".xml"), "w") as file:
-        file.write(
-            regex.sub(
-                "</sub>",
-                "",
-                regex.sub("<sub>", "", page.content.decode("utf-8")),
+        with open(OUTPUT_PATH / (session + ".xml"), "w") as file:
+            file.write(
+                regex.sub(
+                    "</sub>",
+                    "",
+                    regex.sub("<sub>", "", page.content.decode("utf-8")),
+                )
             )
-        )

@@ -64,7 +64,7 @@ series = {
     "academic_title": None,
 }
 
-politicians = politicians.append(pd.Series(series), ignore_index=True)
+politicians = pd.concat([politicians, pd.Series(series)], ignore_index=True)
 
 
 def convert_date_politicians(date):
