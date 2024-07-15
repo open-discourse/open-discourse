@@ -44,7 +44,7 @@ export const useManageData = () => {
           searchResult.data.searchSpeeches.map((user: { id: number }) => ({
             ...user,
             downloadId: user.id,
-          }))
+          })),
         );
       }
       setLoading(false);

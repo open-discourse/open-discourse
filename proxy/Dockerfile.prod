@@ -1,7 +1,7 @@
-FROM node:12
+FROM node:20
 
-RUN apt-get update \
-    && apt-get install -y chromium libatk-bridge2.0-0 libxkbcommon-x11-0 libgbm1 libgtk-3-0 --no-install-recommends
+RUN apt update \
+  && apt install --no-install-recommends -y chromium
 
 COPY . /srv
 

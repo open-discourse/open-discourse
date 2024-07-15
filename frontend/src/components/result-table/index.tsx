@@ -36,7 +36,7 @@ export const ResultTable = ({ data }: ResultTableProps) => {
           };
       }
     },
-    Object.fromEntries(data.map((element) => [element.downloadId, false]))
+    Object.fromEntries(data.map((element) => [element.downloadId, false])),
   );
 
   const columns = [

@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 
 export const useGetData = <T,>(
   path: string,
-  responseCallback: (response: any) => T
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  responseCallback: (response: any) => T,
 ): [T | undefined, () => void] => {
   const [data, setData] = useState<T>();
   const fetchQuery = () => {

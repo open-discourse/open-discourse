@@ -8,21 +8,24 @@
     "db:update:digitalocean": "ts-node -r dotenv/config ./src/model/dbUpdate.ts dotenv_config_path=./.env.digitalocean",
     "db:dump:schema": "pg_dump -s -O -f schema.sql postgres://postgres:postgres@localhost:5432/next",
     "db:dump:data": "pg_dump --column-inserts --data-only -f data.sql postgres://postgres:postgres@localhost:5432/next",
-    "format": "prettier --write \"./**/*.{ts,js,json,md}\" --ignore-path ../.prettierignore",
-    "lint": "eslint . --ext .js,.ts --ignore-path='../.eslintignore'",
+    "format": "prettier . --write",
+    "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {},
   "devDependencies": {
-    "@types/pg": "7.14.3",
-    "dotenv": "8.2.0",
-    "pg": "7.18.2",
-    "ts-node": "8.8.1",
-    "prettier": "^1.19.1",
-    "typescript": "3.8.3",
-    "eslint": "^6.7.0"
+    "@eslint/js": "^9.7.0",
+    "@types/pg": "8.11.6",
+    "dotenv": "16.4.5",
+    "eslint": "9.x",
+    "globals": "^15.8.0",
+    "pg": "8.11.6",
+    "prettier": "^3.3.3",
+    "ts-node": "10.9.2",
+    "typescript-eslint": "^7.16.0",
+    "typescript": "5.5.3"
   },
   "engines": {
-    "node": "^12.0"
+    "node": "^20.9"
   }
 }

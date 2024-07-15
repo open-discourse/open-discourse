@@ -4,6 +4,7 @@ import {
   InputLeftAddon,
   InputRightElement,
 } from "@chakra-ui/react";
+import React from "react";
 import { CalendarIcon } from "@chakra-ui/icons";
 import { ChangeEvent } from "react";
 import {
@@ -33,7 +34,7 @@ export const DefaultDateInput = ({
 }: DefaultDateInputProps) => {
   return (
     <InputGroup>
-      <InputLeftAddon children={prefix} />
+      <InputLeftAddon>{prefix}</InputLeftAddon>
       <Input
         value={value}
         placeholder="YYYY-MM-DD"
@@ -41,7 +42,7 @@ export const DefaultDateInput = ({
         focusBorderColor="pink.500"
         onChange={onChange}
       />
-      <InputRightElement children={<CalendarIcon color="pink.500" />} />
+      <InputRightElement>{<CalendarIcon color="pink.500" />}</InputRightElement>
     </InputGroup>
   );
 };

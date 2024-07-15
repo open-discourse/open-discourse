@@ -28,12 +28,13 @@ interface PageState {
 }
 
 type TableIconButtonProps = {
-  icon: any;
+  icon: React.ReactElement;
   onClick:
     | ((event: React.MouseEvent<HTMLElement, MouseEvent>) => void)
     | undefined;
   isDisabled: boolean;
   colorScheme?: string;
+  children?: React.ReactNode;
 };
 export const TableIconButton: React.FC<TableIconButtonProps> = ({
   icon,
@@ -82,7 +83,7 @@ export const ResultMobile = ({
         {data
           .slice(
             pageState.pageIndex * pageState.pageSize,
-            pageState.pageIndex * pageState.pageSize + pageState.pageSize
+            pageState.pageIndex * pageState.pageSize + pageState.pageSize,
           )
           .map((row) => (
             <ResultBox
