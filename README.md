@@ -32,16 +32,13 @@
 
 - [GitHub Sponsors](https://github.com/sponsors/open-discourse)
 - [Patreon](https://www.patreon.com/opendiscourse)
+- Grants or institutional funding
 
 We sincerely appreciate any financial support which will help us continue improving this project.
 
 ### Contributing
 
-While we are not actively developing at the moment, contributions from the open-source community are incredibly valuable and encouraged. If you have ideas, bug fixes, or improvements, please feel free to:
-
-1. Fork the repository
-2. Create a new branch for your feature or fix
-3. Submit a pull request with a detailed description of your changes
+While we are not actively developing at the moment, contributions from the open-source community are incredibly valuable and encouraged. If you have ideas, bug fixes, or improvements, please feel free create an issue or open a pull request!
 
 Thank you for your support and contributions! Together, we can keep this project moving forward.
 
