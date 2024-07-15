@@ -1,6 +1,7 @@
 import { Flex, ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { createBreakpoints } from "@chakra-ui/theme-tools";
 import { Header } from "./components/header";
+import React from "react";
 
 const breakpoints = createBreakpoints({
   sm: "480px",
@@ -25,7 +26,9 @@ const extendedTheme = {
 };
 const customTheme = extendTheme(extendedTheme);
 
-export const BaseTemplate: React.FC = ({ children }) => {
+export const BaseTemplate: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   return (
     <ChakraProvider resetCSS={true} theme={customTheme}>
       <Flex direction="column">

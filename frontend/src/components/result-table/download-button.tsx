@@ -1,6 +1,7 @@
 import { SearchResultRow } from "../hooks/use-manage-data";
 import { DownloadIcon } from "@chakra-ui/icons";
 import { DefaultButton } from "@bit/limebit.limebit-ui.default-button";
+import React from "react";
 
 export interface DownloadButtonProps {
   data: SearchResultRow[];
@@ -18,18 +19,18 @@ export const DownloadButton = ({ data, text }: DownloadButtonProps) => (
               .map(
                 (element) =>
                   `${JSON.stringify(element.id)},${JSON.stringify(
-                    element.firstName
+                    element.firstName,
                   )},${JSON.stringify(element.lastName)},${JSON.stringify(
-                    element.abbreviation
+                    element.abbreviation,
                   )},${JSON.stringify(element.positionShort)},${JSON.stringify(
-                    element.date
+                    element.date,
                   )},${JSON.stringify(element.documentUrl)},${JSON.stringify(
-                    element.speechContent
-                  )}\n`
+                    element.speechContent,
+                  )}\n`,
               )
-              .reduce((a, b) => a + b, "")
-        )
-      )
+              .reduce((a, b) => a + b, ""),
+        ),
+      ),
     )}`}
   >
     <DefaultButton rightIcon={<DownloadIcon />} colorScheme="pink">

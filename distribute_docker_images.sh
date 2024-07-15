@@ -2,28 +2,38 @@
 
 echo "Make sure to be logged into the github package registry"
 
-REGISTRY="docker.pkg.github.com/open-discourse/open-discourse"
+REGISTRY="ghcr.io/open-discourse/open-discourse/open-discourse"
+
+docker buildx create \
+  --name container \
+  --driver=docker-container 2>/dev/null
 
 cd database
 : ${REVISION_DATABASE:="$(node -p "require('./package.json').version")"}
-docker build --file Dockerfile.prod --tag "database:$REVISION_DATABASE" --tag "database:latest" --progress plain .
-docker tag "database:latest" "$REGISTRY/database:latest"
-docker tag "database:$REVISION_DATABASE" "$REGISTRY/database:$REVISION_DATABASE"
-docker push "$REGISTRY/database:latest"
-docker push "$REGISTRY/database:$REVISION_DATABASE"
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --file Dockerfile.prod \
+  --tag "$REGISTRY/database:$REVISION_DATABASE" --tag "$REGISTRY/database:latest" \
+  --builder=container \
+  --push \
+  --progress plain .
 
 cd ../frontend
 : ${REVISION_FRONTEND:="$(node -p "require('./package.json').version")"}
-docker build --file Dockerfile.prod --tag "frontend:$REVISION_FRONTEND" --tag "frontend:latest" --progress plain .
-docker tag "frontend:latest" "$REGISTRY/frontend:latest"
-docker tag "frontend:$REVISION_FRONTEND" "$REGISTRY/frontend:$REVISION_FRONTEND"
-docker push "$REGISTRY/frontend:latest"
-docker push "$REGISTRY/frontend:$REVISION_FRONTEND"
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --file Dockerfile.prod \
+  --tag "$REGISTRY/frontend:$REVISION_FRONTEND" --tag "$REGISTRY/frontend:latest" \
+  --builder=container \
+  --push \
+  --progress plain .
 
 cd ../proxy
 : ${REVISION_PROXY:="$(node -p "require('./package.json').version")"}
-docker build --file Dockerfile.prod --tag "proxy:$REVISION_PROXY" --tag "proxy:latest" --progress plain .
-docker tag "proxy:latest" "$REGISTRY/proxy:latest"
-docker tag "proxy:$REVISION_PROXY" "$REGISTRY/proxy:$REVISION_PROXY"
-docker push "$REGISTRY/proxy:latest"
-docker push "$REGISTRY/proxy:$REVISION_PROXY"
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --file Dockerfile.prod \
+  --tag "$REGISTRY/proxy:$REVISION_PROXY" --tag "$REGISTRY/proxy:latest" \
+  --builder=container \
+  --push \
+  --progress plain .

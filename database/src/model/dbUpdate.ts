@@ -7,7 +7,7 @@ const isTestMode = process.env.NODE_ENV === "test";
 export enum DATABASE {
   root = "postgres",
   next = "next",
-  test = "test"
+  test = "test",
 }
 
 const pool = new Pool({
@@ -15,7 +15,7 @@ const pool = new Pool({
   host: process.env.DB_HOST,
   database: DATABASE.next,
   password: process.env.DB_PASSWORD,
-  port: Number(process.env.DB_PORT) || 5432
+  port: Number(process.env.DB_PORT) || 5432,
 });
 
 // FIXME: order matters. Create dependency handling
@@ -33,12 +33,12 @@ const FILES = [
   ["misc", "fts_tracking.sql"],
   ["misc", "topic_tracking.sql"],
   ["lda_group", "__init.sql"],
-  ["lda_person", "__init.sql"]
+  ["lda_person", "__init.sql"],
 ];
 
 export const closeAllOtherConnections = async (
   client: Client,
-  dbName: DATABASE
+  dbName: DATABASE,
 ): Promise<unknown> => {
   return client.query(`
     SELECT pg_terminate_backend(pg_stat_activity.pid)
@@ -54,7 +54,7 @@ const resetDB = async (dbName: DATABASE): Promise<unknown> => {
     host: process.env.DB_HOST,
     database: DATABASE.root,
     password: process.env.DB_PASSWORD,
-    port: Number(process.env.DB_PORT) || 5432
+    port: Number(process.env.DB_PORT) || 5432,
   });
   client.connect();
   // Drop all other connections except ours
@@ -67,14 +67,13 @@ const resetDB = async (dbName: DATABASE): Promise<unknown> => {
 };
 
 export const importModels = async (pool: Pool): Promise<unknown> => {
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
+  // eslint-disable-next-line no-async-promise-executor
   return new Promise<void>(async (resolve, reject) => {
     try {
       for (const file of FILES) {
         const filepath = path.join(__dirname, ...file);
         const data = fs.readFileSync(filepath, { encoding: "utf-8" });
         if (!isTestMode) {
-          // eslint-disable-next-line no-console
           console.log(`execute: ${filepath}: \n`, data);
         }
         await pool.query(data);

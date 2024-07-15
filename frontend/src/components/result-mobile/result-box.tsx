@@ -22,7 +22,6 @@ export const ResultBox = ({ data }: ResultBoxProps) => {
     lg: "4",
     xl: "5",
   });
-  const slicePoint = useBreakpointValue({ base: 40, sm: 80, md: 120 });
   const { isOpen, onOpen, onClose } = useDisclosure();
   const datestring = data.date && new Date(data.date).toLocaleDateString();
   return (

@@ -1,15 +1,17 @@
 import RateLimit from "express-rate-limit";
 import { Pool, PoolClient } from "pg";
 import express = require("express");
-import puppeteer from "puppeteer";
+import * as puppeteer from "puppeteer";
 import mcache from "memory-cache";
 import { v4 } from "uuid";
-import AWS from "aws-sdk";
+import { S3 } from "@aws-sdk/client-s3";
 import cors from "cors";
 
-const zip = (arr: any[], ...arrs: any[]): any[] => {
-  return arr.map((val, i) => arrs.reduce((a, arr) => [...a, arr[i]], [val]));
-};
+const zip = <T, L>(array1: T[], array2: L[]): [T, L][] =>
+  Array.from({ length: Math.min(array1.length, array2.length) }).map((_, i) => [
+    array1[i],
+    array2[i],
+  ]);
 
 const app = express();
 
@@ -19,7 +21,7 @@ app.use(
   RateLimit({
     windowMs: 1 * 60 * 1000,
     max: 60,
-  })
+  }),
 );
 
 const pool = new Pool({
@@ -48,19 +50,19 @@ const cache = (duration: number) => {
   return (
     req: express.Request,
     res: express.Response,
-    next: express.NextFunction
+    next: express.NextFunction,
   ) => {
     const key = "__express__" + req.originalUrl || req.url;
     // Save the tracking data in the persistent database (if possible)
     if ((req.originalUrl || req.url).startsWith("/?")) {
       (persistent_pool ?? pool).query(
         `INSERT INTO misc.fts_tracking (search_query) VALUES ($1)`,
-        [req.originalUrl || req.url]
+        [req.originalUrl || req.url],
       );
     } else if ((req.originalUrl || req.url).startsWith("/topicmodelling?")) {
       (persistent_pool ?? pool).query(
         `INSERT INTO misc.topic_tracking (search_query) VALUES ($1)`,
-        [req.originalUrl || req.url]
+        [req.originalUrl || req.url],
       );
     }
     const cachedBody = JSON.parse(mcache.get(key));
@@ -105,11 +107,11 @@ app.get(
         fromDate,
         toDate,
         process.env.QUERY_LIMIT || "50",
-      ]
+      ],
     );
     res.setHeader("Content-Type", "application/json");
     res.send({ data: { searchSpeeches: result.rows } });
-  }
+  },
 );
 
 app.get(
@@ -117,11 +119,11 @@ app.get(
   cache((process.env.CACHE_EXPIRATION as unknown as number) || 1),
   async (_req, res) => {
     const result = await pool.query(
-      'SELECT id, first_name AS "firstName", last_name AS "lastName" FROM open_discourse.politicians'
+      'SELECT id, first_name AS "firstName", last_name AS "lastName" FROM open_discourse.politicians',
     );
     res.setHeader("Content-Type", "application/json");
     res.send(JSON.stringify({ data: { politicians: result.rows } }));
-  }
+  },
 );
 
 app.get(
@@ -138,12 +140,12 @@ app.get(
       `SELECT *
        FROM   open_discourse.politicians
        WHERE  id = $1`,
-      [politicianIdParsed]
+      [politicianIdParsed],
     );
 
     res.setHeader("Content-Type", "application/json");
     res.send(JSON.stringify({ data: { politician: result.rows[0] } }));
-  }
+  },
 );
 
 app.get(
@@ -151,11 +153,11 @@ app.get(
   cache((process.env.CACHE_EXPIRATION as unknown as number) || 1),
   async (_req, res) => {
     const result = await pool.query(
-      'SELECT id, full_name AS "fullName", abbreviation FROM open_discourse.factions'
+      'SELECT id, full_name AS "fullName", abbreviation FROM open_discourse.factions',
     );
     res.setHeader("Content-Type", "application/json");
     res.send(JSON.stringify({ data: { factions: result.rows } }));
-  }
+  },
 );
 
 app.get(
@@ -172,12 +174,12 @@ app.get(
       `SELECT *
        FROM   open_discourse.factions
        WHERE  id = $1`,
-      [factionIdParsed]
+      [factionIdParsed],
     );
 
     res.setHeader("Content-Type", "application/json");
     res.send(JSON.stringify({ data: { faction: result.rows[0] } }));
-  }
+  },
 );
 
 interface argsType {
@@ -192,12 +194,12 @@ interface constraintsType {
   [schema: string]: { [property: string]: string[] };
 }
 
-let dims: dimsType = {};
-let constraints: constraintsType = {};
+const dims: dimsType = {};
+const constraints: constraintsType = {};
 
 const getConstraints = async (
   schema: string,
-  client: PoolClient
+  client: PoolClient,
 ): Promise<constraintsType> => {
   const res = await client.query(
     `SELECT
@@ -212,12 +214,12 @@ const getConstraints = async (
             ON ccu.constraint_name = tc.constraint_name
             AND ccu.table_schema = tc.table_schema
         WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_schema=$1`,
-    [schema]
+    [schema],
   );
   if (!(schema in constraints)) {
     constraints[schema] = {};
   }
-  for (let part of res.rows as { [property: string]: string }[]) {
+  for (const part of res.rows as { [property: string]: string }[]) {
     if (part["table_name"] in constraints[schema]) {
       constraints[schema][part["table_name"]].push(part["column_name"]);
     } else {
@@ -229,11 +231,11 @@ const getConstraints = async (
 
 const getDims = async (
   schema: string,
-  client: PoolClient
+  client: PoolClient,
 ): Promise<dimsType> => {
   const res = await client.query(`SELECT table_name, n FROM ${schema}.dims`);
   dims[schema] = Object.fromEntries(
-    res.rows.map((element) => [element["table_name"], +element["n"]])
+    res.rows.map((element) => [element["table_name"], +element["n"]]),
   );
   return dims;
 };
@@ -241,13 +243,13 @@ const getDims = async (
 const queryData = async (
   args: argsType,
   schema: string,
-  client: PoolClient
+  client: PoolClient,
 ): Promise<number[]> => {
   const dim =
     schema in dims ? dims[schema] : (await getDims(schema, client))[schema];
   const keys = Object.keys(dim);
-  let cache = [];
-  for (let tuple of zip(keys.slice(1), keys.slice(0, -1))) {
+  const cache = [];
+  for (const tuple of zip(keys.slice(1), keys.slice(0, -1))) {
     const nextKey = tuple[0] as string;
     const lastKey = tuple[1] as string;
     const constraint =
@@ -259,16 +261,16 @@ const queryData = async (
         `INNER JOIN ${schema}.${nextKey} ON ${schema}.${nextKey}.id=${schema}.${lastKey}.${
           // Workaround to prevent unsanitized user input
           constraint[constraint.indexOf(args[nextKey])]
-        }`
+        }`,
       );
     } else {
       cache.push(
         `INNER JOIN ${schema}.${nextKey} ON (${constraint
           .map(
             (element) =>
-              `${schema}.${nextKey}.id=${schema}.${lastKey}.${element}`
+              `${schema}.${nextKey}.id=${schema}.${lastKey}.${element}`,
           )
-          .join(" OR ")})`
+          .join(" OR ")})`,
       );
     }
   }
@@ -278,17 +280,17 @@ const queryData = async (
     }.n FROM ${schema}.${keys[0]} ${cache.join(" ")} WHERE ${schema}.${
       keys[0]
     }.id=$1`,
-    [args[keys[0]]]
+    [args[keys[0]]],
   );
   const data = res.rows.map((element) =>
-    isNaN(element.value) ? [0, +element.n] : [element.value, +element.n]
+    isNaN(element.value) ? [0, +element.n] : [element.value, +element.n],
   );
   const dataPoints = [...Array(dim[keys[keys.length - 1]]).keys()].map(
     (firstIndex) =>
       data.filter(
         (_, secondIndex) =>
-          secondIndex % dim[keys[keys.length - 1]] == firstIndex
-      )
+          secondIndex % dim[keys[keys.length - 1]] == firstIndex,
+      ),
   );
   return dataPoints.map((element) => {
     const combined_weight = element.reduce((acc, el) => acc + el[1], 0);
@@ -324,12 +326,12 @@ app.get(
     const client = await pool.connect();
     try {
       const schema = "politicians" in req.query ? "lda_person" : "lda_group";
-      let result = {
+      const result = {
         data: (await queryData(req.query as argsType, schema, client)).map(
           (y, x) => ({
             x: 1949 + x,
             y: y,
-          })
+          }),
         ) as dataType[],
         markers:
           "topics" in req.query && (req.query["topics"] as string) in markers
@@ -342,20 +344,20 @@ app.get(
             .map(
               (constraint) =>
                 constraint in req.query &&
-                element.constraints[constraint] == req.query[constraint]
+                element.constraints[constraint] == req.query[constraint],
             )
-            .every(Boolean)
+            .every(Boolean),
         )
         .map(
           (element) =>
-            (result.data[element.index].annotation = element.annotation)
+            (result.data[element.index].annotation = element.annotation),
         );
       res.setHeader("Content-Type", "application/json");
       res.send(JSON.stringify(result));
     } finally {
       client.release();
     }
-  }
+  },
 );
 
 app.get(
@@ -416,7 +418,7 @@ app.get(
     } finally {
       browser.close();
     }
-  }
+  },
 );
 
 app.get(
@@ -429,12 +431,12 @@ app.get(
                        date
          FROM   open_discourse.speeches
          ORDER  BY electoral_term,
-                   session`
+                   session`,
     );
 
     res.setHeader("Content-Type", "application/json");
     res.send(JSON.stringify({ data: { sessionIds: result.rows } }));
-  }
+  },
 );
 
 app.get(
@@ -472,12 +474,12 @@ app.get(
        WHERE electoral_term = $1
              AND session = $2
        ORDER BY id`,
-      [electoralTermParsed, sessionParsed]
+      [electoralTermParsed, sessionParsed],
     );
 
     res.setHeader("Content-Type", "application/json");
     res.send(JSON.stringify({ data: { speeches: result.rows } }));
-  }
+  },
 );
 
 interface uploadImageProps {
@@ -487,11 +489,12 @@ interface uploadImageProps {
 }
 
 const uploadImage = ({ endpoint, imageBuffer, id }: uploadImageProps) => {
-  const spacesEndpoint = new AWS.Endpoint(endpoint);
-  const s3 = new AWS.S3({
-    endpoint: spacesEndpoint,
-    accessKeyId: process.env.ACCESS_KEY,
-    secretAccessKey: process.env.SECRET_KEY,
+  const s3 = new S3({
+    endpoint,
+    credentials: {
+      accessKeyId: process.env.ACCESS_KEY!,
+      secretAccessKey: process.env.SECRET_KEY!,
+    },
   });
 
   s3.putObject(
@@ -504,7 +507,7 @@ const uploadImage = ({ endpoint, imageBuffer, id }: uploadImageProps) => {
     function (err, data) {
       if (err) console.log(err, err.stack);
       else console.log(data);
-    }
+    },
   );
 };
 
@@ -543,7 +546,7 @@ const screenshotDOMElement = async ({
             width: rect.width + padding * 2,
             height: rect.height + padding * 2,
           },
-        })
+        }),
       );
     }, 2000);
   });

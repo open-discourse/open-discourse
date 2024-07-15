@@ -2,17 +2,15 @@
 
 You can easily setup the Database and other Services using these Docker Images:
 
-- [Database Image](https://github.com/open-discourse/open-discourse/packages/471468)
-- [Proxy Image](https://github.com/open-discourse/open-discourse/packages/474204)
-- [Frontend Image](https://github.com/open-discourse/open-discourse/packages/490931)
+- [Database Image](https://github.com/open-discourse/open-discourse/pkgs/container/open-discourse%2Fdatabase)
+- [Proxy Image](https://github.com/open-discourse/open-discourse/pkgs/container/open-discourse%2Fproxy)
+- [Frontend Image](https://github.com/open-discourse/open-discourse/pkgs/container/open-discourse%2Ffrontend)
 
 To connect all of the Images, you can use `docker-compose`.
 
 Sample `docker-compose.yml`:
 
 ```yaml
-version: "2.1"
-
 services:
   database:
     container_name: od-database

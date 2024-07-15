@@ -9,6 +9,7 @@ import {
   DefaultSelectInput,
 } from "./custom-inputs";
 import { DefaultButton } from "@bit/limebit.limebit-ui.default-button";
+import React from "react";
 
 export interface Faction {
   id: string;
@@ -36,24 +37,25 @@ export const SearchForm: React.FC<FormParams> = () => {
   const [formParams, setFormParams] = useState<FormParams>({});
   const [politicians] = useGetData<Politician[]>(
     `politicians`,
-    (response) => response.politicians
+    (response) => response.politicians,
   );
   const [factions] = useGetData<Faction[]>(
     `factions`,
-    (response) => response.factions
+    (response) => response.factions,
   );
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     // do not refresh entire page
     event.preventDefault();
     // remove empty values from search string
-    const searchValues: { [key: string]: any } = { ...formParams };
-    Object.keys(searchValues).forEach(
-      (key) =>
-        searchValues[key] === (undefined || "") && delete searchValues[key]
-    );
+    const searchValues: { [key: string]: unknown } = { ...formParams };
+    Object.keys(searchValues).forEach((key) => {
+      if (searchValues[key] === undefined || searchValues[key] === "") {
+        delete searchValues[key];
+      }
+    });
     router.push(
-      `/?${queryString.stringify(JSON.parse(JSON.stringify(searchValues)))}`
+      `/?${queryString.stringify(JSON.parse(JSON.stringify(searchValues)))}`,
     );
   };
 
@@ -87,7 +89,7 @@ export const SearchForm: React.FC<FormParams> = () => {
   const convertedFactions = factions
     ? factions
         .filter(
-          (faction) => !["1", "8", "9", "10", "12", "19"].includes(faction.id)
+          (faction) => !["1", "8", "9", "10", "12", "19"].includes(faction.id),
         )
         .map((faction) => ({
           key: faction.id,
@@ -125,7 +127,7 @@ export const SearchForm: React.FC<FormParams> = () => {
                   formParams.politicianIdQuery
                     ? convertedPoliticians.find(
                         (politician) =>
-                          politician.key == formParams.politicianIdQuery
+                          politician.key == formParams.politicianIdQuery,
                       )
                     : undefined
                 }
@@ -142,7 +144,7 @@ export const SearchForm: React.FC<FormParams> = () => {
                 initialValue={
                   formParams.factionIdQuery
                     ? convertedFactions.find(
-                        (faction) => faction.key == formParams.factionIdQuery
+                        (faction) => faction.key == formParams.factionIdQuery,
                       )
                     : undefined
                 }
@@ -160,7 +162,7 @@ export const SearchForm: React.FC<FormParams> = () => {
                   formParams.positionShortQuery
                     ? positions.find(
                         (position) =>
-                          position.key == formParams.positionShortQuery
+                          position.key == formParams.positionShortQuery,
                       )
                     : undefined
                 }
