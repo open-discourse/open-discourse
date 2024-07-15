@@ -11,6 +11,7 @@
 
 # Table of Content
 
+- [Project Status](#project-status)
 - [Project Info](#project-info)
 - [Repository Structure](#repository-structure)
 - [Docker Setup](#docker-setup)
@@ -24,6 +25,22 @@
     - [Run Frontend locally](#run-frontend-locally)
 - [Further Documentation](#further-documentation)
 - [Notes](#notes)
+
+## Project Status
+
+**Note:** This repository is currently **not under active development**. We hope to resume development in the future if we can secure funding through the following platforms:
+
+- [GitHub Sponsors](https://github.com/sponsors/open-discourse)
+- [Patreon](https://www.patreon.com/opendiscourse)
+- Grants or institutional funding
+
+We sincerely appreciate any financial support which will help us continue improving this project.
+
+### Contributing
+
+While we are not actively developing at the moment, contributions from the open-source community are incredibly valuable and encouraged. If you have ideas, bug fixes, or improvements, please feel free create an issue or open a pull request!
+
+Thank you for your support and contributions! Together, we can keep this project moving forward.
 
 ## Project Info
 
