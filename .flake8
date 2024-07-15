@@ -1,6 +1,0 @@
-[flake8]
-ignore = E203, W503
-per-file-ignores =
-    python/src/od_lib/helper_functions/extract_contributions.py: E501,
-    python/src/od_lib/helper_functions/match_names.py: E501,
-    python/src/od_lib/04_speech_content/01_extract_speeches.py: E501,
