@@ -11,6 +11,7 @@
 
 # Table of Content
 
+- [Project Status](#project-status)
 - [Project Info](#project-info)
 - [Repository Structure](#repository-structure)
 - [Docker Setup](#docker-setup)
@@ -25,6 +26,22 @@
 - [Further Documentation](#further-documentation)
 - [Notes](#notes)
 
+## Project Status
+
+**Note:** This repository is currently **not under active development**. We hope to resume development in the future if we can secure funding through the following platforms:
+
+- [GitHub Sponsors](https://github.com/sponsors/open-discourse)
+- [Patreon](https://www.patreon.com/opendiscourse)
+- Grants or institutional funding
+
+We sincerely appreciate any financial support which will help us continue improving this project.
+
+### Contributing
+
+While we are not actively developing at the moment, contributions from the open-source community are incredibly valuable and encouraged. If you have ideas, bug fixes, or improvements, please feel free create an issue or open a pull request!
+
+Thank you for your support and contributions! Together, we can keep this project moving forward.
+
 ## Project Info
 
 The platform is our contribution to democratizing access to political debates and issues.
@@ -32,6 +49,8 @@ The platform is our contribution to democratizing access to political debates an
 Open Discourse is a non-profit project of the employees of Limebit GmbH. The idea emerged from the skills and motivations of the employees, in break conversations and from the common ideas of democracy.
 
 We hope that through our preliminary work, data-based journalism, science and civil society will benefit and that the facilitated access to data will encourage to analyze the political history of the Bundestag based on the language used by politicians.
+
+We are happy for every financial support via: https://www.patreon.com/opendiscourse/ or https://github.com/sponsors/open-discourse
 
 ## Repository Structure
 
