@@ -359,7 +359,7 @@ app.get(
 );
 
 app.get(
-  "/screenshot",
+  "/screenshots",
   cache((process.env.CACHE_EXPIRATION as unknown as number) || 1),
   async (req, res) => {
     const {
@@ -388,30 +388,34 @@ app.get(
     await page.goto(url as string, {
       waitUntil: "networkidle2",
     });
-    const imageBuffer = await screenshotDOMElement({
-      path:
-        !process.env.ACCESS_KEY ||
-        !process.env.SECRET_KEY ||
-        !process.env.ENDPOINT
-          ? process.env.IMAGE_PATH
-            ? `${process.env.IMAGE_PATH}/${random_id}.jpg`
-            : `./src/${random_id}.jpg`
-          : undefined,
-      selector: (selector as string) || "#topic-modelling-line-graph",
-      padding: 16,
-      page: page,
-    });
-    browser.close();
-    if (
-      process.env.ACCESS_KEY &&
-      process.env.SECRET_KEY &&
-      process.env.ENDPOINT
-    )
-      uploadImage({
-        endpoint: process.env.ENDPOINT,
-        imageBuffer: imageBuffer as Buffer,
-        id: random_id,
+    try {
+      const imageBuffer = await screenshotDOMElement({
+        path:
+          !process.env.ACCESS_KEY ||
+          !process.env.SECRET_KEY ||
+          !process.env.ENDPOINT
+            ? process.env.IMAGE_PATH
+              ? `${process.env.IMAGE_PATH}/${random_id}.jpg`
+              : `./src/${random_id}.jpg`
+            : undefined,
+        selector: (selector as string) || "#topic-modelling-line-graph",
+        padding: 16,
+        page: page,
       });
+
+      if (
+        process.env.ACCESS_KEY &&
+        process.env.SECRET_KEY &&
+        process.env.ENDPOINT
+      )
+        uploadImage({
+          endpoint: process.env.ENDPOINT,
+          imageBuffer: imageBuffer as Buffer,
+          id: random_id,
+        });
+    } finally {
+      browser.close();
+    }
   }
 );
 
