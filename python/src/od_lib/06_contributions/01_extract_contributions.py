@@ -63,7 +63,7 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
 
         extended_list = []
         # iterate over every speech
-        for counter, speech in zip(speech_content.index, speech_content.speech_content):
+        for counter, speech in zip(speech_content.index, speech_content["speech_content"]):
             # call the extract method which returns the cleaned speech and a
             # dataframe with all contributions in that particular speech
 

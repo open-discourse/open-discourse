@@ -143,8 +143,8 @@ for folder_path in sorted(RAW_TXT.iterdir()):
         session_df = session_df.sort_values(by="span_begin")
 
         # Cut out the speech_contents between the matched patterns.
-        speech_beginnings = session_df.span_end.to_list()
-        speech_endings = session_df.span_begin.to_list()[1:]
+        speech_beginnings = session_df["span_end"].to_list()
+        speech_endings = session_df["span_begin"].to_list()[1:]
         speech_endings.append(len(session_content))
 
         for begin, end in zip(speech_beginnings, speech_endings):

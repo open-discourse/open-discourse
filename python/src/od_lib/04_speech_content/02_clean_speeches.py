@@ -6,9 +6,6 @@ import pandas as pd
 import sys
 import regex
 
-# Disabling pandas warnings.
-pd.options.mode.chained_assignment = None
-
 # input directory
 SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_01
 FACTIONS = path_definitions.DATA_FINAL
@@ -142,8 +139,8 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
         # "Max Mustermann, Bundeskanzler"
         # THIS PART IS IMPORTANT AND SHOULD WORK PROPERLY, AS REOCCURING NAMES
         # CAN INTRODUCE A LARGE BIAS IN TEXT ANALYSIS
-        names = speech_content.name_raw.to_list()
-        speech_content.speech_content = speech_content.speech_content.apply(
+        names = speech_content["name_raw"].to_list()
+        speech_content["speech_content"] = speech_content["speech_content"].apply(
             clean_name_headers, args=(np.unique(names),)
         )
 
@@ -153,12 +150,12 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
         # names.
         # Question: Is any other character deleted, which could be in a name?
         # Answer: I don't think so.
-        speech_content.name_raw = speech_content.name_raw.str.replace(
+        speech_content["name_raw"] = speech_content["name_raw"].str.replace(
             r"[^a-zA-ZÖÄÜäöüß\-]", " ", regex=True
         )
 
         # Replace more than two whitespaces with one.
-        speech_content.name_raw = speech_content.name_raw.str.replace(
+        speech_content["name_raw"] = speech_content["name_raw"].str.replace(
             r"  +", " ", regex=True
         )
 
@@ -183,10 +180,10 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
         ]
 
         # Split the name column into it's components at space character.
-        first_last_titles = speech_content.name_raw.apply(str.split)
+        first_last_titles = speech_content["name_raw"].apply(str.split)
 
         # Extract acad_title, if it is in the titles list.
-        speech_content.acad_title = [
+        speech_content["acad_title"] = [
             [acad_title for acad_title in title_list if acad_title in titles]
             for title_list in first_last_titles
         ]
@@ -200,26 +197,26 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
         # Get the first and last name based on the amount of elements.
         for index, first_last in zip(range(len(first_last_titles)), first_last_titles):
             if len(first_last) == 1:
-                speech_content.first_name.iloc[index] = ""
-                speech_content.last_name.iloc[index] = first_last[0]
+                speech_content["first_name"].iloc[index] = ""
+                speech_content["last_name"].iloc[index] = first_last[0]
             elif len(first_last) >= 2:
-                speech_content.first_name.iloc[index] = first_last[:-1]
-                speech_content.last_name.iloc[index] = first_last[-1]
+                speech_content["first_name"].iloc[index] = first_last[:-1]
+                speech_content["last_name"].iloc[index] = first_last[-1]
             else:
-                speech_content.first_name.iloc[index] = "ERROR"
-                speech_content.last_name.iloc[index] = "ERROR"
+                speech_content["first_name"].iloc[index] = "ERROR"
+                speech_content["last_name"].iloc[index] = "ERROR"
 
         # look for factions in the faction column and replace them with a
         # standardized faction name
         for index, position_raw in zip(
-            speech_content.index, speech_content.position_raw
+            speech_content.index, speech_content["position_raw"]
         ):
             faction_abbrev = get_faction_abbrev(
                 str(position_raw), faction_patterns=faction_patterns
             )
             (
-                speech_content.position_short.at[index],
-                speech_content.position_long.at[index],
+                speech_content["position_short"].at[index],
+                speech_content["position_long"].at[index],
             ) = get_position_short_and_long(
                 faction_abbrev
                 if faction_abbrev
@@ -227,11 +224,11 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
             )
             if faction_abbrev:
                 try:
-                    speech_content.faction_id.at[index] = int(
-                        factions.loc[factions.abbreviation == faction_abbrev, "id"].iloc[0]
+                    speech_content["faction_id"].at[index] = int(
+                        factions.loc[factions["abbreviation"] == faction_abbrev, "id"].iloc[0]
                     )
                 except IndexError:
-                    speech_content.faction_id.at[index] = -1
+                    speech_content["faction_id"].at[index] = -1
 
         speech_content = speech_content.drop(columns=["position_raw", "name_raw"])
         speech_content.to_pickle(save_path / speech_content_file.name)

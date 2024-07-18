@@ -238,8 +238,8 @@ contributions_extended.insert(
     0, "id", list(range(len(contributions_extended)))
 )
 
-contributions_extended.first_name = (
-    contributions_extended.first_name.apply(" ".join)
+contributions_extended["first_name"] = (
+    contributions_extended["first_name"].apply(" ".join)
 )
 
 contributions_extended = contributions_extended.astype(

@@ -99,8 +99,8 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
         # "Max Mustermann, Bundeskanzler"
         # THIS PART IS IMPORTANT AND SHOULD WORK PROPERLY, AS REOCCURING NAMES
         # CAN INTRODUCE A LARGE BIAS IN TEXT ANALYSIS
-        names = contributions_extended.name_raw.to_list()
-        contributions_extended.content = contributions_extended.content.apply(
+        names = contributions_extended["name_raw"].to_list()
+        contributions_extended["content"] = contributions_extended["content"].apply(
             clean_name_headers,
             args=(np.unique(names), True),
         )
@@ -111,13 +111,13 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
         # names.
         # Question: Is any other character deleted, which could be in a name?
         # Answer: I don't think so.
-        contributions_extended.name_raw = contributions_extended.name_raw.astype(str)
-        contributions_extended.name_raw = contributions_extended.name_raw.str.replace(
+        contributions_extended["name_raw"] = contributions_extended["name_raw"].astype(str)
+        contributions_extended["name_raw"] = contributions_extended["name_raw"].str.replace(
             r"[^a-zA-ZÖÄÜäöüß\-]", " ", regex=True
         )
 
         # Replace more than two whitespaces with one.
-        contributions_extended.name_raw = contributions_extended.name_raw.str.replace(
+        contributions_extended["name_raw"] = contributions_extended["name_raw"].str.replace(
             r"  +", " ", regex=True
         )
 
@@ -142,10 +142,10 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
         ]
 
         # Split the name_raw column into it's components at space character.
-        first_last_titles = contributions_extended.name_raw.apply(str.split)
+        first_last_titles = contributions_extended["name_raw"].apply(str.split)
 
         # Extract acad_title, if it is in the titles list.
-        contributions_extended.acad_title = [
+        contributions_extended["acad_title"] = [
             [acad_title for acad_title in title_list if acad_title in titles]
             for title_list in first_last_titles
         ]
@@ -159,20 +159,20 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
         # Get the first and last name based on the amount of elements.
         for index, first_last in enumerate(first_last_titles):
             if len(first_last) == 1:
-                contributions_extended.first_name.iloc[index] = []
-                contributions_extended.last_name.iloc[index] = first_last[0]
+                contributions_extended["first_name"].iloc[index] = []
+                contributions_extended["last_name"].iloc[index] = first_last[0]
             # elif len(first_last) == 2:
             elif len(first_last) >= 2:
-                contributions_extended.first_name.iloc[index] = first_last[:-1]
-                contributions_extended.last_name.iloc[index] = first_last[-1]
+                contributions_extended["first_name"].iloc[index] = first_last[:-1]
+                contributions_extended["last_name"].iloc[index] = first_last[-1]
             else:
-                contributions_extended.first_name.iloc[index] = []
-                contributions_extended.last_name.iloc[index] = ""
+                contributions_extended["first_name"].iloc[index] = []
+                contributions_extended["last_name"].iloc[index] = ""
 
         # look for parties in the faction column and replace them with a
         # standardized faction name
         for index, faction in zip(
-            contributions_extended.index, contributions_extended.faction
+            contributions_extended.index, contributions_extended["faction"]
         ):
             if faction:
                 faction_abbrev = get_faction_abbrev(
@@ -183,7 +183,7 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
                     contributions_extended.at[index, "faction"] = faction_abbrev
                     try:
                         contributions_extended.at[index, "faction_id"] = int(
-                            factions.loc[factions.abbreviation == faction_abbrev, "id"].iloc[0]
+                            factions.loc[factions["abbreviation"] == faction_abbrev, "id"].iloc[0]
                         )
                     except IndexError:
                         contributions_extended.at[index, "faction_id"] = -1

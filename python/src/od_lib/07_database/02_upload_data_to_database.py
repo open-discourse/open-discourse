@@ -87,9 +87,9 @@ def convert_date_speeches(date):
 
 
 def check_politicians(row):
-    speaker_id = row.politician_id
+    speaker_id = row["politician_id"]
 
-    politician_ids = politicians.id.tolist()
+    politician_ids = politicians["id"].tolist()
     if speaker_id not in politician_ids:
         speaker_id = -1
     return speaker_id
@@ -105,8 +105,8 @@ print("starting politicians..")
 
 politicians = politicians.where((pd.notnull(politicians)), None)
 
-politicians.birth_date = politicians.birth_date.apply(convert_date_politicians)
-politicians.death_date = politicians.death_date.apply(convert_date_politicians)
+politicians["birth_date"] = politicians["birth_date"].apply(convert_date_politicians)
+politicians["death_date"] = politicians["death_date"].apply(convert_date_politicians)
 
 politicians.to_sql(
     "politicians", engine, if_exists="append", schema="open_discourse", index=False
@@ -209,7 +209,7 @@ factions = pd.DataFrame(
     }
 )
 
-factions.id = factions.id.astype(int)
+factions["id"] = factions["id"].astype(int)
 
 factions.to_sql(
     "factions", engine, if_exists="append", schema="open_discourse", index=False
@@ -223,8 +223,8 @@ speeches = pd.read_pickle(SPOKEN_CONTENT)
 speeches["date"] = speeches["date"].apply(convert_date_speeches)
 
 speeches = speeches.where((pd.notnull(speeches)), None)
-speeches.position_long.replace([r"^\s*$"], [None], regex=True, inplace=True)
-speeches.politician_id = speeches.apply(check_politicians, axis=1)
+speeches["position_long"].replace([r"^\s*$"], [None], regex=True, inplace=True)
+speeches["politician_id"] = speeches.apply(check_politicians, axis=1)
 
 speeches.to_sql(
     "speeches", engine, if_exists="append", schema="open_discourse", index=False

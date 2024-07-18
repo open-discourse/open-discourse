@@ -142,11 +142,11 @@ speech_content = pd.DataFrame(
 factions = pd.read_pickle(FACTIONS / "factions.pkl")
 
 politicians = pd.read_csv(politicians / "politicians.csv")
-politicians.last_name = politicians.last_name.str.lower()
-politicians.last_name = politicians.last_name.str.replace("ß", "ss", regex=False)
-politicians.first_name = politicians.first_name.str.lower()
-politicians.first_name = politicians.first_name.str.replace("ß", "ss", regex=False)
-politicians.first_name = politicians.first_name.apply(str.split)
+politicians["last_name"] = politicians["last_name"].str.lower()
+politicians["last_name"] = politicians["last_name"].str.replace("ß", "ss", regex=False)
+politicians["first_name"] = politicians["first_name"].str.lower()
+politicians["first_name"] = politicians["first_name"].str.replace("ß", "ss", regex=False)
+politicians["first_name"] = politicians["first_name"].apply(str.split)
 
 for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
     if not folder_path.is_dir():
@@ -170,7 +170,7 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
     contributions_simplified = []
 
     politicians_electoral_term = politicians.loc[
-        politicians.electoral_term == term_number
+        politicians["electoral_term"] == term_number
     ]
 
     for session_path in progressbar(
@@ -268,7 +268,7 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
                             name[0]
                         )
                         possible_matches = politicians_electoral_term.loc[
-                            politicians_electoral_term.last_name == last_name.lower()
+                            politicians_electoral_term["last_name"] == last_name.lower()
                         ]
                         length = len(np.unique(possible_matches["ui"]))
                         if length == 1:
@@ -278,7 +278,7 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
                                 [x.lower() for x in first_name.split()]
                             )
                             possible_matches = possible_matches.loc[
-                                ~possible_matches.first_name.apply(
+                                ~possible_matches["first_name"].apply(
                                     lambda x: set(x).isdisjoint(first_name_set)
                                 )
                             ]
@@ -309,7 +309,7 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
                         speaker = content.find("redner")
                         speaker_id = int(speaker.get("id"))
                         possible_matches = politicians_electoral_term.loc[
-                            politicians_electoral_term.ui == speaker_id
+                            politicians_electoral_term["ui"] == speaker_id
                         ]
                         if len(possible_matches) == 0:
                             speaker_id = -1
@@ -343,7 +343,7 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
                             # in factions df share same faction_id, so always the first
                             # one is chosen right now.
                             faction_id = int(
-                                factions.loc[factions.abbreviation == faction_abbrev, "id"].iloc[0]
+                                factions.loc[factions["abbreviation"] == faction_abbrev, "id"].iloc[0]
                             )
                     elif tag == "p":
                         try:

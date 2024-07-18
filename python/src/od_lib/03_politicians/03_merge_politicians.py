@@ -127,7 +127,7 @@ def get_electoral_term(from_year=None, to_year=None):
 
 
 politicians = mps.copy()
-politicians.first_name = politicians.first_name.str.replace("-", " ", regex=False)
+politicians["first_name"] = politicians["first_name"].str.replace("-", " ", regex=False)
 
 # merging for mgs
 for (
@@ -141,14 +141,14 @@ for (
     faction,
 ) in progressbar(
     zip( #
-        mgs.last_name,
-        mgs.first_name,
-        mgs.birth_date,
-        mgs.death_date,
-        mgs.position,
-        mgs.position_from,
-        mgs.position_until,
-        mgs.faction,
+        mgs["last_name"],
+        mgs["first_name"],
+        mgs["birth_date"],
+        mgs["death_date"],
+        mgs["position"],
+        mgs["position_from"],
+        mgs["position_until"],
+        mgs["faction"],
     ),
     "Merging mp-data..."
 ):
@@ -185,9 +185,9 @@ for (
         from_year=int(position_from), to_year=int(position_until)
     )
     possible_matches = politicians.loc[
-        (politicians.last_name == last_name)
-        & (politicians.first_name.str.contains(first_name[0]))
-        & (politicians.birth_date.str.contains(str(birth_date)))
+        (politicians["last_name"] == last_name)
+        & (politicians["first_name"].str.contains(first_name[0]))
+        & (politicians["birth_date"].str.contains(str(birth_date)))
     ]
 
     possible_matches = possible_matches.drop_duplicates(subset="ui", keep="first")
@@ -195,20 +195,20 @@ for (
     if len(possible_matches) == 1:
         for electoral_term in electoral_terms:
             series = {
-                "ui": possible_matches.ui.iloc[0],
+                "ui": possible_matches["ui"].iloc[0],
                 "electoral_term": electoral_term,
                 "faction_id": faction_match,
-                "first_name": possible_matches.first_name.iloc[0],
-                "last_name": possible_matches.last_name.iloc[0],
-                "birth_place": possible_matches.birth_place.iloc[0],
-                "birth_country": possible_matches.birth_country.iloc[0],
-                "birth_date": possible_matches.birth_date.iloc[0],
-                "death_date": possible_matches.death_date.iloc[0],
-                "gender": possible_matches.gender.iloc[0],
-                "profession": possible_matches.profession.iloc[0],
-                "constituency": possible_matches.constituency.iloc[0],
-                "aristocracy": possible_matches.aristocracy.iloc[0],
-                "academic_title": possible_matches.academic_title.iloc[0],
+                "first_name": possible_matches["first_name"].iloc[0],
+                "last_name": possible_matches["last_name"].iloc[0],
+                "birth_place": possible_matches["birth_place"].iloc[0],
+                "birth_country": possible_matches["birth_country"].iloc[0],
+                "birth_date": possible_matches["birth_date"].iloc[0],
+                "death_date": possible_matches["death_date"].iloc[0],
+                "gender": possible_matches["gender"].iloc[0],
+                "profession": possible_matches["profession"].iloc[0],
+                "constituency": possible_matches["constituency"].iloc[0],
+                "aristocracy": possible_matches["aristocracy"].iloc[0],
+                "academic_title": possible_matches["academic_title"].iloc[0],
                 "institution_type": "Regierungsmitglied",
                 "institution_name": position,
             }
@@ -221,9 +221,9 @@ for (
     else:
         if len(first_name) > 1:
             possible_matches = politicians.loc[
-                (politicians.last_name == last_name)
-                & (politicians.first_name == (" ".join([first_name[0], first_name[1]])))
-                & (politicians.birth_date.str.contains(str(birth_date)))
+                (politicians["last_name"] == last_name)
+                & (politicians["first_name"] == (" ".join([first_name[0], first_name[1]])))
+                & (politicians["birth_date"].str.contains(str(birth_date)))
             ]
 
             possible_matches = possible_matches.drop_duplicates(
@@ -233,20 +233,20 @@ for (
         if len(possible_matches) == 1:
             for electoral_term in electoral_terms:
                 series = {
-                    "ui": possible_matches.ui.iloc[0],
+                    "ui": possible_matches["ui"].iloc[0],
                     "electoral_term": electoral_term,
                     "faction_id": faction_match,
-                    "first_name": possible_matches.first_name.iloc[0],
-                    "last_name": possible_matches.last_name.iloc[0],
-                    "birth_place": possible_matches.birth_place.iloc[0],
-                    "birth_country": possible_matches.birth_country.iloc[0],
-                    "birth_date": possible_matches.birth_date.iloc[0],
-                    "death_date": possible_matches.death_date.iloc[0],
-                    "gender": possible_matches.gender.iloc[0],
-                    "profession": possible_matches.profession.iloc[0],
-                    "constituency": possible_matches.constituency.iloc[0],
-                    "aristocracy": possible_matches.aristocracy.iloc[0],
-                    "academic_title": possible_matches.academic_title.iloc[0],
+                    "first_name": possible_matches["first_name"].iloc[0],
+                    "last_name": possible_matches["last_name"].iloc[0],
+                    "birth_place": possible_matches["birth_place"].iloc[0],
+                    "birth_country": possible_matches["birth_country"].iloc[0],
+                    "birth_date": possible_matches["birth_date"].iloc[0],
+                    "death_date": possible_matches["death_date"].iloc[0],
+                    "gender": possible_matches["gender"].iloc[0],
+                    "profession": possible_matches["profession"].iloc[0],
+                    "constituency": possible_matches["constituency"].iloc[0],
+                    "aristocracy": possible_matches["aristocracy"].iloc[0],
+                    "academic_title": possible_matches["academic_title"].iloc[0],
                     "institution_type": "Regierungsmitglied",
                     "institution_name": position,
                 }
@@ -256,7 +256,7 @@ for (
             # This doesn't get reached
             raise RuntimeError("What happend?")
         else:
-            ui_temp = max(politicians.ui.tolist()) + 1
+            ui_temp = max(politicians["ui"].tolist()) + 1
             for electoral_term in electoral_terms:
                 series = {
                     "ui": ui_temp,

@@ -33,16 +33,16 @@ politicians = politicians.loc[
 politicians = politicians.astype(dtype={"ui": "int64"})
 
 # Some cleaning to make matching easier.
-politicians.constituency = politicians.constituency.fillna("")
+politicians["constituency"] = politicians["constituency"].fillna("")
 
-politicians.first_name = politicians.first_name.str.lower()
-politicians.last_name = politicians.last_name.str.lower()
-politicians.constituency = politicians.constituency.str.lower()
+politicians["first_name"] = politicians["first_name"].str.lower()
+politicians["last_name"] = politicians["last_name"].str.lower()
+politicians["constituency"] = politicians["constituency"].str.lower()
 
-politicians.first_name = politicians.first_name.str.replace("ß", "ss", regex=False)
-politicians.last_name = politicians.last_name.str.replace("ß", "ss", regex=False)
+politicians["first_name"] = politicians["first_name"].str.replace("ß", "ss", regex=False)
+politicians["last_name"] = politicians["last_name"].str.replace("ß", "ss", regex=False)
 
-politicians.first_name = politicians.first_name.apply(str.split)
+politicians["first_name"] = politicians["first_name"].apply(str.split)
 
 # iterate over all electoral_term_folders __________________________________________________
 for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
@@ -62,9 +62,9 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
     save_path.mkdir(parents=True, exist_ok=True)
 
     # Only select politicians of the election period.
-    politicians_electoral_term = politicians.loc[politicians.electoral_term == term_number]
+    politicians_electoral_term = politicians.loc[politicians["electoral_term"] == term_number]
     gov_members_electoral_term = politicians_electoral_term.loc[
-        politicians_electoral_term.institution_type == "Regierungsmitglied"
+        politicians_electoral_term["institution_type"] == "Regierungsmitglied"
     ]
 
     working = []
