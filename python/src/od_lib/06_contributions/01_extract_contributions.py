@@ -16,10 +16,7 @@ CONTRIBUTIONS_SIMPLIFIED.mkdir(parents=True, exist_ok=True)
 
 speech_id = 0
 
-contributions_simplified = pd.DataFrame(
-    {"text_position": [], "content": [], "speech_id": []}
-)
-simplified_list = [contributions_simplified]
+simplified_list = []
 
 # Go through all electoral_term folders
 for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):

@@ -4,7 +4,7 @@ import pandas as pd
 import datetime
 
 
-engine = create_engine("postgresql://postgres:postgres@localhost:5432/postgres")
+engine = create_engine("postgresql://postgres:postgres@localhost:5432/next")
 
 # Load Final Data
 
@@ -64,7 +64,7 @@ series = {
     "academic_title": None,
 }
 
-politicians = pd.concat([politicians, pd.Series(series)], ignore_index=True)
+politicians = pd.concat([politicians, pd.DataFrame([series])], ignore_index=True)
 
 
 def convert_date_politicians(date):
@@ -95,13 +95,13 @@ def check_politicians(row):
     return speaker_id
 
 
-print("starting electoral_terms..")
+print("Upload electoral_terms...", end="", flush=True)
 electoral_terms.to_sql(
     "electoral_terms", engine, if_exists="append", schema="open_discourse", index=False
 )
+print("Done.")
 
-
-print("starting politicians..")
+print("Upload politicians...", end="", flush=True)
 
 politicians = politicians.where((pd.notnull(politicians)), None)
 
@@ -111,112 +111,56 @@ politicians["death_date"] = politicians["death_date"].apply(convert_date_politic
 politicians.to_sql(
     "politicians", engine, if_exists="append", schema="open_discourse", index=False
 )
+print("Done.")
 
+print("Upload factions...", end="", flush=True)
+# list of all factions in the form ["abbreviation", "full_name"]
+factions = [
+    ["not found", "not found"],
+    ["AfD", "Alternative für Deutschland"],
+    ["BHE", "Block der Heimatvertriebenen und Entrechteten"],
+    ["BP", "Bayernpartei"],
+    ["BSW", "Bündnis Sahra Wagenknecht"],
+    ["Grüne", "Bündnis 90/Die Grünen"],
+    ["CDU/CSU", "Christlich Demokratische Union Deutschlands/Christlich-Soziale Union in Bayern"],
+    ["DA", "Demokratische Arbeitsgemeinschaft"],
+    ["DIE LINKE.", "DIE LINKE."],
+    ["DP", "Deutsche Partei"],
+    ["DP/DPB", "Deutsche Partei/Deutsche Partei Bayern"],
+    ["DP/FVP", "Deutsche Partei/Freie Volkspartei"],
+    ["DPB", "Deutsche Partei Bayern"],
+    ["DRP", "Deutsche Reformpartei"],
+    ["DRP/NR", "Deutsche Reichspartei/Nationale Rechte"],
+    ["DSU", "Deutsche Soziale Union"],
+    ["FDP", "Freie Demokratische Partei"],
+    ["FU", "Föderalistische Union"],
+    ["FVP", "Freie Volkspartei"],
+    ["Fraktionslos", "Fraktionslos"],
+    ["GB/BHE", "Gesamtdeutscher Block/Bund der Heimatvertriebenen und Entrechteten"],
+    ["Gast", "Gast"],
+    ["KO", "Kraft/Oberländer-Gruppe"],
+    ["KPD", "Kommunistische Partei Deutschlands"],
+    ["NR", "Nationale Rechte"],
+    ["PDS", "Partei des Demokratischen Sozialismus"],
+    ["SPD", "Sozialdemokratische Partei Deutschlands"],
+    ["SSW", "Südschleswigscher Wählerverband"],
+    ["WAV", "Wirtschaftliche Aufbau-Vereinigung"],
+    ["Z", "Deutsche Zentrumspartei"],
+]
 
-print("starting factions..")
+# convert to dataframe and add id-field
 factions = pd.DataFrame(
-    {
-        "id": [
-            -1,
-            0,
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20,
-            21,
-            22,
-            23,
-            24,
-            25,
-            26,
-        ],
-        "abbreviation": [
-            "not found",
-            "AfD",
-            "BHE",
-            "BP",
-            "Grüne",
-            "CDU/CSU",
-            "DA",
-            "DIE LINKE.",
-            "DP",
-            "DP/DBP",
-            "DP/FVP",
-            "DPB",
-            "DRP",
-            "DRP/NR",
-            "FDP",
-            "FU",
-            "FVP",
-            "Fraktionslos",
-            "GB/BHE",
-            "Gast",
-            "KO",
-            "KPD",
-            "NR",
-            "PDS",
-            "SPD",
-            "SSW",
-            "WAV",
-            "Z",
-        ],
-        "full_name": [
-            "not found",
-            "Alternative für Deutschland",
-            "Block der Heimatvertriebenen und Entrechteten",
-            "Bayernpartei",
-            "Bündnis 90/Die Grünen",
-            "Christlich Demokratische Union Deutschlands/Christlich-Soziale Union in Bayern",
-            "Demokratische Arbeitsgemeinschaft",
-            "DIE LINKE.",
-            "Deutsche Partei",
-            "Deutsche Partei/Deutsche Partei Bayern",
-            "Deutsche Partei/Freie Volkspartei",
-            "Deutsche Partei Bayern",
-            "Deutsche Reformpartei",
-            "Deutsche Reichspartei/Nationale Rechte",
-            "Freie Demokratische Partei",
-            "Föderalistische Union",
-            "Freie Volkspartei",
-            "Fraktionslos",
-            "Gesamtdeutscher Block/Bund der Heimatvertriebenen und Entrechteten",
-            "Gast",
-            "Kraft/Oberländer-Gruppe",
-            "Kommunistische Partei Deutschlands",
-            "Nationale Rechte",
-            "Partei des Demokratischen Sozialismus",
-            "Sozialdemokratische Partei Deutschlands",
-            "Südschleswigscher Wählerverband",
-            "Wirtschaftliche Aufbau-Vereinigung",
-            "Deutsche Zentrumspartei",
-        ],
-    }
+    [[idx-1, *entry] for idx, entry in enumerate(factions)],
+    columns=["id", "abbreviation", "full_name"],
 )
-
 factions["id"] = factions["id"].astype(int)
 
 factions.to_sql(
     "factions", engine, if_exists="append", schema="open_discourse", index=False
 )
+print("Done.")
 
-
-print("starting speeches..")
+print("Upload speeches...", end="", flush=True)
 
 speeches = pd.read_pickle(SPOKEN_CONTENT)
 
@@ -229,9 +173,9 @@ speeches["politician_id"] = speeches.apply(check_politicians, axis=1)
 speeches.to_sql(
     "speeches", engine, if_exists="append", schema="open_discourse", index=False
 )
+print("Done.")
 
-
-print("starting contributions_extended..")
+print("Upload contributions_extended...", end="", flush=True)
 
 contributions_extended = pd.read_pickle(CONTRIBUTIONS_EXTENDED)
 
@@ -246,9 +190,9 @@ contributions_extended.to_sql(
     schema="open_discourse",
     index=False,
 )
+print("Done.")
 
-
-print("starting contributions_simplified..")
+print("Upload contributions_simplified...", end="", flush=True)
 
 contributions_simplified = pd.read_pickle(CONTRIBUTIONS_SIMPLIFIED)
 
@@ -281,5 +225,4 @@ contributions_simplified.to_sql(
     schema="open_discourse",
     index=False,
 )
-
-print("finished")
+print("Done.")

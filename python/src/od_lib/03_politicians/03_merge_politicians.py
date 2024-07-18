@@ -66,7 +66,7 @@ faction_patterns = {
     "DIE LINKE.": r"DIE LINKE",
     "DPB": r"(?:^DPB)",
     "DRP": r"DRP(\-Hosp\.)?|SRP",
-    "DSU": r"^DSU   ",
+    "DSU": r"^DSU",
     "FDP": r"\s*F\.?\s*[PDO][.']?[DP]\.?",
     "Fraktionslos": r"(?:fraktionslos|Parteilos|parteilos)",
     "FU": r"^FU",
@@ -140,7 +140,7 @@ for (
     position_until,
     faction,
 ) in progressbar(
-    zip( #
+    zip(
         mgs["last_name"],
         mgs["first_name"],
         mgs["birth_date"],
@@ -217,7 +217,7 @@ for (
             # success_counter += 1
     elif len(possible_matches) > 1:
         # This doesn't get reached
-        raise RuntimeError("What happend?")
+        raise RuntimeError("What happened?")
     else:
         if len(first_name) > 1:
             possible_matches = politicians.loc[
@@ -254,7 +254,7 @@ for (
                 politicians = pd.concat([politicians, series], ignore_index=True)
         elif len(possible_matches) > 1:
             # This doesn't get reached
-            raise RuntimeError("What happend?")
+            raise RuntimeError("What happened?")
         else:
             ui_temp = max(politicians["ui"].tolist()) + 1
             for electoral_term in electoral_terms:

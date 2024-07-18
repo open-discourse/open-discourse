@@ -195,40 +195,34 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
                     politician_titles.remove(acad_title)
 
         # Get the first and last name based on the amount of elements.
-        for index, first_last in zip(range(len(first_last_titles)), first_last_titles):
+        for index, first_last in first_last_titles.items():
             if len(first_last) == 1:
-                speech_content["first_name"].iloc[index] = ""
-                speech_content["last_name"].iloc[index] = first_last[0]
+                speech_content.at[index, "first_name"] = ""
+                speech_content.at[index, "last_name"] = first_last[0]
             elif len(first_last) >= 2:
-                speech_content["first_name"].iloc[index] = first_last[:-1]
-                speech_content["last_name"].iloc[index] = first_last[-1]
+                speech_content.at[index, "first_name"] = first_last[:-1]
+                speech_content.at[index, "last_name"] = first_last[-1]
             else:
-                speech_content["first_name"].iloc[index] = "ERROR"
-                speech_content["last_name"].iloc[index] = "ERROR"
+                speech_content.at[index, "first_name"] = "ERROR"
+                speech_content.at[index, "last_name"] = "ERROR"
 
         # look for factions in the faction column and replace them with a
         # standardized faction name
-        for index, position_raw in zip(
-            speech_content.index, speech_content["position_raw"]
-        ):
-            faction_abbrev = get_faction_abbrev(
-                str(position_raw), faction_patterns=faction_patterns
-            )
+        for index, position_raw in speech_content["position_raw"].items():
+            faction_abbrev = get_faction_abbrev(str(position_raw), faction_patterns)
             (
-                speech_content["position_short"].at[index],
-                speech_content["position_long"].at[index],
+                speech_content.at[index, "position_short"],
+                speech_content.at[index, "position_long"],
             ) = get_position_short_and_long(
-                faction_abbrev
-                if faction_abbrev
-                else regex.sub("\n+", " ", position_raw)
+                faction_abbrev if faction_abbrev else regex.sub("\n+", " ", position_raw)
             )
             if faction_abbrev:
                 try:
-                    speech_content["faction_id"].at[index] = int(
+                    speech_content.at[index, "faction_id"] = int(
                         factions.loc[factions["abbreviation"] == faction_abbrev, "id"].iloc[0]
                     )
                 except IndexError:
-                    speech_content["faction_id"].at[index] = -1
+                    speech_content.at[index, "faction_id"] = -1
 
         speech_content = speech_content.drop(columns=["position_raw", "name_raw"])
         speech_content.to_pickle(save_path / speech_content_file.name)

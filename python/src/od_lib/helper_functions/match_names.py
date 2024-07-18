@@ -76,7 +76,7 @@ def check_faction_id(df, index, possible_matches, faction_id):
         return False, possible_matches
 
 
-def check_location_info(df, index, possible_matches, constituency, fuzzy_threshold=70):
+def check_location_info(df, index, possible_matches, constituency, fuzzy_threshold=0.7):
     possible_matches = possible_matches.loc[
         possible_matches["constituency"].apply(Levenshtein.ratio, args=[constituency])
         > fuzzy_threshold
@@ -460,7 +460,7 @@ def insert_politician_id_into_contributions_extended(
         "faction_id",
         "acad_title",
         "constituency",
-    }.issubset(df["columns"])
+    }.issubset(df.columns)
 
     if len(df) == 0:
         return df, pd.DataFrame()
