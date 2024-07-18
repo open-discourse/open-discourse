@@ -1,5 +1,4 @@
 import od_lib.definitions.path_definitions as path_definitions
-from od_lib.helper_functions.progressbar import progressbar
 import requests
 import io
 import zipfile
@@ -47,7 +46,7 @@ for link in zip_links:
 # Download MDB Stammdaten.
 mp_base_data_link = "https://www.bundestag.de/resource/blob/472878/7d4d417dbb7f7bd44508b3dc5de08ae2/MdB-Stammdaten-data.zip"  # noqa: E501
 
-print(f"Download & unzip 'MP_BASE_DATA'...", end="", flush=True)
+print("Download & unzip 'MP_BASE_DATA'...", end="", flush=True)
 r = requests.get(mp_base_data_link)
 with zipfile.ZipFile(io.BytesIO(r.content)) as z:
     mp_base_data_path = path_definitions.DATA_RAW / "MP_BASE_DATA"

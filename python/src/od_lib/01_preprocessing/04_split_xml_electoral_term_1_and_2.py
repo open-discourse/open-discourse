@@ -17,11 +17,13 @@ for folder_path in sorted(RAW_XML.iterdir()):
     # Skip e.g. the .DS_Store file.
     if not folder_path.is_dir():
         continue
+
     term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
     if term_number is None:
         continue
     term_number = int(term_number.group(0))
-    if 2 < term_number:
+
+    if term_number > 2:
         continue
 
     begin_pattern = regex.compile(

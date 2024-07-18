@@ -151,6 +151,7 @@ politicians.first_name = politicians.first_name.apply(str.split)
 for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
     if not folder_path.is_dir():
         continue
+
     term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
     if term_number is None:
         continue

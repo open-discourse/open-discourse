@@ -60,6 +60,7 @@ def get_faction_abbrev(faction, faction_patterns):
 for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
     if not folder_path.is_dir():
         continue
+
     term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
     if term_number is None:
         continue

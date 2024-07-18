@@ -101,10 +101,12 @@ def get_position_short_and_long(position):
 for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
     if not folder_path.is_dir():
         continue
+
     term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
     if term_number is None:
         continue
     term_number = int(term_number.group(0))
+
     if len(sys.argv) > 1:
         if str(term_number) not in sys.argv:
             continue

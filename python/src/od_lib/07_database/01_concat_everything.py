@@ -70,6 +70,7 @@ for folder_path in sorted(RAW_XML.iterdir()):
     # Skip e.g. the .DS_Store file.
     if not folder_path.is_dir():
         continue
+
     term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
     if term_number is None:
         continue
@@ -204,6 +205,7 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
     # Skip e.g. the .DS_Store file.
     if not folder_path.is_dir():
         continue
+
     term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
     if term_number is None:
         continue
