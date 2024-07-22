@@ -3,21 +3,16 @@ import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import regex
 import requests
-import os
-
 
 # Output directory
 POLITICIANS_STAGE_01 = path_definitions.POLITICIANS_STAGE_01
-save_path = os.path.join(POLITICIANS_STAGE_01 + "/mgs.pkl")
-
-if not os.path.exists(POLITICIANS_STAGE_01):
-    os.makedirs(POLITICIANS_STAGE_01)
+POLITICIANS_STAGE_01.mkdir(parents=True, exist_ok=True)
 
 URL = "https://de.wikipedia.org/wiki/Liste_der_deutschen_Regierungsmitglieder_seit_1949"
 
 page = requests.get(URL)
 soup = BeautifulSoup(page.text, "html.parser")
-main_section = soup.find("div", {"id": "mw-content-text"})
+main_section = soup.find("div", {"id": "mw-content-text"}).find("div")
 
 mgs = {
     "ui": [],
@@ -147,4 +142,5 @@ for div in main_section.find_all("div", recursive=False):
             ui += 1
 
 mgs = pd.DataFrame(mgs)
+save_path = POLITICIANS_STAGE_01 / "mgs.pkl"
 mgs.to_pickle(save_path)

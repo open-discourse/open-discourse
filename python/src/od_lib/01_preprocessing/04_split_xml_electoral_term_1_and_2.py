@@ -1,7 +1,7 @@
 from od_lib.helper_functions.clean_text import clean
 import od_lib.definitions.path_definitions as path_definitions
+from od_lib.helper_functions.progressbar import progressbar
 import xml.etree.ElementTree as et
-import os
 import regex
 import dicttoxml
 
@@ -10,19 +10,20 @@ RAW_XML = path_definitions.RAW_XML
 
 # output directory
 RAW_TXT = path_definitions.RAW_TXT
-
-if not os.path.exists(RAW_TXT):
-    os.makedirs(RAW_TXT)
+RAW_TXT.mkdir(parents=True, exist_ok=True)
 
 # Open every xml plenar file in every electoral term.
-for electoral_term_folder in sorted(os.listdir(RAW_XML)):
-    electoral_term_folder_path = os.path.join(RAW_XML, electoral_term_folder)
-
+for folder_path in sorted(RAW_XML.iterdir()):
     # Skip e.g. the .DS_Store file.
-    if not os.path.isdir(electoral_term_folder_path):
+    if not folder_path.is_dir():
         continue
 
-    if electoral_term_folder not in ["electoral_term_01", "electoral_term_02"]:
+    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    if term_number is None:
+        continue
+    term_number = int(term_number.group(0))
+
+    if term_number > 2:
         continue
 
     begin_pattern = regex.compile(
@@ -30,12 +31,9 @@ for electoral_term_folder in sorted(os.listdir(RAW_XML)):
     )
     appendix_pattern = regex.compile(r"\(Schluß.*?Sitzung.*?Uhr.*?\)")
 
-    print(electoral_term_folder)
-    for xml_file in sorted(os.listdir(electoral_term_folder_path)):
-        if ".xml" in xml_file:
-            print(xml_file)
-            path = os.path.join(electoral_term_folder_path, xml_file)
-            tree = et.parse(path)
+    for xml_file_path in progressbar(folder_path.iterdir(), f"Parsing term {term_number:>2}..."):
+        if xml_file_path.suffix == ".xml":
+            tree = et.parse(xml_file_path)
 
             meta_data = {}
 
@@ -76,17 +74,12 @@ for electoral_term_folder in sorted(os.listdir(RAW_XML)):
             else:
                 continue
 
-            save_path = os.path.join(
-                RAW_TXT, electoral_term_folder, xml_file.replace(".xml", "")
-            )
-
+            save_path = RAW_TXT / folder_path.stem / xml_file_path.stem
+            save_path.mkdir(parents=True, exist_ok=True)
             # Save table of content, spoken content and appendix
             # in separate folders.
-            if not os.path.exists(save_path):
-                os.makedirs(save_path)
-
-            with open(os.path.join(save_path, "session_content.txt"), "w") as text_file:
+            with open(save_path / "session_content.txt", "w") as text_file:
                 text_file.write(session_content)
 
-            with open(os.path.join(save_path, "meta_data.xml"), "wb") as result_file:
+            with open(save_path / "meta_data.xml", "wb") as result_file:
                 result_file.write(dicttoxml.dicttoxml(meta_data))

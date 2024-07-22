@@ -1,7 +1,6 @@
 from sqlalchemy import create_engine
 import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
-import os
 import datetime
 
 
@@ -9,26 +8,17 @@ engine = create_engine("postgresql://postgres:postgres@localhost:5432/next")
 
 # Load Final Data
 
-CONTRIBUTIONS_EXTENDED = os.path.join(
-    path_definitions.DATA_FINAL, "contributions_extended.pkl"
-)
-SPOKEN_CONTENT = os.path.join(path_definitions.DATA_FINAL, "speech_content.pkl")
-FACTIONS = os.path.join(path_definitions.DATA_FINAL, "factions.pkl")
-PEOPLE = os.path.join(path_definitions.DATA_FINAL, "politicians.csv")
-CONTRIBUTIONS_SIMPLIFIED = os.path.join(
-    path_definitions.CONTRIBUTIONS_SIMPLIFIED, "contributions_simplified.pkl"
-)
-CONTRIBUTIONS_SIMPLIFIED_WP19 = os.path.join(
-    path_definitions.CONTRIBUTIONS_SIMPLIFIED,
-    "electoral_term_19",
-    "contributions_simplified.pkl",
-)
-CONTRIBUTIONS_SIMPLIFIED_WP20 = os.path.join(
-    path_definitions.CONTRIBUTIONS_SIMPLIFIED,
-    "electoral_term_20",
-    "contributions_simplified.pkl",
-)
-ELECTORAL_TERMS = os.path.join(path_definitions.ELECTORAL_TERMS, "electoral_terms.csv")
+CONTRIBUTIONS_EXTENDED = path_definitions.DATA_FINAL / "contributions_extended.pkl"
+SPOKEN_CONTENT = path_definitions.DATA_FINAL / "speech_content.pkl"
+FACTIONS = path_definitions.DATA_FINAL / "factions.pkl"
+PEOPLE = path_definitions.DATA_FINAL / "politicians.csv"
+CONTRIBUTIONS_SIMPLIFIED = path_definitions.CONTRIBUTIONS_SIMPLIFIED \
+    / "contributions_simplified.pkl"
+CONTRIBUTIONS_SIMPLIFIED_WP19 = path_definitions.CONTRIBUTIONS_SIMPLIFIED \
+    / "electoral_term_19" / "contributions_simplified.pkl"
+CONTRIBUTIONS_SIMPLIFIED_WP20 = path_definitions.CONTRIBUTIONS_SIMPLIFIED \
+    / "electoral_term_20" / "contributions_simplified.pkl"
+ELECTORAL_TERMS = path_definitions.ELECTORAL_TERMS / "electoral_terms.csv"
 
 # Load data
 electoral_terms = pd.read_csv(ELECTORAL_TERMS)
@@ -74,7 +64,7 @@ series = {
     "academic_title": None,
 }
 
-politicians = politicians.append(pd.Series(series), ignore_index=True)
+politicians = pd.concat([politicians, pd.DataFrame([series])], ignore_index=True)
 
 
 def convert_date_politicians(date):
@@ -97,151 +87,95 @@ def convert_date_speeches(date):
 
 
 def check_politicians(row):
-    speaker_id = row.politician_id
+    speaker_id = row["politician_id"]
 
-    politician_ids = politicians.id.tolist()
+    politician_ids = politicians["id"].tolist()
     if speaker_id not in politician_ids:
         speaker_id = -1
     return speaker_id
 
 
-print("starting electoral_terms..")
+print("Upload electoral_terms...", end="", flush=True)
 electoral_terms.to_sql(
     "electoral_terms", engine, if_exists="append", schema="open_discourse", index=False
 )
+print("Done.")
 
-
-print("starting politicians..")
+print("Upload politicians...", end="", flush=True)
 
 politicians = politicians.where((pd.notnull(politicians)), None)
 
-politicians.birth_date = politicians.birth_date.apply(convert_date_politicians)
-politicians.death_date = politicians.death_date.apply(convert_date_politicians)
+politicians["birth_date"] = politicians["birth_date"].apply(convert_date_politicians)
+politicians["death_date"] = politicians["death_date"].apply(convert_date_politicians)
 
 politicians.to_sql(
     "politicians", engine, if_exists="append", schema="open_discourse", index=False
 )
+print("Done.")
 
+print("Upload factions...", end="", flush=True)
+# list of all factions in the form ["abbreviation", "full_name"]
+factions = [
+    ["not found", "not found"],
+    ["AfD", "Alternative für Deutschland"],
+    ["BHE", "Block der Heimatvertriebenen und Entrechteten"],
+    ["BP", "Bayernpartei"],
+    ["BSW", "Bündnis Sahra Wagenknecht"],
+    ["Grüne", "Bündnis 90/Die Grünen"],
+    ["CDU/CSU", "Christlich Demokratische Union Deutschlands/Christlich-Soziale Union in Bayern"],
+    ["DA", "Demokratische Arbeitsgemeinschaft"],
+    ["DIE LINKE.", "DIE LINKE."],
+    ["DP", "Deutsche Partei"],
+    ["DP/DPB", "Deutsche Partei/Deutsche Partei Bayern"],
+    ["DP/FVP", "Deutsche Partei/Freie Volkspartei"],
+    ["DPB", "Deutsche Partei Bayern"],
+    ["DRP", "Deutsche Reformpartei"],
+    ["DRP/NR", "Deutsche Reichspartei/Nationale Rechte"],
+    ["DSU", "Deutsche Soziale Union"],
+    ["FDP", "Freie Demokratische Partei"],
+    ["FU", "Föderalistische Union"],
+    ["FVP", "Freie Volkspartei"],
+    ["Fraktionslos", "Fraktionslos"],
+    ["GB/BHE", "Gesamtdeutscher Block/Bund der Heimatvertriebenen und Entrechteten"],
+    ["Gast", "Gast"],
+    ["KO", "Kraft/Oberländer-Gruppe"],
+    ["KPD", "Kommunistische Partei Deutschlands"],
+    ["NR", "Nationale Rechte"],
+    ["PDS", "Partei des Demokratischen Sozialismus"],
+    ["SPD", "Sozialdemokratische Partei Deutschlands"],
+    ["SSW", "Südschleswigscher Wählerverband"],
+    ["WAV", "Wirtschaftliche Aufbau-Vereinigung"],
+    ["Z", "Deutsche Zentrumspartei"],
+]
 
-print("starting factions..")
+# convert to dataframe and add id-field
 factions = pd.DataFrame(
-    {
-        "id": [
-            -1,
-            0,
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20,
-            21,
-            22,
-            23,
-            24,
-            25,
-            26,
-        ],
-        "abbreviation": [
-            "not found",
-            "AfD",
-            "BHE",
-            "BP",
-            "Grüne",
-            "CDU/CSU",
-            "DA",
-            "DIE LINKE.",
-            "DP",
-            "DP/DBP",
-            "DP/FVP",
-            "DPB",
-            "DRP",
-            "DRP/NR",
-            "FDP",
-            "FU",
-            "FVP",
-            "Fraktionslos",
-            "GB/BHE",
-            "Gast",
-            "KO",
-            "KPD",
-            "NR",
-            "PDS",
-            "SPD",
-            "SSW",
-            "WAV",
-            "Z",
-        ],
-        "full_name": [
-            "not found",
-            "Alternative für Deutschland",
-            "Block der Heimatvertriebenen und Entrechteten",
-            "Bayernpartei",
-            "Bündnis 90/Die Grünen",
-            "Christlich Demokratische Union Deutschlands/Christlich-Soziale Union in Bayern",
-            "Demokratische Arbeitsgemeinschaft",
-            "DIE LINKE.",
-            "Deutsche Partei",
-            "Deutsche Partei/Deutsche Partei Bayern",
-            "Deutsche Partei/Freie Volkspartei",
-            "Deutsche Partei Bayern",
-            "Deutsche Reformpartei",
-            "Deutsche Reichspartei/Nationale Rechte",
-            "Freie Demokratische Partei",
-            "Föderalistische Union",
-            "Freie Volkspartei",
-            "Fraktionslos",
-            "Gesamtdeutscher Block/Bund der Heimatvertriebenen und Entrechteten",
-            "Gast",
-            "Kraft/Oberländer-Gruppe",
-            "Kommunistische Partei Deutschlands",
-            "Nationale Rechte",
-            "Partei des Demokratischen Sozialismus",
-            "Sozialdemokratische Partei Deutschlands",
-            "Südschleswigscher Wählerverband",
-            "Wirtschaftliche Aufbau-Vereinigung",
-            "Deutsche Zentrumspartei",
-        ],
-    }
+    [[idx-1, *entry] for idx, entry in enumerate(factions)],
+    columns=["id", "abbreviation", "full_name"],
 )
-
-factions.id = factions.id.astype(int)
+factions["id"] = factions["id"].astype(int)
 
 factions.to_sql(
     "factions", engine, if_exists="append", schema="open_discourse", index=False
 )
+print("Done.")
 
-
-print("starting speeches..")
+print("Upload speeches...", end="", flush=True)
 
 speeches = pd.read_pickle(SPOKEN_CONTENT)
 
 speeches["date"] = speeches["date"].apply(convert_date_speeches)
 
 speeches = speeches.where((pd.notnull(speeches)), None)
-speeches.position_long.replace([r"^\s*$"], [None], regex=True, inplace=True)
-speeches.politician_id = speeches.apply(check_politicians, axis=1)
+speeches["position_long"].replace([r"^\s*$"], [None], regex=True, inplace=True)
+speeches["politician_id"] = speeches.apply(check_politicians, axis=1)
 
 speeches.to_sql(
     "speeches", engine, if_exists="append", schema="open_discourse", index=False
 )
+print("Done.")
 
-
-print("starting contributions_extended..")
+print("Upload contributions_extended...", end="", flush=True)
 
 contributions_extended = pd.read_pickle(CONTRIBUTIONS_EXTENDED)
 
@@ -256,9 +190,9 @@ contributions_extended.to_sql(
     schema="open_discourse",
     index=False,
 )
+print("Done.")
 
-
-print("starting contributions_simplified..")
+print("Upload contributions_simplified...", end="", flush=True)
 
 contributions_simplified = pd.read_pickle(CONTRIBUTIONS_SIMPLIFIED)
 
@@ -291,5 +225,4 @@ contributions_simplified.to_sql(
     schema="open_discourse",
     index=False,
 )
-
-print("finished")
+print("Done.")

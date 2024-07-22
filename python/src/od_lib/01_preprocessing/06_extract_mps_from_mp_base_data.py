@@ -1,7 +1,6 @@
 import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import xml.etree.ElementTree as et
-import os
 import regex
 
 # input directory
@@ -9,11 +8,10 @@ MP_BASE_DATA = path_definitions.MP_BASE_DATA
 
 # output directory
 POLITICIANS_STAGE_01 = path_definitions.POLITICIANS_STAGE_01
-save_path = os.path.join(POLITICIANS_STAGE_01, "mps.pkl")
+POLITICIANS_STAGE_01.mkdir(parents=True, exist_ok=True)
+save_path = POLITICIANS_STAGE_01 / "mps.pkl"
 
-if not os.path.exists(POLITICIANS_STAGE_01):
-    os.makedirs(POLITICIANS_STAGE_01)
-
+print("Process mps...", end="", flush=True)
 # read data
 tree = et.parse(MP_BASE_DATA)
 root = tree.getroot()
@@ -42,8 +40,6 @@ i = 0
 # Iterate over all MDBs (Mitglieder des Bundestages) in XML File.
 for mdb in tree.iter("MDB"):
     ui = mdb.findtext("ID")
-
-    print(ui)
 
     # This entries exist only once for every politician.
     if mdb.findtext("BIOGRAFISCHE_ANGABEN/GEBURTSDATUM") == "":
@@ -111,7 +107,8 @@ for mdb in tree.iter("MDB"):
 
 
 mps = pd.DataFrame(mps)
-mps.constituency = mps.constituency.str.replace("[)(]", "")
+mps["constituency"] = mps["constituency"].str.replace("[)(]", "", regex=True)
 mps = mps.astype(dtype={"ui": "int64", "birth_date": "str", "death_date": "str"})
 
 mps.to_pickle(save_path)
+print("Done.")

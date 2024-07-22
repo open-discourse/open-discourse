@@ -2,7 +2,6 @@ import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import numpy as np
 import psycopg2
-import os
 
 
 def upload_dims(cur, dims, shape, schema):
@@ -112,9 +111,9 @@ conn = psycopg2.connect(
 cur = conn.cursor()
 
 
-data_cube = pd.read_pickle(os.path.join(path_definitions.FINAL, "data_cube.pkl"))
-weight_cube = pd.read_pickle(os.path.join(path_definitions.FINAL, "weight_cube.pkl"))
-dims = pd.read_pickle(os.path.join(path_definitions.FINAL, "dims.pkl"))
+data_cube = pd.read_pickle(path_definitions.FINAL / "data_cube.pkl")
+weight_cube = pd.read_pickle(path_definitions.FINAL / "weight_cube.pkl")
+dims = pd.read_pickle(path_definitions.FINAL / "dims.pkl")
 shape = data_cube.shape
 schema = "lda_group"
 
@@ -136,13 +135,9 @@ recursive_upload(
 conn.commit()
 
 
-data_cube = pd.read_pickle(
-    os.path.join(path_definitions.FINAL, "politician_data_cube.pkl")
-)
-weight_cube = pd.read_pickle(
-    os.path.join(path_definitions.FINAL, "politician_weight_cube.pkl")
-)
-dims = pd.read_pickle(os.path.join(path_definitions.FINAL, "politician_dims.pkl"))
+data_cube = pd.read_pickle(path_definitions.FINAL / "politician_data_cube.pkl")
+weight_cube = pd.read_pickle(path_definitions.FINAL / "politician_weight_cube.pkl")
+dims = pd.read_pickle(path_definitions.FINAL / "politician_dims.pkl")
 shape = data_cube.shape
 schema = "lda_person"
 

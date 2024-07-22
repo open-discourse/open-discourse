@@ -1,7 +1,6 @@
 import od_lib.definitions.path_definitions as path_definitions
 import xml.etree.ElementTree as et
 import pandas as pd
-import os
 import regex
 import time
 import datetime
@@ -10,55 +9,32 @@ import sys
 # input directory
 RAW_XML = path_definitions.RAW_XML
 SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_04
-SPEECH_CONTENT_INPUT_2 = os.path.join(
-    path_definitions.ELECTORAL_TERM_19_20_STAGE_03, "electoral_term_19"
-)
-SPEECH_CONTENT_INPUT_3 = os.path.join(
-    path_definitions.ELECTORAL_TERM_19_20_STAGE_03, "electoral_term_20"
-)
+SPEECH_CONTENT_INPUT_2 = path_definitions.ELECTORAL_TERM_19_20_STAGE_03 / "electoral_term_19"
+SPEECH_CONTENT_INPUT_3 = path_definitions.ELECTORAL_TERM_19_20_STAGE_03 / "electoral_term_20"
 CONTRIBUTIONS_EXTENDED_INPUT = path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_03
 
 # output directory
 SPEECH_CONTENT_OUTPUT = path_definitions.FINAL
 CONTRIBUTIONS_EXTENDED_OUTPUT = path_definitions.FINAL
 
-if not os.path.exists(SPEECH_CONTENT_OUTPUT):
-    os.makedirs(SPEECH_CONTENT_OUTPUT)
-
-if not os.path.exists(CONTRIBUTIONS_EXTENDED_OUTPUT):
-    os.makedirs(CONTRIBUTIONS_EXTENDED_OUTPUT)
+SPEECH_CONTENT_OUTPUT.mkdir(parents=True, exist_ok=True)
+CONTRIBUTIONS_EXTENDED_OUTPUT.mkdir(parents=True, exist_ok=True)
 
 # spoken content
 
 # Placeholder for concating speeches DF of all sessions.
-speech_content_01_18 = pd.DataFrame()
+speech_content_01_18 = []
 
 
 # Walk over all legislature periods.
-for electoral_term_folder in sorted(os.listdir(SPEECH_CONTENT_INPUT)):
-    electoral_term_folder_path = os.path.join(
-        SPEECH_CONTENT_INPUT, electoral_term_folder
-    )
-
-    if not os.path.isdir(electoral_term_folder_path):
-        continue
-    elif electoral_term_folder == ".DS_Store":
+for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
+    if not folder_path.is_dir():
         continue
 
-    for speech_content_file in sorted(os.listdir(electoral_term_folder_path)):
-        if ".pkl" not in speech_content_file:
-            continue
+    for speech_content_file_path in sorted(folder_path.glob("*.pkl")):
+        speech_content_01_18.append(pd.read_pickle(speech_content_file_path))
 
-        print(speech_content_file)
-
-        speech_content = pd.read_pickle(
-            os.path.join(electoral_term_folder_path, speech_content_file)
-        )
-
-        speech_content_01_18 = pd.concat(
-            [speech_content_01_18, speech_content], sort=False
-        )
-
+speech_content_01_18 = pd.concat(speech_content_01_18, sort=False)
 
 speech_content_01_18 = speech_content_01_18.loc[
     :,
@@ -83,44 +59,41 @@ speech_content_01_18["first_name"] = speech_content_01_18["first_name"].apply(" 
 speech_content_01_18["id"] = list(range(len(speech_content_01_18)))
 
 speech_content_01_18["session"] = speech_content_01_18["session"].str.replace(
-    r"\.pkl", ""
+    r"\.pkl", "", regex=True
 )
 
 
 meta_data = {}
 
 # Open every xml plenar file in every legislature period.
-for electoral_term_folder in sorted(os.listdir(RAW_XML)):
-    electoral_term_folder_path = os.path.join(RAW_XML, electoral_term_folder)
+for folder_path in sorted(RAW_XML.iterdir()):
     # Skip e.g. the .DS_Store file.
-    if not os.path.isdir(electoral_term_folder_path):
+    if not folder_path.is_dir():
         continue
 
+    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    if term_number is None:
+        continue
+    term_number = int(term_number.group(0))
+
     if len(sys.argv) > 1:
-        if (
-            str(int(regex.sub("electoral_term_", "", electoral_term_folder)))
-            not in sys.argv
-        ):
+        if str(term_number) not in sys.argv:
             continue
 
-    print(electoral_term_folder)
-    for xml_plenar_file in sorted(os.listdir(electoral_term_folder_path)):
-        if ".xml" in xml_plenar_file:
-            print(xml_plenar_file)
-            path = os.path.join(electoral_term_folder_path, xml_plenar_file)
-            tree = et.parse(path)
-            # Get the document number, the date of the session and the content.
-            # meta_data["document_number"].append(tree.find("NR").text)
-            # meta_data["date"].append(tree.find("DATUM").text)
-            # document_number = tree.find("NR").text
-            date = time.mktime(
-                datetime.datetime.strptime(
-                    tree.find("DATUM").text, "%d.%m.%Y"
-                ).timetuple()
-            )
-            document_number = xml_plenar_file.replace(".xml", "")
-            document_number = int(document_number)
-            meta_data[document_number] = date
+    for xml_plenar_file_path in sorted(folder_path.glob("*.xml")):
+        tree = et.parse(xml_plenar_file_path)
+        # Get the document number, the date of the session and the content.
+        # meta_data["document_number"].append(tree.find("NR").text)
+        # meta_data["date"].append(tree.find("DATUM").text)
+        # document_number = tree.find("NR").text
+        date = time.mktime(
+            datetime.datetime.strptime(
+                tree.find("DATUM").text, "%d.%m.%Y"
+            ).timetuple()
+        )
+        document_number = xml_plenar_file_path.stem
+        document_number = int(document_number)
+        meta_data[document_number] = date
 
 speech_content_01_18.insert(1, "electoral_term", -1)
 speech_content_01_18.insert(4, "document_url", "")
@@ -146,10 +119,10 @@ speech_content_01_18["electoral_term"] = speech_content_01_18["electoral_term"].
 )
 
 speech_content_19 = pd.read_pickle(
-    os.path.join(SPEECH_CONTENT_INPUT_2, "speech_content", "speech_content.pkl")
+    SPEECH_CONTENT_INPUT_2 / "speech_content" / "speech_content.pkl"
 )
 speech_content_20 = pd.read_pickle(
-    os.path.join(SPEECH_CONTENT_INPUT_3, "speech_content", "speech_content.pkl")
+    SPEECH_CONTENT_INPUT_3 / "speech_content" / "speech_content.pkl"
 )
 
 speech_content_19 = speech_content_19.loc[
@@ -186,7 +159,6 @@ speech_content_20 = speech_content_20.loc[
 
 speech_content_19.insert(1, "electoral_term", -1)
 speech_content_20.insert(1, "electoral_term", -1)
-speech_content.insert(2, "document_url", "")
 
 speech_content_19["electoral_term"] = speech_content_19["session"].apply(
     lambda x: str(x)[:2]
@@ -223,38 +195,28 @@ speech_content = pd.concat([speech_content_01_18, speech_content_19, speech_cont
 
 # save data.
 
-speech_content.to_pickle(os.path.join(SPEECH_CONTENT_OUTPUT, "speech_content.pkl"))
+speech_content.to_pickle(SPEECH_CONTENT_OUTPUT / "speech_content.pkl")
 
 # Placeholder for concating contributions_extended DF of all sessions.
-concat_contributions_extended_df = pd.DataFrame()
+contributions_extended = []
 
 # Walk over all legislature periods. ___________________________________________
-for electoral_term_folder in sorted(os.listdir(CONTRIBUTIONS_EXTENDED_INPUT)):
-    electoral_term_folder_path = os.path.join(
-        CONTRIBUTIONS_EXTENDED_INPUT, electoral_term_folder
-    )
-
-    if not os.path.isdir(electoral_term_folder_path):
-        continue
-    elif electoral_term_folder == ".DS_Store":
+for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
+    # Skip e.g. the .DS_Store file.
+    if not folder_path.is_dir():
         continue
 
-    for contributions_extended_file in sorted(os.listdir(electoral_term_folder_path)):
-        if ".pkl" not in contributions_extended_file:
-            continue
+    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    if term_number is None:
+        continue
+    term_number = int(term_number.group(0))
 
-        print(contributions_extended_file)
+    for contrib_ext_file_path in sorted(folder_path.glob("*.pkl")):
+        contributions_extended.append(pd.read_pickle(contrib_ext_file_path))
 
-        contributions_extended = pd.read_pickle(
-            os.path.join(electoral_term_folder_path, contributions_extended_file)
-        )
+contributions_extended = pd.concat(contributions_extended, sort=False)
 
-        concat_contributions_extended_df = pd.concat(
-            [concat_contributions_extended_df, contributions_extended], sort=False
-        )
-
-
-concat_contributions_extended_df = concat_contributions_extended_df.loc[
+contributions_extended = contributions_extended.loc[
     :,
     [
         "type",
@@ -268,19 +230,19 @@ concat_contributions_extended_df = concat_contributions_extended_df.loc[
     ],
 ]
 
-concat_contributions_extended_df = concat_contributions_extended_df.rename(
+contributions_extended = contributions_extended.rename(
     columns={"id": "speech_id", "politician_id": "politician_id"}
 )
 
-concat_contributions_extended_df.insert(
-    0, "id", list(range(len(concat_contributions_extended_df)))
+contributions_extended.insert(
+    0, "id", list(range(len(contributions_extended)))
 )
 
-concat_contributions_extended_df.first_name = (
-    concat_contributions_extended_df.first_name.apply(" ".join)
+contributions_extended["first_name"] = (
+    contributions_extended["first_name"].apply(" ".join)
 )
 
-concat_contributions_extended_df = concat_contributions_extended_df.astype(
+contributions_extended = contributions_extended.astype(
     {
         "id": "int64",
         "type": "object",
@@ -294,6 +256,6 @@ concat_contributions_extended_df = concat_contributions_extended_df.astype(
     }
 )
 
-concat_contributions_extended_df.to_pickle(
-    os.path.join(CONTRIBUTIONS_EXTENDED_OUTPUT, "contributions_extended.pkl")
+contributions_extended.to_pickle(
+    CONTRIBUTIONS_EXTENDED_OUTPUT / "contributions_extended.pkl"
 )
