@@ -76,11 +76,16 @@ Required software:
 [python3](https://www.python.org/downloads/),
 [yarn](https://yarnpkg.com/),
 [docker-compose](https://docs.docker.com/compose/),
-[node version 12](https://nodejs.org/dist/latest-v12.x/docs/api/) - ideally installed via node version manager (nvm)
+[node version 20](https://nodejs.org/dist/latest-v20.x/docs/api/)
 
+- install [nvm](https://github.com/nvm-sh/nvm)
+- install node by running `nvm install 20` (see pinned [node version](https://github.com/pmayd/open-discourse/blob/main/frontend/package.json#L46))
+- install [yarn](https://yarnpkg.com/) by running `brew install yarn` on macOS or follow the official instructions
 - run `yarn` in following directories:
   - `database`
   - `frontend`
+  For both you should get a success message that all dependencies were installed.
+- **Warning**: Currently not possible for `frontend` in combination with darwin-arm64v8
 - run `sh setup.sh` in the `python` directory
 - run `docker-compose build` in the `root` folder
 
