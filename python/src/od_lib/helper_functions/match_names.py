@@ -1,15 +1,17 @@
-import pandas as pd
-import numpy as np
-import regex
 import Levenshtein
+import numpy as np
+import pandas as pd
+import regex
 
 # Note: This matching script is a total mess, I know. But it works quite fine and has
 # some optimization logic already included. Would still be nice to clean this up
 # a little together with the preceeding scripts.
 
+
 def get_fuzzy_names(df, name_to_check, fuzzy_threshold=0.7):
     return df.loc[
-        df["last_name"].apply(Levenshtein.ratio, args=[name_to_check]) >= fuzzy_threshold
+        df["last_name"].apply(Levenshtein.ratio, args=[name_to_check])
+        >= fuzzy_threshold
     ]
 
 
@@ -54,7 +56,9 @@ def check_first_name(df, index, possible_matches, first_name):
     first_name_set = set(first_name)
 
     possible_matches = possible_matches.loc[
-        ~possible_matches["first_name"].apply(lambda x: set(x).isdisjoint(first_name_set))
+        ~possible_matches["first_name"].apply(
+            lambda x: set(x).isdisjoint(first_name_set)
+        )
     ]
 
     if check_unique(possible_matches):
@@ -196,7 +200,9 @@ def check_member_of_parliament(
 
 def check_woman(df, index, acad_title, possible_matches):
     if "Frau" in acad_title:
-        possible_matches = possible_matches.loc[possible_matches["gender"] == "weiblich"]
+        possible_matches = possible_matches.loc[
+            possible_matches["gender"] == "weiblich"
+        ]
 
         if check_unique(possible_matches):
             set_id(df, index, possible_matches, col_set="politician_id", col_check="ui")
@@ -229,13 +235,11 @@ def insert_politician_id_into_speech_content(
     df["position_long"] = df["position_long"].str.lower()
 
     for index, row in df.iterrows():
-
         # ##################################################################
         # ######## Start Matching ##########################################
         # ##################################################################
 
         if row["position_short"] == "Presidium of Parliament":
-
             if row["position_long"] in [
                 "präsident",
                 "präsidentin",
@@ -364,10 +368,8 @@ def insert_politician_id_into_speech_content(
                 problem_df.append(row)
 
         elif row["position_short"] == "Secretary of State":
-
             # Look for "Parlamentarische Staatsekretäre"
             if regex.search("parl", row["position_long"]):
-
                 profession_pattern = (
                     "Parl. Staatssekretär|Parlamentarischer Staatssekretär"
                 )
@@ -481,7 +483,6 @@ def insert_politician_id_into_contributions_extended(
     df.insert(4, "politician_id", -1)
 
     for index, row in df.iterrows():
-
         # Start Matching
 
         # E.g. Präsident, Bundeskanzler, Staatssekretär etc.
@@ -522,7 +523,9 @@ def insert_politician_id_into_contributions_extended(
             )
             if found:
                 if check_unique(possible_matches, col="faction_id"):
-                    df["faction_id"].at[index] = int(possible_matches["faction_id"].iloc[0])
+                    df["faction_id"].at[index] = int(
+                        possible_matches["faction_id"].iloc[0]
+                    )
                     continue
                 else:
                     continue

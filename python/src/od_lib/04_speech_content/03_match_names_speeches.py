@@ -1,8 +1,9 @@
-from od_lib.helper_functions.match_names import insert_politician_id_into_speech_content
-import od_lib.definitions.path_definitions as path_definitions
-from od_lib.helper_functions.progressbar import progressbar
 import pandas as pd
 import regex
+from tqdm import tqdm
+
+import od_lib.definitions.path_definitions as path_definitions
+from od_lib.helper_functions.match_names import insert_politician_id_into_speech_content
 
 # input directory
 SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_02
@@ -38,7 +39,9 @@ politicians["first_name"] = politicians["first_name"].str.lower()
 politicians["last_name"] = politicians["last_name"].str.lower()
 politicians["constituency"] = politicians["constituency"].str.lower()
 
-politicians["first_name"] = politicians["first_name"].str.replace("ß", "ss", regex=False)
+politicians["first_name"] = politicians["first_name"].str.replace(
+    "ß", "ss", regex=False
+)
 politicians["last_name"] = politicians["last_name"].str.replace("ß", "ss", regex=False)
 
 politicians["first_name"] = politicians["first_name"].apply(str.split)
@@ -68,9 +71,9 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
     ]
 
     # iterate over every speech_content file
-    for speech_content_file in progressbar(
+    for speech_content_file in tqdm(
         folder_path.glob("*.pkl"),
-        f"Match speaker names (term {term_number:>2})..."
+        desc=f"Match speaker names (term {term_number:>2})...",
     ):
         # read the spoken content pickle file
         speech_content = pd.read_pickle(speech_content_file)
@@ -80,3 +83,5 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
         )
 
         speech_content_matched.to_pickle(save_path / speech_content_file.name)
+
+print("Script 04_03 done.")

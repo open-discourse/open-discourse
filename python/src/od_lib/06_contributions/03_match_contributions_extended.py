@@ -1,11 +1,13 @@
+import sys
+
+import pandas as pd
+import regex
+
+import od_lib.definitions.path_definitions as path_definitions
 from od_lib.helper_functions.match_names import (
     insert_politician_id_into_contributions_extended,
 )
-import od_lib.definitions.path_definitions as path_definitions
-from od_lib.helper_functions.progressbar import progressbar
-import pandas as pd
-import regex
-import sys
+from tqdm import tqdm
 
 # input directory
 CONTRIBUTIONS_EXTENDED_INPUT = path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_02
@@ -39,7 +41,9 @@ politicians["first_name"] = politicians["first_name"].str.lower()
 politicians["last_name"] = politicians["last_name"].str.lower()
 politicians["constituency"] = politicians["constituency"].str.lower()
 
-politicians["first_name"] = politicians["first_name"].str.replace("ß", "ss", regex=False)
+politicians["first_name"] = politicians["first_name"].str.replace(
+    "ß", "ss", regex=False
+)
 politicians["last_name"] = politicians["last_name"].str.replace("ß", "ss", regex=False)
 
 politicians["first_name"] = politicians["first_name"].apply(str.split)
@@ -62,16 +66,18 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
     save_path.mkdir(parents=True, exist_ok=True)
 
     # Only select politicians of the election period.
-    politicians_electoral_term = politicians.loc[politicians["electoral_term"] == term_number]
+    politicians_electoral_term = politicians.loc[
+        politicians["electoral_term"] == term_number
+    ]
     gov_members_electoral_term = politicians_electoral_term.loc[
         politicians_electoral_term["institution_type"] == "Regierungsmitglied"
     ]
 
     working = []
     # iterate over every contributions_extended file
-    for contrib_ext_file_path in progressbar(
+    for contrib_ext_file_path in tqdm(
         folder_path.glob("*.pkl"),
-        f"Match contributions (term {term_number:>2})...",
+        desc=f"Match contributions (term {term_number:>2})...",
     ):
         # read the contributions_extended pickle file
         contributions_extended = pd.read_pickle(contrib_ext_file_path)
@@ -86,3 +92,5 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
         )
 
         contributions_extended.to_pickle(save_path / contrib_ext_file_path.name)
+
+print("Script 06_03 done.")

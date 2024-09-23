@@ -1,8 +1,9 @@
-from bs4 import BeautifulSoup
-import od_lib.definitions.path_definitions as path_definitions
-from od_lib.helper_functions.progressbar import progressbar
-import requests
 import regex
+import requests
+from bs4 import BeautifulSoup
+from tqdm import tqdm
+
+import od_lib.definitions.path_definitions as path_definitions
 
 # output directory
 ELECTORAL_TERM_19_20_OUTPUT = path_definitions.ELECTORAL_TERM_19_20_STAGE_01
@@ -18,7 +19,6 @@ election_periods = [
         "url": "https://www.bundestag.de/ajax/filterlist/de/services/opendata/866354-866354?offset={}",  # noqa
     },
 ]
-
 
 
 for election_period in election_periods:
@@ -46,9 +46,9 @@ for election_period in election_periods:
             break
     print("Done.")
 
-    for link in progressbar(
+    for link in tqdm(
         xml_links,
-        f"Download XML-files for term {election_period['election_period']}...",
+        desc=f"Download XML-files for term {election_period['election_period']}...",
     ):
         url = "https://www.bundestag.de" + link.get("href")
         page = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
@@ -62,3 +62,5 @@ for election_period in election_periods:
                     regex.sub("<sub>", "", page.content.decode("utf-8")),
                 )
             )
+
+print("Script 01_02 done.")

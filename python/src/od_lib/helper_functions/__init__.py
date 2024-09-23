@@ -1,4 +1,5 @@
 from . import clean_text
 from . import extract_contributions
 from . import match_names
-from . import progressbar
+
+__all__ = ["clean_text", "extract_contributions", "match_names"]

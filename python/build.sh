@@ -1,8 +1,8 @@
 #!/bin/bash
 
-docker-compose down
+docker compose down
 sleep 5
-docker-compose up -d database
+docker compose up -d database
 sleep 20
 cd ../database
 yarn run db:update:local

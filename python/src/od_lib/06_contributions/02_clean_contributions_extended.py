@@ -1,10 +1,12 @@
-from od_lib.helper_functions.clean_text import clean_name_headers
-import od_lib.definitions.path_definitions as path_definitions
-from od_lib.helper_functions.progressbar import progressbar
-import pandas as pd
 import sys
+
 import numpy as np
+import pandas as pd
 import regex
+
+import od_lib.definitions.path_definitions as path_definitions
+from od_lib.helper_functions.clean_text import clean_name_headers
+from tqdm import tqdm
 
 # Disabling pandas warnings.
 pd.options.mode.chained_assignment = None
@@ -74,9 +76,9 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
     save_path.mkdir(parents=True, exist_ok=True)
 
     # iterate over every contributions_extended file
-    for contrib_ext_file_path in progressbar(
+    for contrib_ext_file_path in tqdm(
         folder_path.glob("*.pkl"),
-        f"Clean contributions (term {term_number:>2})...",
+        desc=f"Clean contributions (term {term_number:>2})...",
     ):
         # read the spoken content csv
         contributions_extended = pd.read_pickle(contrib_ext_file_path)
@@ -111,15 +113,17 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
         # names.
         # Question: Is any other character deleted, which could be in a name?
         # Answer: I don't think so.
-        contributions_extended["name_raw"] = contributions_extended["name_raw"].astype(str)
-        contributions_extended["name_raw"] = contributions_extended["name_raw"].str.replace(
-            r"[^a-zA-ZÖÄÜäöüß\-]", " ", regex=True
+        contributions_extended["name_raw"] = contributions_extended["name_raw"].astype(
+            str
         )
+        contributions_extended["name_raw"] = contributions_extended[
+            "name_raw"
+        ].str.replace(r"[^a-zA-ZÖÄÜäöüß\-]", " ", regex=True)
 
         # Replace more than two whitespaces with one.
-        contributions_extended["name_raw"] = contributions_extended["name_raw"].str.replace(
-            r"  +", " ", regex=True
-        )
+        contributions_extended["name_raw"] = contributions_extended[
+            "name_raw"
+        ].str.replace(r"  +", " ", regex=True)
 
         # Graf has to be checked again, as this is also a last_name.
         # Titles have to be added: Like e.c. or when mistakes occur like b.c.
@@ -183,10 +187,14 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
                     contributions_extended.at[index, "faction"] = faction_abbrev
                     try:
                         contributions_extended.at[index, "faction_id"] = int(
-                            factions.loc[factions["abbreviation"] == faction_abbrev, "id"].iloc[0]
+                            factions.loc[
+                                factions["abbreviation"] == faction_abbrev, "id"
+                            ].iloc[0]
                         )
                     except IndexError:
                         contributions_extended.at[index, "faction_id"] = -1
 
         contributions_extended.drop(columns=["name_raw"])
         contributions_extended.to_pickle(save_path / contrib_ext_file_path.name)
+
+print("Script 06_02 done.")

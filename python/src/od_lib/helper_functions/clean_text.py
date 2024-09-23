@@ -50,7 +50,7 @@ def clean_name_headers(filetext, names, contributions_extended_filter=False):
     Keep in mind this also deletes lines from voting lists.
     """
     if contributions_extended_filter:
-        table = {ord(c):"" for c in "()[]{}"}
+        table = {ord(c): "" for c in "()[]{}"}
         names = np.unique([name.translate(table) for name in names])
 
     table = {ord("+"): "\\+", ord("*"): "\\*", ord("?"): "\\?"}

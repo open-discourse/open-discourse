@@ -12,12 +12,19 @@ CONTRIBUTIONS_EXTENDED = path_definitions.DATA_FINAL / "contributions_extended.p
 SPOKEN_CONTENT = path_definitions.DATA_FINAL / "speech_content.pkl"
 FACTIONS = path_definitions.DATA_FINAL / "factions.pkl"
 PEOPLE = path_definitions.DATA_FINAL / "politicians.csv"
-CONTRIBUTIONS_SIMPLIFIED = path_definitions.CONTRIBUTIONS_SIMPLIFIED \
+CONTRIBUTIONS_SIMPLIFIED = (
+    path_definitions.CONTRIBUTIONS_SIMPLIFIED / "contributions_simplified.pkl"
+)
+CONTRIBUTIONS_SIMPLIFIED_WP19 = (
+    path_definitions.CONTRIBUTIONS_SIMPLIFIED
+    / "electoral_term_19"
     / "contributions_simplified.pkl"
-CONTRIBUTIONS_SIMPLIFIED_WP19 = path_definitions.CONTRIBUTIONS_SIMPLIFIED \
-    / "electoral_term_19" / "contributions_simplified.pkl"
-CONTRIBUTIONS_SIMPLIFIED_WP20 = path_definitions.CONTRIBUTIONS_SIMPLIFIED \
-    / "electoral_term_20" / "contributions_simplified.pkl"
+)
+CONTRIBUTIONS_SIMPLIFIED_WP20 = (
+    path_definitions.CONTRIBUTIONS_SIMPLIFIED
+    / "electoral_term_20"
+    / "contributions_simplified.pkl"
+)
 ELECTORAL_TERMS = path_definitions.ELECTORAL_TERMS / "electoral_terms.csv"
 
 # Load data
@@ -122,7 +129,10 @@ factions = [
     ["BP", "Bayernpartei"],
     ["BSW", "Bündnis Sahra Wagenknecht"],
     ["Grüne", "Bündnis 90/Die Grünen"],
-    ["CDU/CSU", "Christlich Demokratische Union Deutschlands/Christlich-Soziale Union in Bayern"],
+    [
+        "CDU/CSU",
+        "Christlich Demokratische Union Deutschlands/Christlich-Soziale Union in Bayern",
+    ],
     ["DA", "Demokratische Arbeitsgemeinschaft"],
     ["DIE LINKE.", "DIE LINKE."],
     ["DP", "Deutsche Partei"],
@@ -150,7 +160,7 @@ factions = [
 
 # convert to dataframe and add id-field
 factions = pd.DataFrame(
-    [[idx-1, *entry] for idx, entry in enumerate(factions)],
+    [[idx - 1, *entry] for idx, entry in enumerate(factions)],
     columns=["id", "abbreviation", "full_name"],
 )
 factions["id"] = factions["id"].astype(int)

@@ -1,5 +1,6 @@
-import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
+
+import od_lib.definitions.path_definitions as path_definitions
 
 # input directory
 POLITICIANS_INPUT = path_definitions.POLITICIANS_STAGE_01
@@ -17,3 +18,5 @@ for faction_name, faction_id in zip(factions["faction_name"], factions["id"]):
     mps.loc[mps["institution_name"] == faction_name, "faction_id"] = faction_id
 
 mps.to_pickle(POLITICIANS_OUTPUT / "mps.pkl")
+print(f"MPs saved to {POLITICIANS_OUTPUT / 'mps.pkl'}")
+print("Script 03_01 done.")

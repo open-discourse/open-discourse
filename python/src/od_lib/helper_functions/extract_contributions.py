@@ -339,8 +339,7 @@ def extract_initiators(
     ]
     for stuff in search_stuff:
         if (
-            stuff
-            == initiators
+            stuff == initiators
             # or stuff in initiators
             # or stuff == initiators_not_removed
             # or stuff in initiators_not_removed

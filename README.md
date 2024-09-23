@@ -50,7 +50,7 @@ Open Discourse is a non-profit project of the employees of Limebit GmbH. The ide
 
 We hope that through our preliminary work, data-based journalism, science and civil society will benefit and that the facilitated access to data will encourage to analyze the political history of the Bundestag based on the language used by politicians.
 
-We are happy for every financial support via: https://www.patreon.com/opendiscourse/ or https://github.com/sponsors/open-discourse
+We are happy for every financial support via: <https://www.patreon.com/opendiscourse/> or <https://github.com/sponsors/open-discourse>
 
 ## Repository Structure
 
@@ -75,7 +75,7 @@ For a quick setup using Docker, please read the [DOCKER_SETUP](./DOCKER_SETUP.md
 Required software:
 [python3](https://www.python.org/downloads/),
 [yarn](https://yarnpkg.com/),
-[docker-compose](https://docs.docker.com/compose/),
+[docker](https://docs.docker.com/engine/install/),
 [node version 20](https://nodejs.org/dist/latest-v20.x/docs/api/)
 
 - install [nvm](https://github.com/nvm-sh/nvm)
@@ -85,9 +85,8 @@ Required software:
   - `database`
   - `frontend`
   For both you should get a success message that all dependencies were installed.
-- **Warning**: Currently not possible for `frontend` in combination with darwin-arm64v8
 - run `sh setup.sh` in the `python` directory
-- run `docker-compose build` in the `root` folder
+- run `docker compose build` in the `root` folder
 
 ### Start the Database
 
@@ -99,7 +98,7 @@ You can easily start the Database via docker-compose.
 
 ```Shell
 // run from repository root
-docker-compose up -d database
+docker compose up -d database
 ```
 
 #### Database: Initial Start / Reset

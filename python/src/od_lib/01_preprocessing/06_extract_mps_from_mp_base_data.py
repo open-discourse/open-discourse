@@ -1,7 +1,9 @@
-import od_lib.definitions.path_definitions as path_definitions
-import pandas as pd
 import xml.etree.ElementTree as et
+
+import pandas as pd
 import regex
+
+import od_lib.definitions.path_definitions as path_definitions
 
 # input directory
 MP_BASE_DATA = path_definitions.MP_BASE_DATA
@@ -111,4 +113,4 @@ mps["constituency"] = mps["constituency"].str.replace("[)(]", "", regex=True)
 mps = mps.astype(dtype={"ui": "int64", "birth_date": "str", "death_date": "str"})
 
 mps.to_pickle(save_path)
-print("Done.")
+print("Script 01_06 done.")

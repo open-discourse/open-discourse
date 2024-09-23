@@ -1,12 +1,14 @@
-import od_lib.definitions.path_definitions as path_definitions
-from od_lib.helper_functions.progressbar import progressbar
 import pandas as pd
 import regex
+from tqdm import tqdm
+
+import od_lib.definitions.path_definitions as path_definitions
 
 # input directory
 MGS_PATH = path_definitions.POLITICIANS_STAGE_01
 MPS_PATH = path_definitions.POLITICIANS_STAGE_02
 FACTIONS_PATH = path_definitions.DATA_FINAL
+
 mps = pd.read_pickle(MPS_PATH / "mps.pkl")
 mgs = pd.read_pickle(MGS_PATH / "mgs.pkl")
 factions = pd.read_pickle(FACTIONS_PATH / "factions.pkl")
@@ -139,7 +141,7 @@ for (
     position_from,
     position_until,
     faction,
-) in progressbar(
+) in tqdm(
     zip(
         mgs["last_name"],
         mgs["first_name"],
@@ -150,9 +152,8 @@ for (
         mgs["position_until"],
         mgs["faction"],
     ),
-    "Merging mp-data..."
+    desc="Merging mp-data...",
 ):
-
     # Hardcode special cases
     if last_name == "Fischer" and first_name[0] == "Joschka":
         first_name = ["Joseph"]
@@ -222,7 +223,10 @@ for (
         if len(first_name) > 1:
             possible_matches = politicians.loc[
                 (politicians["last_name"] == last_name)
-                & (politicians["first_name"] == (" ".join([first_name[0], first_name[1]])))
+                & (
+                    politicians["first_name"]
+                    == (" ".join([first_name[0], first_name[1]]))
+                )
                 & (politicians["birth_date"].str.contains(str(birth_date)))
             ]
 
@@ -278,4 +282,7 @@ for (
                 }
                 series = pd.DataFrame(series, index=[politicians.index[-1]])
                 politicians = pd.concat([politicians, series], ignore_index=True)
+
 politicians.to_csv(FACTIONS_PATH / "politicians.csv", index=False)
+print(f"Politicians saved to {FACTIONS_PATH / 'politicians.csv'}")
+print("Script 03_03 done.")

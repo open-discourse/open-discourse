@@ -1,9 +1,11 @@
-from od_lib.helper_functions.extract_contributions import extract
-import od_lib.definitions.path_definitions as path_definitions
-from od_lib.helper_functions.progressbar import progressbar
-import pandas as pd
 import sys
+
+import pandas as pd
 import regex
+from tqdm import tqdm
+
+import od_lib.definitions.path_definitions as path_definitions
+from od_lib.helper_functions.extract_contributions import extract
 
 # input directory
 SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_03
@@ -39,9 +41,9 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
     extended_output.mkdir(parents=True, exist_ok=True)
 
     # iterate over every speech_content file
-    for speech_content_file_path in progressbar(
+    for speech_content_file_path in tqdm(
         folder_path.glob("*.pkl"),
-        f"Extract contributions (term {term_number:>2})...",
+        desc=f"Extract contributions (term {term_number:>2})...",
     ):
         # read the spoken content csv
         speech_content = pd.read_pickle(speech_content_file_path)
@@ -60,7 +62,9 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
 
         extended_list = []
         # iterate over every speech
-        for counter, speech in zip(speech_content.index, speech_content["speech_content"]):
+        for counter, speech in zip(
+            speech_content.index, speech_content["speech_content"]
+        ):
             # call the extract method which returns the cleaned speech and a
             # dataframe with all contributions in that particular speech
 
@@ -82,9 +86,15 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
 
         contributions_extended = pd.concat(extended_list, sort=False)
         # save the contributions_extended to pickle
-        contributions_extended.to_pickle(extended_output / speech_content_file_path.name)
+        contributions_extended.to_pickle(
+            extended_output / speech_content_file_path.name
+        )
         # save the spoken_conten to pickle
         speech_content.to_pickle(speech_output / speech_content_file_path.name)
 
 contributions_simplified = pd.concat(simplified_list, sort=False)
-contributions_simplified.to_pickle(CONTRIBUTIONS_SIMPLIFIED / "contributions_simplified.pkl")
+contributions_simplified.to_pickle(
+    CONTRIBUTIONS_SIMPLIFIED / "contributions_simplified.pkl"
+)
+
+print("Script 06_01 done.")

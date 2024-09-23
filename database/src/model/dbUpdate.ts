@@ -89,7 +89,9 @@ export const importModels = async (pool: Pool): Promise<unknown> => {
 
 const setupDB = async (dbName: DATABASE): Promise<void> => {
   await resetDB(dbName);
+  console.log(`Database ${dbName} successfully reset.`);
   await importModels(pool);
+  console.log(`Models successfully loaded into database ${dbName}.`);
   pool.end();
 };
 

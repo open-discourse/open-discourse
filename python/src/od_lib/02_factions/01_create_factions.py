@@ -1,6 +1,7 @@
-import od_lib.definitions.path_definitions as path_definitions
-import pandas as pd
 import numpy as np
+import pandas as pd
+
+import od_lib.definitions.path_definitions as path_definitions
 
 # input directory
 POLITICIANS_STAGE_01 = path_definitions.POLITICIANS_STAGE_01
@@ -28,3 +29,5 @@ unique_factions = pd.DataFrame(unique_factions, columns=["faction_name"])
 
 save_path_factions = FACTIONS_STAGE_01 / "factions.pkl"
 unique_factions.to_pickle(save_path_factions)
+print(f"Factions saved to {save_path_factions}")
+print("Script 02_01 done.")

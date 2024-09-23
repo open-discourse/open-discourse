@@ -1,6 +1,7 @@
-import od_lib.definitions.path_definitions as path_definitions
-import pandas as pd
 import numpy as np
+import pandas as pd
+
+import od_lib.definitions.path_definitions as path_definitions
 
 # input directory
 FACTIONS_STAGE_01 = path_definitions.FACTIONS_STAGE_01
@@ -59,7 +60,9 @@ abbreviations_dict = {
 }
 
 factions.insert(0, "abbreviation", "")
-factions["abbreviation"] = factions["faction_name"].apply(lambda x: abbreviations_dict[x])
+factions["abbreviation"] = factions["faction_name"].apply(
+    lambda x: abbreviations_dict[x]
+)
 
 unique_abbreviations = np.unique(factions["abbreviation"])
 faction_ids = list(range(len(unique_abbreviations)))
@@ -71,3 +74,5 @@ for abbrev, id in zip(unique_abbreviations, faction_ids):
 
 # save the dataframe
 factions.to_pickle(DATA_FINAL / "factions.pkl")
+print(f"factions.pkl saved in {DATA_FINAL}")
+print("Script 02_02 done.")

@@ -1,8 +1,9 @@
-from bs4 import BeautifulSoup
-import od_lib.definitions.path_definitions as path_definitions
 import pandas as pd
 import regex
 import requests
+from bs4 import BeautifulSoup
+
+import od_lib.definitions.path_definitions as path_definitions
 
 # Output directory
 POLITICIANS_STAGE_01 = path_definitions.POLITICIANS_STAGE_01
@@ -144,3 +145,5 @@ for div in main_section.find_all("div", recursive=False):
 mgs = pd.DataFrame(mgs)
 save_path = POLITICIANS_STAGE_01 / "mgs.pkl"
 mgs.to_pickle(save_path)
+print(f"Government members saved to {save_path}")
+print("Script 03_02 done.")

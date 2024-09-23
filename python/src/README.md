@@ -23,16 +23,16 @@ The Input and Output paths start at the project root
   - Input: `None`
   - Output: `./data/01_raw/xml/*`
 
-### 2. [Download Raw Data ET 19](./od_lib/01_preprocessing/02_download_raw_data_electoral_term_19.py)
+### 2. [Download Raw Data ET 19 & 20](./od_lib/01_preprocessing/02_download_raw_data_electoral_term_19_20.py)
 
 - Function:
 
-  - Downloads XML files for plenary sessions in the 19th electoral period
+  - Downloads XML files for plenary sessions in the 19th and 20th electoral period
   - New sessions have to be added manually
 
 - Attributes:
   - Input: `None`
-  - Output: `./data/02_cached/electoral_term_10/stage_01/*`
+  - Output: `./data/02_cached/electoral_term_19_20/stage_01/*`
 
 ### 3. [Split XML](./od_lib/01_preprocessing/03_split_xml.py)
 
@@ -56,15 +56,15 @@ The Input and Output paths start at the project root
   - Input: `./data/01_raw/xml/*`
   - Output: `./data/01_raw/txt/*`
 
-### 5. [Split XML ET 19](./od_lib/01_preprocessing/05_split_xml_electoral_term_19.py)
+### 5. [Split XML ET 19 & 20](./od_lib/01_preprocessing/05_split_xml_electoral_term_19_20.py)
 
 - Function:
 
   - Splits the XML file into table of content, speech_content and appendix based on the XML tags
 
 - Attributes:
-  - Input: `./data/02_cached/electoral_term_19/stage_01/*`
-  - Output: `./data/02_cached/electoral_term_19/stage_02/*`
+  - Input: `./data/02_cached/electoral_term_19_20/stage_01/*`
+  - Output: `./data/02_cached/electoral_term_19_20/stage_02/*`
 
 ### 6. [Extract MPs from personal details](./od_lib/01_preprocessing/06_extract_mps_from_mp_base_data.py)
 
@@ -151,13 +151,14 @@ The Input and Output paths start at the project root
 
 - Function:
 
-  - Searches for Speaches in the Corpus using Regex Patterns.
+  - Searches for speeches in the Corpus using Regex Patterns.
 
 - Attributes:
   - Input: `./data/01_raw/txt/*`
   - Output: `./data/02_cached/speech_content/stage_01/*`
   - File Format:
     - speech_content:
+
       | session | name_raw | position_raw | constituency | speech_content | span_begin | span_end |
       | --- | --- | --- | --- | --- | --- | --- |
       | 18245 | Peter Schmidt | CDU/CSU | | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
@@ -178,6 +179,7 @@ The Input and Output paths start at the project root
   - Output: `./data/02_cached/speech_content/stage_02/*`
   - File Format:
     - speech_content:
+
       | session | position_short | position_long | last_name | first_name | acad_title | faction_id | constituency | speech_content | span_begin | span_end |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
       | 18245 | Member of Parliament | | Schmidt | ['Peter'] | [] | 4 | | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
@@ -196,14 +198,15 @@ The Input and Output paths start at the project root
   - Output: `./data/02_cached/speech_content/stage_03/*`
   - File Format:
     - speech_content:
+
       | session | position_short | position_long | politician_id | last_name | first_name | acad_title | faction_id | constituency | speech_content | span_begin | span_end |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
       | 18245 | Member of Parliament | | 1109312 | Schmidt | ['Peter'] | [] | 4 | | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
-      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
 ## Election Period 19
 
-### 1. [Extract Speeches and Contributions Period 19](./od_lib/05_electoral_term_19/01_extract_speeches_and_contributions_electoral_term_19.py)
+### 1. [Extract Speeches and Contributions Period 19 & 20](./od_lib/05_electoral_term_19_20/01_extract_speeches_and_contributions_electoral_term_19_20.py)
 
 - Function:
 
@@ -214,18 +217,21 @@ The Input and Output paths start at the project root
 
 - Attributes:
 
-  - Input: `./data/02_cached/electoral_term_19/stage_02/*`
+  - Input: `./data/02_cached/electoral_term_19_20/stage_02/*`
   - Output:
-    - `./data/02_cached/electoral_term_19/stage_03/speech_content/speech_content.pkl`
+    - `./data/02_cached/electoral_term_19_20/stage_03/electorial_term_(19|20)/speech_content/speech_content.pkl`
     - `./data/02_cached/contributions_extended/stage_01/*`
     - `./data/03_final/contributions_simplified.pkl`
   - File Format:
     - speech_content:
+
       | id | session | position_short | position_long | politician_id | last_name | first_name | faction_id | speech_content | date |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
       | 1052836 | 18245 | Member of Parliament | | 1109312 | Schmidt | ['Peter'] | 4 | Sehr geehrter ({0})... | 1.608163e+09 |
       | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+
     - contributions_extended:
+
       | id |  type | name | faction | constituency | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- |
       | 0 | Beifall | | SPD | | | 0 |
@@ -251,11 +257,14 @@ The Input and Output paths start at the project root
     - `./data/03_final/contributions_simplified.pkl`
   - File Format:
     - speech_content:
+
       | speech_id | session | position_short | position_long | politician_id | last_name | first_name | acad_title | faction_id | constituency | speech_content | span_begin | span_end |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
       | 1052836 | 18245 | Member of Parliament | | 1109312 | Schmidt | ['Peter'] | | 4 | | Sehr geehrter ({0})... | 0.0 | 255.0 |
       | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+
     - contributions_extended:
+
       | id |  type | name_raw | faction | constituency | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- |
       | 0 | Beifall | | SPD | | | 0 |
@@ -276,6 +285,7 @@ The Input and Output paths start at the project root
   - Output: `./data/02_cached/contributions_extended/stage_02/*`
   - File Format:
     - contributions_extended:
+
       | id | type | name_raw | faction_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
       | 0 | Beifall | | 23 | SPD | | [] | [] | | | 0 |
@@ -295,6 +305,7 @@ The Input and Output paths start at the project root
   - Output: `./data/02_cached/contributions_extended/stage_02/*`
   - File Format:
     - contributions_extended:
+
       | id | type | name_raw | faction_id | politician_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
       | 0 | Beifall | | 23 | -1 | SPD | | [] | [] | | | 0 |
@@ -324,11 +335,14 @@ The Input and Output paths start at the project root
   - File Format:
 
     - speech_content:
+
       | id | electoral_term | session | position_short | position_long | politician_id | last_name | first_name | faction_id | speech_content | document_url | date |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
       | 1052836 | 18 | 245 | Member of Parliament | | 1109312 | Schmidt | Peter | 4 | Sehr geehrter ({0})... | <https://dip21.bundestag.de/dip21/btp/18/18245.pdf> | 1.608163e+09 |
       | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+
     - contributions_extended:
+
       | id | type | faction_id | speech_id | politician_id | last_name | first_name | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- |
       | 0 | Beifall | 23 | 1052836 | -1 | | | | 0 |

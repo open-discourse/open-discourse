@@ -1,12 +1,13 @@
-from od_lib.helper_functions.extract_contributions import extract
-import od_lib.definitions.path_definitions as path_definitions
-from od_lib.helper_functions.progressbar import progressbar
-import pandas as pd
-import numpy as np
-import xml.etree.ElementTree as et
-import regex
 import datetime
+import xml.etree.ElementTree as et
 
+import numpy as np
+import pandas as pd
+import regex
+from tqdm import tqdm
+
+import od_lib.definitions.path_definitions as path_definitions
+from od_lib.helper_functions.extract_contributions import extract
 
 # input directory
 ELECTORAL_TERM_19_20_INPUT = path_definitions.ELECTORAL_TERM_19_20_STAGE_02
@@ -109,9 +110,11 @@ def get_first_last(name):
         last_name = "ERROR"
     return " ".join(first_name), last_name
 
+
 def find_with_default(node, key, default):
     result = node.find(key)
     return default if result is None else result.text
+
 
 def get_faction_abbrev(faction, faction_patterns):
     """matches the given faction and returns an id"""
@@ -145,7 +148,9 @@ politicians = pd.read_csv(politicians / "politicians.csv")
 politicians["last_name"] = politicians["last_name"].str.lower()
 politicians["last_name"] = politicians["last_name"].str.replace("ß", "ss", regex=False)
 politicians["first_name"] = politicians["first_name"].str.lower()
-politicians["first_name"] = politicians["first_name"].str.replace("ß", "ss", regex=False)
+politicians["first_name"] = politicians["first_name"].str.replace(
+    "ß", "ss", regex=False
+)
 politicians["first_name"] = politicians["first_name"].apply(str.split)
 
 for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
@@ -158,7 +163,9 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
     term_number = int(term_number.group(0))
 
     contributions_extended_output = CONTRIBUTIONS_EXTENDED / folder_path.stem
-    term_spoken_content = ELECTORAL_TERM_19_20_OUTPUT / folder_path.stem / "speech_content"
+    term_spoken_content = (
+        ELECTORAL_TERM_19_20_OUTPUT / folder_path.stem / "speech_content"
+    )
     contributions_simplified_output = CONTRIBUTIONS_SIMPLIFIED / folder_path.stem
 
     contributions_extended_output.mkdir(parents=True, exist_ok=True)
@@ -173,9 +180,9 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
         politicians["electoral_term"] == term_number
     ]
 
-    for session_path in progressbar(
+    for session_path in tqdm(
         folder_path.iterdir(),
-        f"Extract speeches (term {term_number:>2})...",
+        desc=f"Extract speeches (term {term_number:>2})...",
     ):
         if not session_path.is_dir():
             continue
@@ -237,7 +244,9 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
                     # in factions df share same faction_id, so always the first
                     # one is chosen right now.
                     faction_id = int(
-                        factions.loc[factions["abbreviation"] == faction_abbrev, "id"].iloc[0]
+                        factions.loc[
+                            factions["abbreviation"] == faction_abbrev, "id"
+                        ].iloc[0]
                     )
 
                 speech_text = ""
@@ -343,7 +352,9 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
                             # in factions df share same faction_id, so always the first
                             # one is chosen right now.
                             faction_id = int(
-                                factions.loc[factions["abbreviation"] == faction_abbrev, "id"].iloc[0]
+                                factions.loc[
+                                    factions["abbreviation"] == faction_abbrev, "id"
+                                ].iloc[0]
                             )
                     elif tag == "p":
                         try:
@@ -396,3 +407,5 @@ for folder_path in sorted(ELECTORAL_TERM_19_20_INPUT.iterdir()):
     contributions_simplified.to_pickle(
         contributions_simplified_output / "contributions_simplified.pkl"
     )
+
+print("Script 05_01 done.")
