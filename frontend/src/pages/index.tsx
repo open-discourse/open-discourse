@@ -2,8 +2,8 @@ import { BaseTemplate } from "../templates/base-template";
 import { Flex } from "@chakra-ui/react";
 import { SearchForm } from "../components/search-form";
 import { SearchResult } from "../components/search-result";
-import { DefaultContainer } from "@bit/limebit.limebit-ui.default-container";
 import React from "react";
+import DefaultContainer from "../components/default-components/default-container";
 
 export interface QueryParams {
   first?: number;

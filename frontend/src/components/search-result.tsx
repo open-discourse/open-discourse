@@ -1,10 +1,10 @@
-import { LoadingSpinner } from "@bit/limebit.chakra-ui-recipes.loading-spinner";
-import { ErrorToast } from "@bit/limebit.chakra-ui-recipes.error-toast";
 import React from "react";
 import { useManageData } from "./hooks/use-manage-data";
 import { ResultTable } from "./result-table";
 import { ResultMobile } from "./result-mobile";
 import { useBreakpointValue } from "@chakra-ui/react";
+import LoadingSpinner from "./loading-spinner";
+import { ErrorToast } from "./error-toast";
 
 export const SearchResult = (): React.ReactElement | null => {
   const { data, loading, error } = useManageData();

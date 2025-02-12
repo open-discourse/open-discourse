@@ -12,14 +12,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@bit/limebit.chakra-ui-recipes.error-toast": "^0.0.2",
-    "@bit/limebit.chakra-ui-recipes.loading-spinner": "^0.0.2",
-    "@bit/limebit.chakra-ui-recipes.react-table": "^0.0.5",
-    "@bit/limebit.chakra-ui-recipes.select-input": "^0.0.7",
-    "@bit/limebit.limebit-ui.default-button": "^0.0.3",
-    "@bit/limebit.limebit-ui.default-container": "^0.0.1",
-    "@bit/limebit.limebit-ui.default-text": "^0.0.3",
-    "@bit/limebit.limebit-ui.next-chakra-link": "^0.0.3",
+    "@apollo/react-common": "3.1.3",
     "@chakra-ui/icons": "1.0.1",
     "@chakra-ui/react": "1.0.3",
     "@emotion/react": "11.0.0",
@@ -28,13 +21,18 @@
     "next": "^12.1.0",
     "query-string": "6.13.1",
     "react": "17.0.1",
-    "react-dom": "17.0.1"
+    "react-dom": "17.0.1",
+    "react-feather": "2.0.8",
+    "react-responsive": "8.1.0",
+    "react-table": "7.2.2"
   },
   "devDependencies": {
     "@eslint/compat": "^1.1.1",
     "@eslint/js": "^9.7.0",
     "@types/node": "^20",
     "@types/react": "16.9.56",
+    "@types/react-responsive": "8.0.2",
+    "@types/react-table": "7.0.19",
     "eslint": "9.x",
     "eslint-plugin-react": "^7.34.4",
     "globals": "^15.8.0",

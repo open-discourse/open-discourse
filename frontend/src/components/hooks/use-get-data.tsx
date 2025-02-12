@@ -12,6 +12,8 @@ export const useGetData = <T,>(
         process.env.NEXT_PUBLIC_PROXY_ENDPOINT ||
         (await fetch("/proxy-host").then((r) => r.text()));
 
+      console.log("baseUrl", baseUrl);
+
       const searchResult = await fetch(baseUrl + "/" + path, {
         mode: "cors",
       }).then((response) => response.json());

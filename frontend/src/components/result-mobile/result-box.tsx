@@ -6,8 +6,8 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import React from "react";
-import { DefaultText } from "@bit/limebit.limebit-ui.default-text";
 import { SpeechModal } from "../speech-modal";
+import DefaultText from "../default-components/default-text";
 
 interface ResultBoxProps {
   data: SearchResultRow;

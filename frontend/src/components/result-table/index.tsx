@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Link, Text, useDisclosure, Checkbox, Flex } from "@chakra-ui/react";
-import { ReactTable } from "@bit/limebit.chakra-ui-recipes.react-table";
 import React, { useReducer } from "react";
 import { SearchResultRow } from "../hooks/use-manage-data";
 import { DownloadButton } from "./download-button";
 import { positions } from "../search-form";
 import { SpeechModal } from "../speech-modal";
-import { NextChakraLink } from "@bit/limebit.limebit-ui.next-chakra-link";
+import NextChakraLink from "../next-chakra-link";
+import { ReactTable } from "../react-table";
 
 interface ResultTableProps {
   data: SearchResultRow[];
@@ -136,6 +137,7 @@ export const ResultTable = ({ data }: ResultTableProps) => {
           };
         })}
         pageSize={10}
+        // @ts-ignore
         colors={{ evenColor: "gray.200", tableHeadColor: "gray.200" }}
       />
       <Flex justifyContent="space-between">

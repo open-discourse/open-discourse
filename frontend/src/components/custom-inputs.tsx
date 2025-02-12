@@ -7,10 +7,7 @@ import {
 import React from "react";
 import { CalendarIcon } from "@chakra-ui/icons";
 import { ChangeEvent } from "react";
-import {
-  DataProps,
-  SelectInput,
-} from "@bit/limebit.chakra-ui-recipes.select-input";
+import SelectInput, { DataProps } from "./select-input";
 
 export interface FormParams {
   contentQuery?: string | null;

@@ -8,8 +8,8 @@ import {
   FormParams,
   DefaultSelectInput,
 } from "./custom-inputs";
-import { DefaultButton } from "@bit/limebit.limebit-ui.default-button";
 import React from "react";
+import DefaultButton from "./default-components/default-button";
 
 export interface Faction {
   id: string;

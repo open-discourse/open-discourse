@@ -11,9 +11,9 @@ import {
   ModalFooter,
 } from "@chakra-ui/react";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
-import { DefaultText } from "@bit/limebit.limebit-ui.default-text";
 import React from "react";
-import { NextChakraLink } from "@bit/limebit.limebit-ui.next-chakra-link";
+import DefaultText from "./default-components/default-text";
+import NextChakraLink from "./next-chakra-link";
 
 export interface SpeechModalProps {
   isOpen: boolean;
