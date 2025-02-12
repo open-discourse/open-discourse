@@ -1,0 +1,35 @@
+[project]
+name = "open_discourse"
+version = "1.2.2"
+description = "Open Discourse"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "beautifulsoup4>=4.12.3",
+    "dicttoxml>=1.7.16",
+    "levenshtein>=0.25.1",
+    "numpy>=2.0.0",
+    "pandas>=2.2.2",
+    "psycopg2>=2.9.9",
+    "regex>=2024.5.15",
+    "requests>=2.32.3",
+    "sqlalchemy>=2.0.31",
+]
+
+[project.optional-dependencies]
+dev = ["ruff>=0.5.2"]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["open_discourse*"]
+
+[tool.setuptools.package-data]
+open_discourse = ["*"]
+
+[tool.ruff]
+exclude = ["__pycache__", ".git", ".github", ".ruff_cache", ".venv"]
+line-length = 88
