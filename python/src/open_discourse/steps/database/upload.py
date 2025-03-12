@@ -4,25 +4,25 @@ import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine
 
-import open_discourse.definitions.path_definitions as path_definitions
+from open_discourse.definitions import path
 
 engine = create_engine("postgresql://postgres:postgres@localhost:5432/next")
 
 # Load Final Data
 
-CONTRIBUTIONS_EXTENDED = path_definitions.DATA_FINAL / "contributions_extended.pkl"
-SPOKEN_CONTENT = path_definitions.DATA_FINAL / "speech_content.pkl"
-FACTIONS = path_definitions.DATA_FINAL / "factions.pkl"
-PEOPLE = path_definitions.DATA_FINAL / "politicians.csv"
+CONTRIBUTIONS_EXTENDED = path.DATA_FINAL / "contributions_extended.pkl"
+SPOKEN_CONTENT = path.DATA_FINAL / "speech_content.pkl"
+FACTIONS = path.DATA_FINAL / "factions.pkl"
+PEOPLE = path.DATA_FINAL / "politicians.csv"
 CONTRIBUTIONS_SIMPLIFIED = (
-    path_definitions.CONTRIBUTIONS_SIMPLIFIED / "contributions_simplified.pkl"
+    path.CONTRIBUTIONS_SIMPLIFIED / "contributions_simplified.pkl"
 )
 CONTRIBUTIONS_SIMPLIFIED_WP20 = (
-    path_definitions.CONTRIBUTIONS_SIMPLIFIED
+    path.CONTRIBUTIONS_SIMPLIFIED
     / "electoral_term_pp20"
     / "contributions_simplified.pkl"
 )
-ELECTORAL_TERMS = path_definitions.ELECTORAL_TERMS / "electoral_terms.csv"
+ELECTORAL_TERMS = path.ELECTORAL_TERMS / "electoral_terms.csv"
 
 # Load data
 electoral_terms = pd.read_csv(ELECTORAL_TERMS)

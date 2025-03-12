@@ -41,7 +41,9 @@ politicians["first_name"] = politicians["first_name"].str.lower()
 politicians["last_name"] = politicians["last_name"].str.lower()
 politicians["constituency"] = politicians["constituency"].str.lower()
 
-politicians["first_name"] = politicians["first_name"].str.replace("ß", "ss", regex=False)
+politicians["first_name"] = politicians["first_name"].str.replace(
+    "ß", "ss", regex=False
+)
 politicians["last_name"] = politicians["last_name"].str.replace("ß", "ss", regex=False)
 
 politicians["first_name"] = politicians["first_name"].apply(str.split)
@@ -62,7 +64,9 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
     save_path.mkdir(parents=True, exist_ok=True)
 
     # Only select politicians of the election period.
-    politicians_electoral_term = politicians.loc[politicians["electoral_term"] == term_number]
+    politicians_electoral_term = politicians.loc[
+        politicians["electoral_term"] == term_number
+    ]
     mgs_electoral_term = politicians_electoral_term.loc[
         politicians_electoral_term["institution_type"] == "Regierungsmitglied"
     ]
@@ -81,5 +85,7 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
 
         speech_content_matched.to_pickle(save_path / speech_content_file.name)
 
-assert len(list(SPEECH_CONTENT_INPUT.glob("*_pp*"))) == len(list(SPEECH_CONTENT_OUTPUT.glob("*_pp*")))
+assert len(list(SPEECH_CONTENT_INPUT.glob("*_pp*"))) == len(
+    list(SPEECH_CONTENT_OUTPUT.glob("*_pp*"))
+)
 print("Script 05_03 done.")

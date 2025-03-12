@@ -28,10 +28,14 @@ for folder_path in sorted(RAW_XML.iterdir()):
         continue
 
     if not (3 <= term_number <= 19):
-        print(f"Term number {term_number} is not in range [3, 19]. Skipping for this script")
+        print(
+            f"Term number {term_number} is not in range [3, 19]. Skipping for this script"
+        )
         continue
 
-    begin_pattern_electoral_term = regex.compile(r"Beginn?:?\s?(\d){1,2}(\s?[.,]\s?(\d){1,2})?\s?Uhr")
+    begin_pattern_electoral_term = regex.compile(
+        r"Beginn?:?\s?(\d){1,2}(\s?[.,]\s?(\d){1,2})?\s?Uhr"
+    )
     appendix_pattern_electoral_term = regex.compile(
         r"\(Schlu(ß|ss)\s?:?(.*?)\d{1,2}\D+(\d{1,2})?(.*?)\)?|\(Ende der Sitzung: \d{1,2}\D+(\d{1,2}) Uhr\.?\)"
     )
@@ -40,7 +44,9 @@ for folder_path in sorted(RAW_XML.iterdir()):
         if str(term_number) not in sys.argv:
             continue
 
-    for xml_file_path in tqdm(list(folder_path.iterdir()), desc=f"Parsing term {term_number:>2}..."):
+    for xml_file_path in tqdm(
+        list(folder_path.iterdir()), desc=f"Parsing term {term_number:>2}..."
+    ):
         if xml_file_path.suffix == ".xml":
             tree = et.parse(xml_file_path)
 
@@ -55,7 +61,9 @@ for folder_path in sorted(RAW_XML.iterdir()):
             # like a duplicated text corpus or two sessions in one file.
             if meta_data["document_number"] == "03/16":
                 begin_pattern = begin_pattern_electoral_term
-                appendix_pattern = regex.compile(r"\(Schluß der Sitzung: 16\.58 Uhr\.\)")
+                appendix_pattern = regex.compile(
+                    r"\(Schluß der Sitzung: 16\.58 Uhr\.\)"
+                )
             elif meta_data["document_number"] == "04/69":
                 begin_pattern = regex.compile(r"Beginn: 9\.01")
                 appendix_pattern = appendix_pattern_electoral_term
@@ -64,7 +72,9 @@ for folder_path in sorted(RAW_XML.iterdir()):
                 appendix_pattern = appendix_pattern_electoral_term
             elif meta_data["document_number"] == "04/196":
                 begin_pattern = begin_pattern_electoral_term
-                appendix_pattern = regex.compile(r"Beifall.*?Schluß der Sitzung: 14\.54 Uhr\.\)")
+                appendix_pattern = regex.compile(
+                    r"Beifall.*?Schluß der Sitzung: 14\.54 Uhr\.\)"
+                )
             elif meta_data["document_number"] == "05/76":
                 begin_pattern = regex.compile(r"\(Beginn: 14\.32 Uhr\)")
                 appendix_pattern = appendix_pattern_electoral_term
@@ -73,10 +83,14 @@ for folder_path in sorted(RAW_XML.iterdir()):
                 appendix_pattern = appendix_pattern_electoral_term
             elif meta_data["document_number"] == "05/235":
                 begin_pattern = begin_pattern_electoral_term
-                appendix_pattern = regex.compile(r"\(Schluß der Sitzung: 16\.09 Uhr\.\)")
+                appendix_pattern = regex.compile(
+                    r"\(Schluß der Sitzung: 16\.09 Uhr\.\)"
+                )
             elif meta_data["document_number"] == "07/145":
                 # In this file the whole text is duplicated.
-                find_bundestag = list(regex.finditer("Deutscher Bundestag\n", text_corpus))
+                find_bundestag = list(
+                    regex.finditer("Deutscher Bundestag\n", text_corpus)
+                )
                 text_corpus = text_corpus[: find_bundestag[1].span()[0]]
             elif meta_data["document_number"] == "07/243":
                 begin_pattern = regex.compile(r"Beginn: 9\.00 Uhr(?=\nPräsident)")
@@ -131,7 +145,9 @@ for folder_path in sorted(RAW_XML.iterdir()):
                 # In these documents there are two sessions right after each
                 # other, and the following document is identical.
                 find_second = regex.search(
-                    "(?<=\n)" + str(int(meta_data["document_number"][3:]) + 1) + r"\. Sitzung(?=\nBonn)",
+                    "(?<=\n)"
+                    + str(int(meta_data["document_number"][3:]) + 1)
+                    + r"\. Sitzung(?=\nBonn)",
                     text_corpus,
                 )
                 text_corpus = text_corpus[: find_second.span()[0]]
@@ -144,7 +160,9 @@ for folder_path in sorted(RAW_XML.iterdir()):
                 "05/233",
             ]:
                 find_second = regex.search(
-                    "(?<=\n)" + meta_data["document_number"][3:] + r"\. Sitzung(?=\nBonn)",
+                    "(?<=\n)"
+                    + meta_data["document_number"][3:]
+                    + r"\. Sitzung(?=\nBonn)",
                     text_corpus,
                 )
                 text_corpus = text_corpus[find_second.span()[0] :]

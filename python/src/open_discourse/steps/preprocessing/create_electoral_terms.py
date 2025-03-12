@@ -39,7 +39,8 @@ def string_to_seconds(date_string, ref_date=datetime(year=1970, month=1, day=1))
 
 # convert dates to total seconds and add 1-based id to each term
 electoral_terms = [
-    {key: string_to_seconds(date_string) for key, date_string in term.items()} | {"id": idx + 1}
+    {key: string_to_seconds(date_string) for key, date_string in term.items()}
+    | {"id": idx + 1}
     for idx, term in enumerate(electoral_terms)
 ]
 

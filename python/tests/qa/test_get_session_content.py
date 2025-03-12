@@ -2,11 +2,11 @@ import xml.etree.ElementTree as et
 
 import pytest
 
-from open_discourse.definitions.path_definitions import RAW_XML
-from open_discourse.helper_functions.clean_text import clean
-from open_discourse.helper_functions.parser import get_session_content
+from open_discourse.definitions import path
+from open_discourse.helper.clean_text import clean
+from open_discourse.helper.parser import get_session_content
 
-DATA_FOLDER = RAW_XML
+DATA_FOLDER = path.RAW_XML
 
 
 def xml_files():

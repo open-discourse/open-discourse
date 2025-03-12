@@ -1,6 +1,6 @@
 import pytest
 
-from open_discourse.helper_functions.parser import get_session_content
+from open_discourse.helper.parser import get_session_content
 
 
 @pytest.mark.parametrize(

@@ -6,19 +6,17 @@ import xml.etree.ElementTree as et
 import pandas as pd
 import regex
 
-import open_discourse.definitions.path_definitions as path_definitions
+from open_discourse.definitions import path
 
 # input directory
-RAW_XML = path_definitions.RAW_XML
-SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_04
-SPEECH_CONTENT_INPUT_PP_20 = (
-    path_definitions.DATA_CACHE / "electoral_term_pp20" / "stage_03"
-)
-CONTRIBUTIONS_EXTENDED_INPUT = path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_03
+RAW_XML = path.RAW_XML
+SPEECH_CONTENT_INPUT = path.SPEECH_CONTENT_STAGE_04
+SPEECH_CONTENT_INPUT_PP_20 = path.DATA_CACHE / "electoral_term_pp20" / "stage_03"
+CONTRIBUTIONS_EXTENDED_INPUT = path.CONTRIBUTIONS_EXTENDED_STAGE_03
 
 # output directory
-SPEECH_CONTENT_OUTPUT = path_definitions.FINAL
-CONTRIBUTIONS_EXTENDED_OUTPUT = path_definitions.FINAL
+SPEECH_CONTENT_OUTPUT = path.FINAL
+CONTRIBUTIONS_EXTENDED_OUTPUT = path.FINAL
 
 SPEECH_CONTENT_OUTPUT.mkdir(parents=True, exist_ok=True)
 CONTRIBUTIONS_EXTENDED_OUTPUT.mkdir(parents=True, exist_ok=True)

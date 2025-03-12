@@ -113,13 +113,17 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
         # names.
         # Question: Is any other character deleted, which could be in a name?
         # Answer: I don't think so.
-        contributions_extended["name_raw"] = contributions_extended["name_raw"].astype(str)
-        contributions_extended["name_raw"] = contributions_extended["name_raw"].str.replace(
-            r"[^a-zA-ZÖÄÜäöüß\-]", " ", regex=True
+        contributions_extended["name_raw"] = contributions_extended["name_raw"].astype(
+            str
         )
+        contributions_extended["name_raw"] = contributions_extended[
+            "name_raw"
+        ].str.replace(r"[^a-zA-ZÖÄÜäöüß\-]", " ", regex=True)
 
         # Replace more than two whitespaces with one.
-        contributions_extended["name_raw"] = contributions_extended["name_raw"].str.replace(r"  +", " ", regex=True)
+        contributions_extended["name_raw"] = contributions_extended[
+            "name_raw"
+        ].str.replace(r"  +", " ", regex=True)
 
         # Graf has to be checked again, as this is also a last_name.
         # Titles have to be added: Like e.c. or when mistakes occur like b.c.
@@ -146,7 +150,8 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
 
         # Extract acad_title, if it is in the titles list.
         contributions_extended["acad_title"] = [
-            [acad_title for acad_title in title_list if acad_title in titles] for title_list in first_last_titles
+            [acad_title for acad_title in title_list if acad_title in titles]
+            for title_list in first_last_titles
         ]
 
         # Remove titles from the first_last_name list.
@@ -170,15 +175,21 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
 
         # look for parties in the faction column and replace them with a
         # standardized faction name
-        for index, faction in zip(contributions_extended.index, contributions_extended["faction"]):
+        for index, faction in zip(
+            contributions_extended.index, contributions_extended["faction"]
+        ):
             if faction:
-                faction_abbrev = get_faction_abbrev(str(faction), faction_patterns=faction_patterns)
+                faction_abbrev = get_faction_abbrev(
+                    str(faction), faction_patterns=faction_patterns
+                )
 
                 if faction_abbrev:
                     contributions_extended.at[index, "faction"] = faction_abbrev
                     try:
                         contributions_extended.at[index, "faction_id"] = int(
-                            factions.loc[factions["abbreviation"] == faction_abbrev, "id"].iloc[0]
+                            factions.loc[
+                                factions["abbreviation"] == faction_abbrev, "id"
+                            ].iloc[0]
                         )
                     except IndexError:
                         contributions_extended.at[index, "faction_id"] = -1
@@ -186,5 +197,7 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
         contributions_extended.drop(columns=["name_raw"])
         contributions_extended.to_pickle(save_path / contrib_ext_file_path.name)
 
-assert len(list(CONTRIBUTIONS_EXTENDED_INPUT.glob("*_pp*"))) == len(list(CONTRIBUTIONS_EXTENDED_OUTPUT.glob("*_pp*")))
+assert len(list(CONTRIBUTIONS_EXTENDED_INPUT.glob("*_pp*"))) == len(
+    list(CONTRIBUTIONS_EXTENDED_OUTPUT.glob("*_pp*"))
+)
 print("Script 07_02 done.")

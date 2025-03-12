@@ -3,7 +3,7 @@ from pathlib import Path
 import pyparsing as pp
 import pytest
 
-from open_discourse.helper_functions.utils import get_term_from_path
+from open_discourse.helper.utils import get_term_from_path
 
 term_number_parser = pp.Literal("electoral_term") + "_" + pp.Word(pp.nums, exact=2)
 

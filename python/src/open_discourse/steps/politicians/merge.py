@@ -173,14 +173,18 @@ for (
     faction_abbrev = get_faction_abbrev(faction, faction_patterns)
 
     if faction_abbrev:
-        faction_match = int(factions.loc[factions["abbreviation"] == faction_abbrev, "id"].iloc[0])
+        faction_match = int(
+            factions.loc[factions["abbreviation"] == faction_abbrev, "id"].iloc[0]
+        )
     else:
         faction_match = -1
 
     first_name = [regex.sub("-", " ", name) for name in first_name]
 
     electoral_term_to_be_changed = -1
-    electoral_terms = get_electoral_term(from_year=int(position_from), to_year=int(position_until))
+    electoral_terms = get_electoral_term(
+        from_year=int(position_from), to_year=int(position_until)
+    )
     possible_matches = politicians.loc[
         (politicians["last_name"] == last_name)
         & (politicians["first_name"].str.contains(first_name[0]))
@@ -219,11 +223,16 @@ for (
         if len(first_name) > 1:
             possible_matches = politicians.loc[
                 (politicians["last_name"] == last_name)
-                & (politicians["first_name"] == (" ".join([first_name[0], first_name[1]])))
+                & (
+                    politicians["first_name"]
+                    == (" ".join([first_name[0], first_name[1]]))
+                )
                 & (politicians["birth_date"].str.contains(str(birth_date)))
             ]
 
-            possible_matches = possible_matches.drop_duplicates(subset="ui", keep="first")
+            possible_matches = possible_matches.drop_duplicates(
+                subset="ui", keep="first"
+            )
 
         if len(possible_matches) == 1:
             for electoral_term in electoral_terms:

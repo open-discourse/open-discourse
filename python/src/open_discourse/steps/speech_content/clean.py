@@ -59,7 +59,9 @@ def get_faction_abbrev(faction, faction_patterns: dict[str, regex.Pattern]):
 
 def get_position_short_and_long(position):
     """matches the given position and returns the long and short version"""
-    if position in faction_patterns.keys() or regex.match(r"^[Bb]erichterstatter(in)?(\s|$|,|.)", position):
+    if position in faction_patterns.keys() or regex.match(
+        r"^[Bb]erichterstatter(in)?(\s|$|,|.)", position
+    ):
         return (
             "Member of Parliament",
             None if position in faction_patterns.keys() else position,
@@ -154,10 +156,14 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
         # names.
         # Question: Is any other character deleted, which could be in a name?
         # Answer: I don't think so.
-        speech_content["name_raw"] = speech_content["name_raw"].str.replace(r"[^a-zA-ZÖÄÜäöüß\-]", " ", regex=True)
+        speech_content["name_raw"] = speech_content["name_raw"].str.replace(
+            r"[^a-zA-ZÖÄÜäöüß\-]", " ", regex=True
+        )
 
         # Replace more than two whitespaces with one.
-        speech_content["name_raw"] = speech_content["name_raw"].str.replace(r"  +", " ", regex=True)
+        speech_content["name_raw"] = speech_content["name_raw"].str.replace(
+            r"  +", " ", regex=True
+        )
 
         # Graf has to be checked again, as this is also a last_name.
         # Titles have to be added: Like e.c. or when mistakes occur like b.c.
@@ -184,7 +190,8 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
 
         # Extract acad_title, if it is in the titles list.
         speech_content["acad_title"] = [
-            [acad_title for acad_title in title_list if acad_title in titles] for title_list in first_last_titles
+            [acad_title for acad_title in title_list if acad_title in titles]
+            for title_list in first_last_titles
         ]
 
         # Remove titles from the first_last_name list.
@@ -212,11 +219,17 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
             (
                 speech_content.at[index, "position_short"],
                 speech_content.at[index, "position_long"],
-            ) = get_position_short_and_long(faction_abbrev if faction_abbrev else regex.sub("\n+", " ", position_raw))
+            ) = get_position_short_and_long(
+                faction_abbrev
+                if faction_abbrev
+                else regex.sub("\n+", " ", position_raw)
+            )
             if faction_abbrev:
                 try:
                     speech_content.at[index, "faction_id"] = int(
-                        factions.loc[factions["abbreviation"] == faction_abbrev, "id"].iloc[0]
+                        factions.loc[
+                            factions["abbreviation"] == faction_abbrev, "id"
+                        ].iloc[0]
                     )
                 except IndexError:
                     speech_content.at[index, "faction_id"] = -1
@@ -224,6 +237,8 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
         speech_content = speech_content.drop(columns=["position_raw", "name_raw"])
         speech_content.to_pickle(save_path / speech_content_file.name)
 
-assert len(list(SPEECH_CONTENT_INPUT.glob("*_pp*"))) == len(list(SPEECH_CONTENT_OUTPUT.glob("*_pp*")))
+assert len(list(SPEECH_CONTENT_INPUT.glob("*_pp*"))) == len(
+    list(SPEECH_CONTENT_OUTPUT.glob("*_pp*"))
+)
 
 print("Script 05_02 done.")

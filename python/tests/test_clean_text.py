@@ -1,6 +1,6 @@
 import pytest
 
-from open_discourse.helper_functions.clean_text import (
+from open_discourse.helper.clean_text import (
     clean,
     remove_newlines_in_brackets,
 )

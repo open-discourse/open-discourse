@@ -76,10 +76,14 @@ def process_period(folder_path: Path):
             return
 
     faction_speaker_pattern = regex.compile(
-        faction_speaker_pattern_str.format(open_brackets, close_brackets, "|".join(parties), prefix)
+        faction_speaker_pattern_str.format(
+            open_brackets, close_brackets, "|".join(parties), prefix
+        )
     )
     president_pattern = regex.compile(president_pattern_str)
-    minister_pattern = regex.compile(minister_pattern_str.format(prefix, open_brackets, close_brackets))
+    minister_pattern = regex.compile(
+        minister_pattern_str.format(prefix, open_brackets, close_brackets)
+    )
 
     patterns = [president_pattern, faction_speaker_pattern, minister_pattern]
 
@@ -89,7 +93,10 @@ def process_period(folder_path: Path):
     # Walk over every session in the period.
     with concurrent.futures.ThreadPoolExecutor() as inner_executor:
         sessions = sorted(folder_path.iterdir())
-        inner_futures = [inner_executor.submit(process_session, session, patterns, save_path) for session in sessions]
+        inner_futures = [
+            inner_executor.submit(process_session, session, patterns, save_path)
+            for session in sessions
+        ]
         for _ in tqdm(
             concurrent.futures.as_completed(inner_futures),
             total=len(inner_futures),
@@ -169,4 +176,6 @@ for folder_path in sorted(RAW_TXT.iterdir()):
     process_period(folder_path)
 
 assert SPEECH_CONTENT_OUTPUT.exists()
-assert len(list(SPEECH_CONTENT_OUTPUT.glob("*_pp*"))) == len(list(RAW_TXT.glob("*_pp*")))
+assert len(list(SPEECH_CONTENT_OUTPUT.glob("*_pp*"))) == len(
+    list(RAW_TXT.glob("*_pp*"))
+)

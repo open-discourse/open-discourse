@@ -6,7 +6,6 @@ import pandas as pd
 import regex
 from tqdm import tqdm
 
-
 from open_discourse.definitions import path
 from open_discourse.helper.extract_contributions import extract
 
@@ -54,7 +53,9 @@ faction_patterns = {
 
 def get_position_short_and_long(position_raw):
     """matches the given position_raw and returns the long and short version"""
-    if position_raw in faction_patterns.keys() or regex.match(r"^[Bb]erichterstatter(in)?(\s|$|,|.)", position_raw):
+    if position_raw in faction_patterns.keys() or regex.match(
+        r"^[Bb]erichterstatter(in)?(\s|$|,|.)", position_raw
+    ):
         return (
             "Member of Parliament",
             None if position_raw in faction_patterns.keys() else position_raw,
@@ -88,7 +89,9 @@ def get_position_short_and_long(position_raw):
         return "Chancellor", None
     elif regex.match(r"^(Bundes)?[Mm]inister(in)?(\s|$|,|.)", position_raw):
         return "Minister", position_raw
-    elif regex.match(r"^([Pp]arl\s*\.\s+)?[Ss]taatssekretär(in)?(\s|$|,|.)", position_raw):
+    elif regex.match(
+        r"^([Pp]arl\s*\.\s+)?[Ss]taatssekretär(in)?(\s|$|,|.)", position_raw
+    ):
         return "Secretary of State", position_raw
     else:
         return "Not found", None
@@ -145,7 +148,9 @@ politicians = pd.read_csv(politicians / "politicians.csv")
 politicians["last_name"] = politicians["last_name"].str.lower()
 politicians["last_name"] = politicians["last_name"].str.replace("ß", "ss", regex=False)
 politicians["first_name"] = politicians["first_name"].str.lower()
-politicians["first_name"] = politicians["first_name"].str.replace("ß", "ss", regex=False)
+politicians["first_name"] = politicians["first_name"].str.replace(
+    "ß", "ss", regex=False
+)
 politicians["first_name"] = politicians["first_name"].apply(str.split)
 
 
@@ -179,7 +184,9 @@ for session_path in tqdm(
     # Wrong date in xml file. Fixing manually
     if session_path.stem == "19158":
         date = "07.05.2020"
-    date = (datetime.datetime.strptime(date, "%d.%m.%Y") - datetime.datetime(1970, 1, 1)).total_seconds()
+    date = (
+        datetime.datetime.strptime(date, "%d.%m.%Y") - datetime.datetime(1970, 1, 1)
+    ).total_seconds()
 
     root = session_content.getroot()
 
@@ -211,16 +218,24 @@ for session_path in tqdm(
             else:
                 position_raw = ""
 
-            faction_abbrev = get_faction_abbrev(str(position_raw), faction_patterns=faction_patterns)
+            faction_abbrev = get_faction_abbrev(
+                str(position_raw), faction_patterns=faction_patterns
+            )
             position_short, position_long = get_position_short_and_long(
-                faction_abbrev if faction_abbrev else regex.sub("\n+", " ", position_raw)
+                faction_abbrev
+                if faction_abbrev
+                else regex.sub("\n+", " ", position_raw)
             )
             faction_id = -1
             if faction_abbrev:
                 # .iloc[0] is important right now, as some faction entries
                 # in factions df share same faction_id, so always the first
                 # one is chosen right now.
-                faction_id = int(factions.loc[factions["abbreviation"] == faction_abbrev, "id"].iloc[0])
+                faction_id = int(
+                    factions.loc[factions["abbreviation"] == faction_abbrev, "id"].iloc[
+                        0
+                    ]
+                )
 
             speech_text = ""
             text_position = 0
@@ -256,7 +271,9 @@ for session_path in tqdm(
                     elif length > 1:
                         first_name_set = set([x.lower() for x in first_name.split()])
                         possible_matches = possible_matches.loc[
-                            ~possible_matches["first_name"].apply(lambda x: set(x).isdisjoint(first_name_set))
+                            ~possible_matches["first_name"].apply(
+                                lambda x: set(x).isdisjoint(first_name_set)
+                            )
                         ]
                         length = len(np.unique(possible_matches["ui"]))
                         if length == 1:
@@ -284,7 +301,9 @@ for session_path in tqdm(
                     text_position = 0
                     speaker = content.find("redner")
                     speaker_id = int(speaker.get("id"))
-                    possible_matches = politicians_electoral_term.loc[politicians_electoral_term["ui"] == speaker_id]
+                    possible_matches = politicians_electoral_term.loc[
+                        politicians_electoral_term["ui"] == speaker_id
+                    ]
                     if len(possible_matches) == 0:
                         speaker_id = -1
                     name = speaker.find("name")
@@ -301,18 +320,26 @@ for session_path in tqdm(
                         position_raw = name.find("fraktion").text
                     except (ValueError, AttributeError):
                         position_raw = name.find("rolle").find("rolle_lang").text
-                    faction_abbrev = get_faction_abbrev(str(position_raw), faction_patterns=faction_patterns)
+                    faction_abbrev = get_faction_abbrev(
+                        str(position_raw), faction_patterns=faction_patterns
+                    )
 
                     faction_id = -1
                     position_short, position_long = get_position_short_and_long(
-                        faction_abbrev if faction_abbrev else regex.sub("\n+", " ", position_raw)
+                        faction_abbrev
+                        if faction_abbrev
+                        else regex.sub("\n+", " ", position_raw)
                     )
                     if faction_abbrev:
                         faction = faction_abbrev
                         # .iloc[0] is important right now, as some faction entries
                         # in factions df share same faction_id, so always the first
                         # one is chosen right now.
-                        faction_id = int(factions.loc[factions["abbreviation"] == faction_abbrev, "id"].iloc[0])
+                        faction_id = int(
+                            factions.loc[
+                                factions["abbreviation"] == faction_abbrev, "id"
+                            ].iloc[0]
+                        )
                 elif tag == "p":
                     try:
                         speech_text += "\n\n" + content.text
@@ -352,11 +379,15 @@ for session_path in tqdm(
             speech_content_id += 1
 
     contributions_extended = pd.concat(contributions_extended, sort=False)
-    contributions_extended.to_pickle(contributions_extended_output / (session_path.stem + ".pkl"))
+    contributions_extended.to_pickle(
+        contributions_extended_output / (session_path.stem + ".pkl")
+    )
 
 speech_content = pd.DataFrame.from_records(speech_records)
 
 speech_content.to_pickle(term_spoken_content / "speech_content.pkl")
 
 contributions_simplified = pd.concat(contributions_simplified, sort=False)
-contributions_simplified.to_pickle(contributions_simplified_output / "contributions_simplified.pkl")
+contributions_simplified.to_pickle(
+    contributions_simplified_output / "contributions_simplified.pkl"
+)
