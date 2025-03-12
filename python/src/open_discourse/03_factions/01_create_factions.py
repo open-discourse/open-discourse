@@ -72,8 +72,17 @@ def main() -> None:
     try:
         mps = pd.read_pickle(mps_path)
         logger.info(f"Loaded 'mps.pkl' from {mps_path}")
+    except FileNotFoundError as e:
+        logger.error(f"File not found at {mps_path}: {e}")
+        return
+    except (pd.errors.EmptyDataError, pd.errors.ParserError) as e:
+        logger.error(f"Data parsing error for {mps_path}: {e}")
+        return
+    except PermissionError as e:
+        logger.error(f"Permission denied accessing {mps_path}: {e}")
+        return
     except Exception as e:
-        logger.error(f"Failed to load {mps_path}: {e}")
+        logger.error(f"Unexpected error loading {mps_path}: {e}")
         return
 
     # Extract the unique names of factions/groups from the politicians' data via extract_unique_factions()
@@ -92,8 +101,14 @@ def main() -> None:
     try:
         unique_factions_df.to_pickle(output_file)
         logger.info(f"Unique factions saved to {output_file}")
+    except PermissionError as e:
+        logger.error(f"Permission denied when saving to {output_file}: {e}")
+        return
+    except OSError as e:
+        logger.error(f"OS error when saving to {output_file}: {e}")
+        return
     except Exception as e:
-        logger.error(f"Failed to save {output_file}: {e}")
+        logger.error(f"Unexpected error saving to {output_file}: {e}")
         return
 
     logger.info("Script completed: 03_01_process_factions.py done.")

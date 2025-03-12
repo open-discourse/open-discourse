@@ -107,8 +107,17 @@ def main() -> None:
     try:
         factions = pd.read_pickle(input_file)
         logger.info(f"Loaded factions data from {input_file}")
+    except FileNotFoundError as e:
+        logger.error(f"File not found at {input_file}: {e}")
+        return
+    except (pd.errors.EmptyDataError, pd.errors.ParserError) as e:
+        logger.error(f"Data parsing error for {input_file}: {e}")
+        return
+    except PermissionError as e:
+        logger.error(f"Permission denied accessing {input_file}: {e}")
+        return
     except Exception as e:
-        logger.error(f"Failed to load {input_file}: {e}")
+        logger.error(f"Unexpected error loading {input_file}: {e}")
         return
     
     # Process the data: add abbreviations and IDs
@@ -120,8 +129,17 @@ def main() -> None:
         final_factions = assign_ids_to_factions(factions_with_abbrevs)
         
         logger.info("Successfully processed factions data")
+    except TypeError as e:
+        logger.error(f"Type error during faction processing: {e}")
+        return
+    except ValueError as e:
+        logger.error(f"Value error during faction processing: {e}")
+        return
+    except KeyError as e:
+        logger.error(f"Key error during faction processing (missing column?): {e}")
+        return
     except Exception as e:
-        logger.error(f"Error processing factions data: {e}")
+        logger.error(f"Unexpected error processing factions data: {e}")
         return
     
     # Save the processed data
@@ -129,8 +147,14 @@ def main() -> None:
     try:
         final_factions.to_pickle(output_file)
         logger.info(f"Saved processed factions data to {output_file}")
+    except PermissionError as e:
+        logger.error(f"Permission denied when saving to {output_file}: {e}")
+        return
+    except OSError as e:
+        logger.error(f"OS error when saving to {output_file}: {e}")
+        return
     except Exception as e:
-        logger.error(f"Failed to save data to {output_file}: {e}")
+        logger.error(f"Unexpected error saving to {output_file}: {e}")
         return
     
     logger.info("Script completed: 03_02_add_abbreviations_and_ids.py done.")
