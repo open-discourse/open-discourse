@@ -37,7 +37,11 @@ def extract_unique_factions(mps: pd.DataFrame) -> pd.DataFrame:
 
     Returns:
         pd.DataFrame: A DataFrame with a single column "faction_name" that contains the unique faction names
-        extracted from the input DataFrame, including the additional factions.
+            extracted from the input DataFrame, including the additional factions. The DataFrame will have
+            the shape (n, 1) where n is the number of unique factions plus additional predefined factions.
+
+    Raises:
+        ValueError: If the input DataFrame is missing required columns ('institution_type' or 'institution_name').
     """
     # Cut dataframe down to two columns
     required_cols = {"institution_type", "institution_name"}
@@ -62,6 +66,14 @@ def main() -> None:
     """
     Main function that loads the mps DataFrame, extracts unique factions,
     and saves them to 'factions.pkl' in the designated output directory.
+    
+    This function orchestrates the following steps:
+    1. Loads politicians data from the POLITICIANS_STAGE_01 directory
+    2. Extracts unique faction names using extract_unique_factions()
+    3. Saves the resulting DataFrame to the FACTIONS_STAGE_01 directory
+    
+    Returns:
+        None: This function doesn't return any values but exits early on errors
     """
     # Define input/output paths
     POLITICIANS_STAGE_01 = path_definitions.POLITICIANS_STAGE_01

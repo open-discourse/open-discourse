@@ -29,10 +29,11 @@ def _get_abbreviation(faction_name: str) -> str:
     Get the standardized abbreviation for a faction name.
     
     Args:
-        faction_name (str): The full faction name to look up
+        faction_name (str): The full faction name to look up in the FACTION_ABBREVIATIONS dictionary
         
     Returns:
-        str: The abbreviation if found in mapping, otherwise the original faction name
+        str: The standardized abbreviation if the faction name is found in FACTION_ABBREVIATIONS,
+             otherwise returns the original faction_name as a fallback
     """
     if faction_name in FACTION_ABBREVIATIONS:
         return FACTION_ABBREVIATIONS[faction_name]
@@ -48,7 +49,12 @@ def add_abbreviations_to_factions(factions_df: pd.DataFrame) -> pd.DataFrame:
         factions_df (pd.DataFrame): DataFrame containing faction names in the 'faction_name' column
         
     Returns:
-        pd.DataFrame: DataFrame with an additional 'abbreviation' column
+        pd.DataFrame: DataFrame with an additional 'abbreviation' column at index 0. The original
+                      data is preserved, and for faction names without a standard abbreviation, 
+                      the original faction name is used as the abbreviation.
+    
+    Raises:
+        KeyError: If 'faction_name' column is missing from the input DataFrame
     """
     logger.info("Adding abbreviations to factions")
     
@@ -84,10 +90,13 @@ def assign_ids_to_factions(factions_df: pd.DataFrame) -> pd.DataFrame:
     Assigns unique IDs to factions based on their abbreviations.
     
     Args:
-        factions_df (pd.DataFrame): DataFrame containing faction abbreviations
+        factions_df (pd.DataFrame): DataFrame containing faction abbreviations in the 'abbreviation' column
         
     Returns:
-        pd.DataFrame: DataFrame with an additional 'id' column at the beginning
+        pd.DataFrame: DataFrame with an additional 'id' column at index 0
+    
+    Raises:
+        KeyError: If 'abbreviation' column is missing from the input DataFrame
     """
     logger.info("Assigning IDs to factions based on abbreviations")
     
@@ -112,6 +121,9 @@ def main() -> None:
     """
     Main function that loads factions data, adds abbreviations and IDs,
     and saves the result to the final directory.
+    
+    Returns:
+        None: This function doesn't return any values but exits early on errors
     """
     # Define input/output paths
     FACTIONS_STAGE_01 = path_definitions.FACTIONS_STAGE_01
