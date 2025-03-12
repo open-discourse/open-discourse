@@ -1,5 +1,16 @@
-#!/usr/bin/env python
-import os
+"""
+Script to extract and create a basic factions dataset from politicians' data.
+
+This script is part of the Open Discourse pipeline and performs the following tasks:
+1. Loads politicians' data from a pickle file
+2. Extracts unique faction names where institution_type is "Fraktion/Gruppe"
+3. Adds additional predefined factions from constants
+4. Saves the resulting factions DataFrame to a pickle file
+
+The output of this script serves as input for the subsequent faction processing step 
+(02_add_abbreviations_and_ids.py) which adds abbreviations and unique IDs.
+"""
+
 import numpy as np
 import pandas as pd
 

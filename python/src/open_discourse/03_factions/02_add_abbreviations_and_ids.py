@@ -1,7 +1,19 @@
 #!/usr/bin/env python
+"""
+Script to enhance the faction dataset with abbreviations and unique IDs.
+
+This script is part of the Open Discourse pipeline and performs the following tasks:
+1. Loads the basic factions data created by 01_create_factions.py
+2. Adds standardized abbreviations to each faction using predefined mappings
+3. Assigns unique numerical IDs to each faction based on their abbreviations
+4. Saves the fully processed factions data to the final data directory
+
+The resulting dataset is used throughout the Open Discourse project to standardize
+faction references and provide consistent identifiers for parliamentary groups.
+"""
+
 import numpy as np
 import pandas as pd
-import warnings
 
 # Project-specific imports
 import open_discourse.definitions.path_definitions as path_definitions
