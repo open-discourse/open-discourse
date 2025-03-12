@@ -23,6 +23,22 @@ from open_discourse.helper_functions.logging_config import configure_logger
 # Configure a logger for this script
 logger = configure_logger("process_factions")
 
+def _get_abbreviation(faction_name: str) -> str:
+    """
+    Get the standardized abbreviation for a faction name.
+    
+    Args:
+        faction_name (str): The full faction name to look up
+        
+    Returns:
+        str: The abbreviation if found in mapping, otherwise the original faction name
+    """
+    if faction_name in FACTION_ABBREVIATIONS:
+        return FACTION_ABBREVIATIONS[faction_name]
+    else:
+        # Return the faction name itself as a fallback
+        return faction_name
+
 def add_abbreviations_to_factions(factions_df: pd.DataFrame) -> pd.DataFrame:
     """
     Adds abbreviations to faction names based on predefined mapping.
@@ -41,19 +57,18 @@ def add_abbreviations_to_factions(factions_df: pd.DataFrame) -> pd.DataFrame:
     # Insert new column at the beginning
     result_df.insert(0, "abbreviation", "")
     
-    # Use a more lenient approach to handle missing faction names
+    # Track missing factions
     missing_factions = []
     
-    def get_abbreviation(faction_name):
-        if faction_name in FACTION_ABBREVIATIONS:
-            return FACTION_ABBREVIATIONS[faction_name]
-        else:
+    # Helper function to track missing factions while getting abbreviation
+    def track_and_get_abbreviation(faction_name):
+        abbreviation = _get_abbreviation(faction_name)
+        if abbreviation == faction_name and faction_name not in FACTION_ABBREVIATIONS:
             missing_factions.append(faction_name)
-            # Return the faction name itself as a fallback
-            return faction_name
+        return abbreviation
     
     # Apply the function to each faction name
-    result_df["abbreviation"] = result_df["faction_name"].apply(get_abbreviation)
+    result_df["abbreviation"] = result_df["faction_name"].apply(track_and_get_abbreviation)
     
     # Log any missing factions as warnings
     if missing_factions:
