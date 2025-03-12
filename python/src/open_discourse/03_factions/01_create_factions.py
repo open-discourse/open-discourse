@@ -18,6 +18,7 @@ import pandas as pd
 import open_discourse.definitions.path_definitions as path_definitions
 from open_discourse.helper_functions.logging_config import configure_logger
 from open_discourse.helper_functions.constants import ADDITIONAL_FACTIONS
+from open_discourse.helper_functions.io_utils import load_pickle, save_pickle
 
 # Configure a logger for this script
 logger = configure_logger("process_factions")
@@ -69,21 +70,9 @@ def main() -> None:
 
     # Load the politicians' data from a pickle file for further processing
     mps_path = POLITICIANS_STAGE_01 / "mps.pkl"
-    try:
-        mps = pd.read_pickle(mps_path)
-        logger.info(f"Loaded 'mps.pkl' from {mps_path}")
-    except FileNotFoundError as e:
-        logger.error(f"File not found at {mps_path}: {e}")
-        return
-    except (pd.errors.EmptyDataError, pd.errors.ParserError) as e:
-        logger.error(f"Data parsing error for {mps_path}: {e}")
-        return
-    except PermissionError as e:
-        logger.error(f"Permission denied accessing {mps_path}: {e}")
-        return
-    except Exception as e:
-        logger.error(f"Unexpected error loading {mps_path}: {e}")
-        return
+    mps = load_pickle(mps_path, logger)
+    if mps is None:
+        return  # Early return if loading failed
 
     # Extract the unique names of factions/groups from the politicians' data via extract_unique_factions()
     try:
@@ -96,20 +85,10 @@ def main() -> None:
         logger.error(f"Unexpected error during faction extraction: {e}")
         return
 
-    # Save the unique factions factions DataFrame, final log after success
+    # Save the unique factions DataFrame, final log after success
     output_file = FACTIONS_STAGE_01 / "factions.pkl"
-    try:
-        unique_factions_df.to_pickle(output_file)
-        logger.info(f"Unique factions saved to {output_file}")
-    except PermissionError as e:
-        logger.error(f"Permission denied when saving to {output_file}: {e}")
-        return
-    except OSError as e:
-        logger.error(f"OS error when saving to {output_file}: {e}")
-        return
-    except Exception as e:
-        logger.error(f"Unexpected error saving to {output_file}: {e}")
-        return
+    if not save_pickle(unique_factions_df, output_file, logger):
+        return  # Early return if saving failed
 
     logger.info("Script completed: 03_01_process_factions.py done.")
 
