@@ -1,0 +1,23 @@
+name: Lint Frontend Pull Request
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+  workflow_dispatch:
+
+jobs:
+  lint-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Lint frontend package
+        working-directory: frontend
+        run: yarn && yarn run lint

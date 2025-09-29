@@ -1,0 +1,23 @@
+name: Format Database Pull Request
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'database/**'
+  workflow_dispatch:
+
+jobs:
+  format-database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Format database package
+        working-directory: database
+        run: yarn && yarn run prettier . --check

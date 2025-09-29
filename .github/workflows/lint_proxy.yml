@@ -1,0 +1,23 @@
+name: Lint Proxy Pull Request
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'proxy/**'
+  workflow_dispatch:
+
+jobs:
+  lint-proxy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Lint proxy package
+        working-directory: proxy
+        run: yarn && yarn run lint

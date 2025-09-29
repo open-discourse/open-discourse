@@ -50,11 +50,11 @@ Open Discourse is a non-profit project of the employees of Limebit GmbH. The ide
 
 We hope that through our preliminary work, data-based journalism, science and civil society will benefit and that the facilitated access to data will encourage to analyze the political history of the Bundestag based on the language used by politicians.
 
-We are happy for every financial support via: https://www.patreon.com/opendiscourse/ or https://github.com/sponsors/open-discourse
+We are happy for every financial support via: <https://www.patreon.com/opendiscourse/> or <https://github.com/sponsors/open-discourse>
 
 ## Repository Structure
 
-This Repo is structured in three different parts.
+This Repo is structured in four different parts:
 
 - [database](./database):
   - Docker-Container for the Postgres Database

@@ -1,0 +1,50 @@
+[project]
+name = "open_discourse"
+version = "1.2.2"
+description = "Open Discourse"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "beautifulsoup4>=4.13.3",
+    "dicttoxml>=1.7.16",
+    "levenshtein>=0.27.1",
+    "numpy>=2.0.0",
+    "pandas>=2.2.2",
+    "regex>=2024.5.15",
+    "requests>=2.32.3",
+    "sqlalchemy>=2.0.39",
+    "tqdm>=4.62.3",
+    "pyparsing>=3.2.1",
+    "pydantic>=2.10.6",
+    "psycopg2-binary>=2.9.10",
+    "doit[doit-graph]>=0.36.0",
+    "pendulum>=3.1.0",
+]
+
+[project.optional-dependencies]
+doit-graph = ["doit>=0.36.0"]
+
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["open_discourse*"]
+
+[tool.setuptools.package-data]
+open_discourse = ["*"]
+
+[tool.ruff]
+exclude = ["__pycache__", ".git", ".github", ".ruff_cache", ".venv", "dodo.py"]
+line-length = 88
+
+[tool.uv]
+dev-dependencies = [
+    "pre-commit>=4.0.1",
+    "pytest>=8.3.4",
+    "pytest-cov>=6.0.0",
+    "pytest-mock>=3.14.0",
+    "ruff>=0.8.4",
+]

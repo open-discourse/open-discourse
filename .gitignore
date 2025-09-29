@@ -8,3 +8,7 @@ node_modules
 out
 .DS_Store
 *.egg-info
+.vscode/
+!python/src/open_discourse/steps/data
+vendor/
+!vendor/FreeFileSync.md
