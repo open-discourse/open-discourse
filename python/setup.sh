@@ -6,7 +6,11 @@ then
     python_exe=python3
 fi
 $python_exe -m venv .venv
-. .venv/bin/activate
+if [ -f .venv/bin/activate ]; then
+    . .venv/bin/activate
+else
+    . .venv/Scripts/activate
+fi
 export LDFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib"
 pip install --upgrade pip
 pip install -r requirements.txt

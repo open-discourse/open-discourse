@@ -3,6 +3,7 @@ import fs from "fs";
 import { Client, Pool } from "pg";
 
 const isTestMode = process.env.NODE_ENV === "test";
+const FORCE = process.argv.includes("--force");
 
 export enum DATABASE {
   root = "postgres",
@@ -87,7 +88,31 @@ export const importModels = async (pool: Pool): Promise<unknown> => {
   });
 };
 
+const databaseExists = async (dbName: DATABASE): Promise<boolean> => {
+  const client = new Client({
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: DATABASE.root,
+    password: process.env.DB_PASSWORD,
+    port: Number(process.env.DB_PORT) || 5432,
+  });
+  await client.connect();
+  const res = await client.query(
+    "SELECT 1 FROM pg_database WHERE datname = $1",
+    [dbName],
+  );
+  await client.end();
+  return (res.rowCount ?? 0) > 0;
+};
+
 const setupDB = async (dbName: DATABASE): Promise<void> => {
+  if (!FORCE && (await databaseExists(dbName))) {
+    console.log(
+      `>> database "${dbName}" already exists — skipping rebuild to avoid data loss. Pass --force to drop and rebuild (this deletes all data).`,
+    );
+    pool.end();
+    return;
+  }
   await resetDB(dbName);
   await importModels(pool);
   pool.end();
