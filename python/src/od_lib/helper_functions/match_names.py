@@ -31,12 +31,12 @@ def set_id(df, index, possible_matches, col_set, col_check):
     "col_check" in possible_matches. Expects a unique col_check value in
     possible_matches.
     """
-    df[col_set].at[index] = int(possible_matches[col_check].iloc[0])
+    df.loc[index, col_set] = int(possible_matches[col_check].iloc[0])
 
 
 def set_value(df, index, col, value):
     """Sets the value of col in df based on given value."""
-    df[col].at[index] = value
+    df.loc[index, col] = value
 
 
 def check_last_name(df, index, possible_matches, last_name):
@@ -522,7 +522,7 @@ def insert_politician_id_into_contributions_extended(
             )
             if found:
                 if check_unique(possible_matches, col="faction_id"):
-                    df["faction_id"].at[index] = int(possible_matches["faction_id"].iloc[0])
+                    df.loc[index, "faction_id"] = int(possible_matches["faction_id"].iloc[0])
                     continue
                 else:
                     continue

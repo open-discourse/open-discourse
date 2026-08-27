@@ -10,7 +10,8 @@ def progressbar(it, prefix="", bar_size=40, end_print="\n"):
         bar = (u'█'*int(x))+(u' ▏▎▍▌▋▊█'[int(8*x)%8])+(' '*(bar_size-int(x)-1))
         bar = bar if j < count else bar[:-1]
         t_curr, t_total = timeToStr(t), timeToStr(count*t/j)
-        print(f"{prefix} {prec:>3}%|{bar}| {j:>{len(str(count))}}/{count} [{t_curr}<{t_total}]", end='\r', flush=True)
+        # Trailing "\x1b[K" clears any leftover characters
+        print(f"{prefix} {prec:>3}%|{bar}| {j:>{len(str(count))}}/{count} [{t_curr}<{t_total}]\x1b[K", end='\r', flush=True)
     show(0.1)
     for i, item in enumerate(it):
         yield item

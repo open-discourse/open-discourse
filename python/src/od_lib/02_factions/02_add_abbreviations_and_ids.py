@@ -30,6 +30,7 @@ abbreviations_dict = {
     "Fraktion Deutsche Zentrums-Partei": "Z",
     "Fraktion Deutscher Gemeinschaftsblock der Heimatvertriebenen und Entrechteten": "BHE",
     "Fraktion Die Grünen": "Bündnis 90/Die Grünen",
+    "Fraktion Die Linke": "DIE LINKE.",
     "Fraktion Die Grünen/Bündnis 90": "Bündnis 90/Die Grünen",
     "Fraktion BÜNDNIS 90/DIE GRÜNEN": "Bündnis 90/Die Grünen",
     "Fraktion Freie Volkspartei": "FVP",

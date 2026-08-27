@@ -2,15 +2,13 @@ import od_lib.definitions.path_definitions as path_definitions
 import xml.etree.ElementTree as et
 import pandas as pd
 import regex
-import time
 import datetime
 import sys
 
 # input directory
 RAW_XML = path_definitions.RAW_XML
 SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_04
-SPEECH_CONTENT_INPUT_2 = path_definitions.ELECTORAL_TERM_19_20_STAGE_03 / "electoral_term_19"
-SPEECH_CONTENT_INPUT_3 = path_definitions.ELECTORAL_TERM_19_20_STAGE_03 / "electoral_term_20"
+SPEECH_CONTENT_INPUT_19_20_PLUS = path_definitions.ELECTORAL_TERM_19_20_STAGE_03
 CONTRIBUTIONS_EXTENDED_INPUT = path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_03
 
 # output directory
@@ -86,11 +84,10 @@ for folder_path in sorted(RAW_XML.iterdir()):
         # meta_data["document_number"].append(tree.find("NR").text)
         # meta_data["date"].append(tree.find("DATUM").text)
         # document_number = tree.find("NR").text
-        date = time.mktime(
-            datetime.datetime.strptime(
-                tree.find("DATUM").text, "%d.%m.%Y"
-            ).timetuple()
-        )
+        date = (
+            datetime.datetime.strptime(tree.find("DATUM").text, "%d.%m.%Y")
+            - datetime.datetime(1970, 1, 1)
+        ).total_seconds()
         document_number = xml_plenar_file_path.stem
         document_number = int(document_number)
         meta_data[document_number] = date
@@ -118,80 +115,56 @@ speech_content_01_18["electoral_term"] = speech_content_01_18["electoral_term"].
     "int32"
 )
 
-speech_content_19 = pd.read_pickle(
-    SPEECH_CONTENT_INPUT_2 / "speech_content" / "speech_content.pkl"
-)
-speech_content_20 = pd.read_pickle(
-    SPEECH_CONTENT_INPUT_3 / "speech_content" / "speech_content.pkl"
-)
+# Walk over all electoral terms handled via the separate scraping route
+# (currently 19+, whichever term folders exist under stage_03).
+speech_content_19_20_plus = []
+for folder_path in sorted(SPEECH_CONTENT_INPUT_19_20_PLUS.iterdir()):
+    if not folder_path.is_dir():
+        continue
 
-speech_content_19 = speech_content_19.loc[
-    :,
-    [
-        "id",
-        "session",
-        "first_name",
-        "last_name",
-        "faction_id",
-        "position_short",
-        "position_long",
-        "politician_id",
-        "speech_content",
-        "date",
-    ],
-]
-speech_content_20 = speech_content_20.loc[
-    :,
-    [
-        "id",
-        "session",
-        "first_name",
-        "last_name",
-        "faction_id",
-        "position_short",
-        "position_long",
-        "politician_id",
-        "speech_content",
-        "date",
-    ],
-]
+    speech_content_term = pd.read_pickle(
+        folder_path / "speech_content" / "speech_content.pkl"
+    )
 
+    speech_content_term = speech_content_term.loc[
+        :,
+        [
+            "id",
+            "session",
+            "first_name",
+            "last_name",
+            "faction_id",
+            "position_short",
+            "position_long",
+            "politician_id",
+            "speech_content",
+            "date",
+        ],
+    ]
 
-speech_content_19.insert(1, "electoral_term", -1)
-speech_content_20.insert(1, "electoral_term", -1)
+    speech_content_term.insert(1, "electoral_term", -1)
+    speech_content_term["electoral_term"] = speech_content_term["session"].apply(
+        lambda x: str(x)[:2]
+    )
+    speech_content_term["session"] = speech_content_term["session"].apply(
+        lambda x: str(x)[-3:]
+    )
 
-speech_content_19["electoral_term"] = speech_content_19["session"].apply(
-    lambda x: str(x)[:2]
-)
-speech_content_20["electoral_term"] = speech_content_20["session"].apply(
-    lambda x: str(x)[:2]
-)
-speech_content_19["session"] = speech_content_19["session"].apply(lambda x: str(x)[-3:])
-speech_content_20["session"] = speech_content_20["session"].apply(lambda x: str(x)[-3:])
+    speech_content_term["document_url"] = speech_content_term.apply(
+        lambda row: "https://dip21.bundestag.de/dip21/btp/{0}/{0}{1}.pdf".format(
+            row["electoral_term"], row["session"]
+        ),
+        axis=1,
+    )
 
-speech_content_19["document_url"] = speech_content_19.apply(
-    lambda row: "https://dip21.bundestag.de/dip21/btp/{0}/{0}{1}.pdf".format(
-        row["electoral_term"], row["session"]
-    ),
-    axis=1,
-)
-speech_content_20["document_url"] = speech_content_20.apply(
-    lambda row: "https://dip21.bundestag.de/dip21/btp/{0}/{0}{1}.pdf".format(
-        row["electoral_term"], row["session"]
-    ),
-    axis=1,
-)
+    speech_content_term["electoral_term"] = speech_content_term["electoral_term"].astype(
+        "int32"
+    )
+    speech_content_term["session"] = speech_content_term["session"].astype("int32")
 
-speech_content_19["electoral_term"] = speech_content_19["electoral_term"].astype(
-    "int32"
-)
-speech_content_20["electoral_term"] = speech_content_20["electoral_term"].astype(
-    "int32"
-)
-speech_content_19["session"] = speech_content_19["session"].astype("int32")
-speech_content_20["session"] = speech_content_20["session"].astype("int32")
+    speech_content_19_20_plus.append(speech_content_term)
 
-speech_content = pd.concat([speech_content_01_18, speech_content_19, speech_content_20])
+speech_content = pd.concat([speech_content_01_18, *speech_content_19_20_plus])
 
 # save data.
 

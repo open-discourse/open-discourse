@@ -76,7 +76,7 @@ Required software:
 [python3](https://www.python.org/downloads/),
 [yarn](https://yarnpkg.com/),
 [docker-compose](https://docs.docker.com/compose/),
-[node version 12](https://nodejs.org/dist/latest-v12.x/docs/api/) - ideally installed via node version manager (nvm)
+[node version 20](https://nodejs.org/dist/latest-v20.x/docs/api/) - ideally installed via node version manager (nvm)
 
 - run `yarn` in following directories:
   - `database`
@@ -104,7 +104,12 @@ For the initial start of the Database, you will also need to upload the schema.
 ```Shell
 // run from database folder
 yarn run db:update:local
+// if fail and node --version is 24.x.x try - no critical dependencies
+yarn --ignore-engines install
+yarn --ignore-engines run db:update:local
 ```
+
+If `next` already exists, this is a no-op (to avoid wiping data). To actually drop and rebuild it from scratch, add `--force`. `python/build.sh` writes a gzipped restore point to `database/dumps/` after every successful data upload, so a `--force` rebuild isn't a total loss.
 
 ### Generate Data
 

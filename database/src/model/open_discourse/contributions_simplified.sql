@@ -8,4 +8,7 @@ CREATE TABLE open_discourse.contributions_simplified
 	CONSTRAINT contributions_simplified_fk FOREIGN KEY (speech_id) REFERENCES open_discourse.speeches(id)
 );
 
+-- FK index, see contributions_extended.sql.
+CREATE INDEX contributions_simplified_speech_id_idx ON open_discourse.contributions_simplified(speech_id);
+
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE open_discourse.contributions_simplified TO visitor;

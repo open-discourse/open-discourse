@@ -27,9 +27,12 @@ electoral_terms = [
     { "start_date": "2013-10-22", "end_date": "2017-10-23" },
     { "start_date": "2017-10-24", "end_date": "2021-10-26" },
     { "start_date": "2021-10-27", "end_date": "2025-10-29" },
+    { "start_date": "2025-03-25", "end_date": None },
 ]
 
 def string_to_seconds(date_string, ref_date = datetime(year=1970, month=1, day=1)):
+    if date_string is None:
+        return None
     date = datetime.strptime(date_string, "%Y-%m-%d")
     return (date - ref_date).total_seconds()
 

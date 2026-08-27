@@ -1,3 +1,4 @@
 data
+dumps
 node_modules
 .env.digitalocean
