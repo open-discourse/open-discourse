@@ -146,6 +146,12 @@ pipeline *ARGS:
 pipeline-term TERM:
     cd python && sh build.sh --term {{TERM}}
 
+# Tail the top-level pipeline log written by build.sh. Ctrl+C to stop
+# (does not affect the running build). Pass LINES to change the backlog,
+# e.g. `just watch 200`.
+watch LINES="40":
+    tail -n {{LINES}} -F python/logs/build_run.log
+
 # Upload already-processed final data (python/data/03_final/*) for one or more
 # terms straight into the DB, skipping the pipeline entirely - fast path for
 # "the DB is empty/partial but the final pickles from a previous run are still there".
